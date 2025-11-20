@@ -1,0 +1,91 @@
+{
+    "rules": {
+        "2f3d1eaa-4568-4852-a409-c2c6dc7df207": {
+            "name": "base/src/LGAPDB02.cbl:WS-FIRE-FACTOR",
+            "rule": {
+                "type": "regex",
+                "regex": "(?<!-)\\bWS-FIRE-FACTOR\\b(?!-)",
+                "includeFiles": [
+                    "base/src/LGAPDB02.cbl"
+                ],
+                "ignoreCase": false
+            },
+            "actions": {
+                "ide": {
+                    "message": "The variable WS-FIRE-FACTOR in base/src/LGAPDB02.cbl had an initial value of 0.80.\n It is equal to 0.80.\n"
+                }
+            }
+        },
+        "cbb994a4-a7dc-4600-90f2-9ca520492436": {
+            "name": "base/src/LGAPDB02.cbl:WS-CRIME-FACTOR",
+            "rule": {
+                "type": "regex",
+                "regex": "(?<!-)\\bWS-CRIME-FACTOR\\b(?!-)",
+                "includeFiles": [
+                    "base/src/LGAPDB02.cbl"
+                ],
+                "ignoreCase": false
+            },
+            "actions": {
+                "ide": {
+                    "message": "The variable WS-CRIME-FACTOR in base/src/LGAPDB02.cbl had an initial value of 0.60.\n It is equal to 0.60.\n"
+                }
+            }
+        },
+        "1fb6d137-c1f8-4493-9159-8fea3ba7f07f": {
+            "name": "base/src/LGAPDB02.cbl:WS-FLOOD-FACTOR",
+            "rule": {
+                "type": "regex",
+                "regex": "(?<!-)\\bWS-FLOOD-FACTOR\\b(?!-)",
+                "includeFiles": [
+                    "base/src/LGAPDB02.cbl"
+                ],
+                "ignoreCase": false
+            },
+            "actions": {
+                "ide": {
+                    "message": "The variable WS-FLOOD-FACTOR in base/src/LGAPDB02.cbl is equal to 1.20.\n"
+                }
+            }
+        },
+        "d5ba9376-22b2-441b-8b95-ea6c6c929890": {
+            "name": "base/src/LGAPDB02.cbl:WS-WEATHER-FACTOR",
+            "rule": {
+                "type": "regex",
+                "regex": "(?<!-)\\bWS-WEATHER-FACTOR\\b(?!-)",
+                "includeFiles": [
+                    "base/src/LGAPDB02.cbl"
+                ],
+                "ignoreCase": false
+            },
+            "actions": {
+                "ide": {
+                    "message": "The variable WS-WEATHER-FACTOR in base/src/LGAPDB02.cbl is equal to 0.90.\n"
+                }
+            }
+        },
+        "cada107a-e984-47da-b6ea-815af0e513b0": {
+            "name": "base/src/LGAPDB02.cbl:WS-COVERAGE-500K",
+            "rule": {
+                "type": "regex",
+                "regex": "(?<!-)\\bWS-COVERAGE-500K\\b(?!-)",
+                "includeFiles": [
+                    "base/src/LGAPDB02.cbl"
+                ],
+                "ignoreCase": false
+            },
+            "actions": {
+                "ide": {
+                    "message": "The variable WS-COVERAGE-500K in base/src/LGAPDB02.cbl is equal to 500000.00.\n"
+                }
+            }
+        }
+    },
+    "view_order": [
+        "2f3d1eaa-4568-4852-a409-c2c6dc7df207",
+        "cbb994a4-a7dc-4600-90f2-9ca520492436",
+        "1fb6d137-c1f8-4493-9159-8fea3ba7f07f",
+        "d5ba9376-22b2-441b-8b95-ea6c6c929890",
+        "cada107a-e984-47da-b6ea-815af0e513b0"
+    ]
+}
