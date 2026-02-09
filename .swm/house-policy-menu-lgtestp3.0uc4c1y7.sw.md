@@ -3,21 +3,26 @@ title: House Policy Menu (LGTESTP3)
 ---
 # Overview
 
-This document describes the flow for managing house insurance policies through a menu-driven interface. Users can inquire about, add, delete, or update house policies, with each action routed to the appropriate backend process and feedback provided to the user.
+This document describes the flow for managing house insurance policies through a menu-driven interface. Users can inquire about, add, delete, or update house policy records. Each menu action triggers the appropriate business process and provides clear feedback to the user.
 
 ```mermaid
 flowchart TD
-    node1["Starting the House Policy Menu Flow"]:::HeadingStyle
-    click node1 goToHeading "Starting the House Policy Menu Flow"
-    node1 --> node2{"Which menu option did the user select?"}
-    node2 -->|"Inquiry"| node3["Processing Policy Inquiry Request"]:::HeadingStyle
-    click node3 goToHeading "Processing Policy Inquiry Request"
-    node2 -->|"Add"| node4["Validating and Processing Policy Add Request"]:::HeadingStyle
-    click node4 goToHeading "Validating and Processing Policy Add Request"
-    node2 -->|"Delete"| node5["Validating and Routing Policy Deletion Requests"]:::HeadingStyle
-    click node5 goToHeading "Validating and Routing Policy Deletion Requests"
-    node2 -->|"Update"| node6["Validating and Routing Policy Update Requests"]:::HeadingStyle
-    click node6 goToHeading "Validating and Routing Policy Update Requests"
+    node1["Entry and Menu Routing"]:::HeadingStyle
+    click node1 goToHeading "Entry and Menu Routing"
+    node1 --> node2["User Input Handling and Action Dispatch"]:::HeadingStyle
+    click node2 goToHeading "User Input Handling and Action Dispatch"
+    node2 -->|"Inquiry"| node3["Policy Inquiry Validation and Routing"]:::HeadingStyle
+    click node3 goToHeading "Policy Inquiry Validation and Routing"
+    node3 --> node1
+    node2 -->|"Add"| node4["Handling Add Policy Errors and Success in the Menu Flow"]:::HeadingStyle
+    click node4 goToHeading "Handling Add Policy Errors and Success in the Menu Flow"
+    node4 --> node1
+    node2 -->|"Delete"| node5["Handling Delete Results in the Menu"]:::HeadingStyle
+    click node5 goToHeading "Handling Delete Results in the Menu"
+    node5 --> node1
+    node2 -->|"Update"| node6["Handling Update Results and Routing Errors"]:::HeadingStyle
+    click node6 goToHeading "Handling Update Results and Routing Errors"
+    node6 --> node1
 classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
 ```
 
@@ -52,234 +57,431 @@ classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
 - LGAPACT (<SwmPath>[base/src/LGAPACT.cpy](base/src/LGAPACT.cpy)</SwmPath>)
 - SSMAP
 
+## Input and Output Tables/Files used
+
+### <SwmToken path="base/src/LGAPDB01.cbl" pos="276:4:4" line-data="           CALL &#39;LGAPDB03&#39; USING WS-BASE-RISK-SCR, IN-FIRE-PERIL, ">`LGAPDB03`</SwmToken> (<SwmPath>[base/src/LGAPDB03.cbl](base/src/LGAPDB03.cbl)</SwmPath>)
+
+| Table / File Name | Type                                                                                                                    | Description                                          | Usage Mode | Key Fields / Layout Highlights      |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- | ---------- | ----------------------------------- |
+| RISK_FACTORS      | <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> | Peril risk adjustment values for premium calculation | Input      | `WS-FIRE-FACTOR`, `WS-CRIME-FACTOR` |
+
+### <SwmToken path="base/src/LGAPDB01.cbl" pos="269:4:4" line-data="           CALL &#39;LGAPDB02&#39; USING IN-PROPERTY-TYPE, IN-POSTCODE, ">`LGAPDB02`</SwmToken> (<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>)
+
+| Table / File Name | Type                                                                                                                    | Description                                                 | Usage Mode | Key Fields / Layout Highlights      |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- | ---------- | ----------------------------------- |
+| RISK_FACTORS      | <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> | Peril-specific risk adjustment values for insurance scoring | Input      | `WS-FIRE-FACTOR`, `WS-CRIME-FACTOR` |
+
+### <SwmToken path="base/src/lgipol01.cbl" pos="91:9:9" line-data="           EXEC CICS LINK Program(LGIPDB01)">`LGIPDB01`</SwmToken> (<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>)
+
+| Table / File Name | Type                                                                                                                    | Description                                                        | Usage Mode | Key Fields / Layout Highlights                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| POLICY            | <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> | Insurance policy master data: type, number, dates, broker, payment | Input      | <SwmToken path="base/src/lgipdb01.cbl" pos="92:1:1" line-data="                   CustomerNumber,">`CustomerNumber`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="93:3:3" line-data="                   Policy.PolicyNumber,">`PolicyNumber`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="94:1:1" line-data="                   RequestDate,">`RequestDate`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="95:1:1" line-data="                   StartDate,">`StartDate`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="96:1:1" line-data="                   RenewalDate,">`RenewalDate`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="97:1:1" line-data="                   Address,">`Address`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="98:1:1" line-data="                   Zipcode,">`Zipcode`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="99:1:1" line-data="                   LatitudeN,">`LatitudeN`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="100:1:1" line-data="                   LongitudeW,">`LongitudeW`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="270:4:4" line-data="               Move &#39;Customer does not exist&#39;          To  ERP1FLDO">`Customer`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="102:1:1" line-data="                   PropertyType,">`PropertyType`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="103:1:1" line-data="                   FirePeril,">`FirePeril`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="104:1:1" line-data="                   FirePremium,">`FirePremium`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="105:1:1" line-data="                   CrimePeril,">`CrimePeril`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="106:1:1" line-data="                   CrimePremium,">`CrimePremium`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="107:1:1" line-data="                   FloodPeril,">`FloodPeril`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="108:1:1" line-data="                   FloodPremium,">`FloodPremium`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="109:1:1" line-data="                   WeatherPeril,">`WeatherPeril`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="110:1:1" line-data="                   WeatherPremium,">`WeatherPremium`</SwmToken>, <SwmToken path="base/src/lgupvs01.cbl" pos="110:7:7" line-data="               Move CA-B-Status    To WF-B-Status">`Status`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="112:1:1" line-data="                   RejectionReason">`RejectionReason`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="331:3:3" line-data="             SELECT  ISSUEDATE,">`ISSUEDATE`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="332:1:1" line-data="                     EXPIRYDATE,">`EXPIRYDATE`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="333:1:1" line-data="                     LASTCHANGED,">`LASTCHANGED`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="96:9:9" line-data="                 Move 0                 To CA-BROKERID">`BROKERID`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="335:1:1" line-data="                     BROKERSREFERENCE,">`BROKERSREFERENCE`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="95:9:9" line-data="                 Move 0                 To CA-PAYMENT">`PAYMENT`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="337:1:1" line-data="                     WITHPROFITS,">`WITHPROFITS`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="338:1:1" line-data="                     EQUITIES,">`EQUITIES`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="339:1:1" line-data="                     MANAGEDFUND,">`MANAGEDFUND`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="340:1:1" line-data="                     FUNDNAME,">`FUNDNAME`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="341:1:1" line-data="                     TERM,">`TERM`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="342:1:1" line-data="                     SUMASSURED,">`SUMASSURED`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="343:1:1" line-data="                     LIFEASSURED,">`LIFEASSURED`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="344:1:1" line-data="                     PADDINGDATA,">`PADDINGDATA`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="72:1:1" line-data="                           LENGTH(32500)">`LENGTH`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="347:2:4" line-data="                   :DB2-EXPIRYDATE,">`DB2-EXPIRYDATE`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="348:2:4" line-data="                   :DB2-LASTCHANGED,">`DB2-LASTCHANGED`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="349:11:13" line-data="                   :DB2-BROKERID-INT INDICATOR :IND-BROKERID,">`IND-BROKERID`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="350:9:11" line-data="                   :DB2-BROKERSREF INDICATOR :IND-BROKERSREF,">`IND-BROKERSREF`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="351:11:13" line-data="                   :DB2-PAYMENT-INT INDICATOR :IND-PAYMENT,">`IND-PAYMENT`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="352:2:6" line-data="                   :DB2-E-WITHPROFITS,">`DB2-E-WITHPROFITS`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="353:2:6" line-data="                   :DB2-E-EQUITIES,">`DB2-E-EQUITIES`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="354:2:6" line-data="                   :DB2-E-MANAGEDFUND,">`DB2-E-MANAGEDFUND`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="355:2:6" line-data="                   :DB2-E-FUNDNAME,">`DB2-E-FUNDNAME`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="356:2:8" line-data="                   :DB2-E-TERM-SINT,">`DB2-E-TERM-SINT`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="357:2:8" line-data="                   :DB2-E-SUMASSURED-INT,">`DB2-E-SUMASSURED-INT`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="358:2:6" line-data="                   :DB2-E-LIFEASSURED,">`DB2-E-LIFEASSURED`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="359:11:15" line-data="                   :DB2-E-PADDINGDATA INDICATOR :IND-E-PADDINGDATA,">`IND-E-PADDINGDATA`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="360:13:17" line-data="                   :DB2-E-PADDING-LEN INDICATOR :IND-E-PADDINGDATAL">`IND-E-PADDINGDATAL`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="451:1:1" line-data="                     PROPERTYTYPE,">`PROPERTYTYPE`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="81:7:7" line-data="                 Move CA-H-BEDROOMS      To  ENP3BEDI">`BEDROOMS`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="82:7:7" line-data="                 Move CA-H-VALUE         To  ENP3VALI">`VALUE`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="454:1:1" line-data="                     HOUSENAME,">`HOUSENAME`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="455:1:1" line-data="                     HOUSENUMBER,">`HOUSENUMBER`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="346:4:6" line-data="             INTO  :DB2-ISSUEDATE,">`DB2-ISSUEDATE`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="463:2:6" line-data="                   :DB2-H-PROPERTYTYPE,">`DB2-H-PROPERTYTYPE`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="464:2:8" line-data="                   :DB2-H-BEDROOMS-SINT,">`DB2-H-BEDROOMS-SINT`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="465:2:8" line-data="                   :DB2-H-VALUE-INT,">`DB2-H-VALUE-INT`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="466:2:6" line-data="                   :DB2-H-HOUSENAME,">`DB2-H-HOUSENAME`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="467:2:6" line-data="                   :DB2-H-HOUSENUMBER,">`DB2-H-HOUSENUMBER`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="468:2:6" line-data="                   :DB2-H-POSTCODE">`DB2-H-POSTCODE`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="539:1:1" line-data="                     MAKE,">`MAKE`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="540:1:1" line-data="                     MODEL,">`MODEL`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="542:1:1" line-data="                     REGNUMBER,">`REGNUMBER`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="543:1:1" line-data="                     COLOUR,">`COLOUR`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="544:1:1" line-data="                     CC,">`CC`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="545:1:1" line-data="                     YEAROFMANUFACTURE,">`YEAROFMANUFACTURE`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="546:1:1" line-data="                     PREMIUM,">`PREMIUM`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="554:2:6" line-data="                   :DB2-M-MAKE,">`DB2-M-MAKE`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="555:2:6" line-data="                   :DB2-M-MODEL,">`DB2-M-MODEL`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="556:2:8" line-data="                   :DB2-M-VALUE-INT,">`DB2-M-VALUE-INT`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="557:2:6" line-data="                   :DB2-M-REGNUMBER,">`DB2-M-REGNUMBER`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="558:2:6" line-data="                   :DB2-M-COLOUR,">`DB2-M-COLOUR`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="559:2:8" line-data="                   :DB2-M-CC-SINT,">`DB2-M-CC-SINT`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="560:2:6" line-data="                   :DB2-M-MANUFACTURED,">`DB2-M-MANUFACTURED`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="561:2:8" line-data="                   :DB2-M-PREMIUM-INT,">`DB2-M-PREMIUM-INT`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="562:2:8" line-data="                   :DB2-M-ACCIDENTS-INT">`DB2-M-ACCIDENTS-INT`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="655:2:6" line-data="                   :DB2-B-Address,">`DB2-B-Address`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="656:2:6" line-data="                   :DB2-B-Postcode,">`DB2-B-Postcode`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="657:2:6" line-data="                   :DB2-B-Latitude,">`DB2-B-Latitude`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="658:2:6" line-data="                   :DB2-B-Longitude,">`DB2-B-Longitude`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="659:2:6" line-data="                   :DB2-B-Customer,">`DB2-B-Customer`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="660:2:6" line-data="                   :DB2-B-PropType,">`DB2-B-PropType`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="182:3:9" line-data="           03 DB2-B-FirePeril-Int      PIC S9(4) COMP.">`DB2-B-FirePeril-Int`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="183:3:9" line-data="           03 DB2-B-FirePremium-Int    PIC S9(9) COMP.">`DB2-B-FirePremium-Int`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="184:3:9" line-data="           03 DB2-B-CrimePeril-Int     PIC S9(4) COMP.">`DB2-B-CrimePeril-Int`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="185:3:9" line-data="           03 DB2-B-CrimePremium-Int   PIC S9(9) COMP.">`DB2-B-CrimePremium-Int`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="186:3:9" line-data="           03 DB2-B-FloodPeril-Int     PIC S9(4) COMP.">`DB2-B-FloodPeril-Int`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="187:3:9" line-data="           03 DB2-B-FloodPremium-Int   PIC S9(9) COMP.">`DB2-B-FloodPremium-Int`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="188:3:9" line-data="           03 DB2-B-WeatherPeril-Int   PIC S9(4) COMP.">`DB2-B-WeatherPeril-Int`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="189:3:9" line-data="           03 DB2-B-WeatherPremium-Int PIC S9(9) COMP.">`DB2-B-WeatherPremium-Int`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="190:3:9" line-data="           03 DB2-B-Status-Int         PIC S9(4) COMP.">`DB2-B-Status-Int`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="670:2:6" line-data="                   :DB2-B-RejectReason">`DB2-B-RejectReason`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="263:11:15" line-data="           MOVE CA-CUSTOMER-NUM TO DB2-CUSTOMERNUM-INT">`DB2-CUSTOMERNUM-INT`</SwmToken> |
+
+### <SwmToken path="base/src/LGAPDB01.cbl" pos="313:4:4" line-data="               CALL &#39;LGAPDB04&#39; USING LK-INPUT-DATA, LK-COVERAGE-DATA, ">`LGAPDB04`</SwmToken> (<SwmPath>[base/src/LGAPDB04.cbl](base/src/LGAPDB04.cbl)</SwmPath>)
+
+| Table / File Name | Type                                                                                                                    | Description                                                   | Usage Mode | Key Fields / Layout Highlights                                                                                                                                                                           |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| RATE_MASTER       | <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> | Territory-based peril rates, min/max premium, effective dates | Input      | `BASE_RATE`, <SwmToken path="base/src/LGAPDB01.cbl" pos="132:4:4" line-data="           MOVE &#39;MIN_PREMIUM&#39; TO CONFIG-KEY">`MIN_PREMIUM`</SwmToken>, `WS-BASE-RATE`, `WS-MIN-PREM`, `WS-MAX-PREM` |
+
+### <SwmToken path="base/src/lgapol01.cbl" pos="103:9:9" line-data="           EXEC CICS Link Program(LGAPDB01)">`LGAPDB01`</SwmToken> (<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>)
+
+| Table / File Name                                                                                                                                        | Type                                                                                                                    | Description                                      | Usage Mode | Key Fields / Layout Highlights           |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ | ---------- | ---------------------------------------- |
+| <SwmToken path="base/src/LGAPDB01.cbl" pos="17:3:5" line-data="           SELECT CONFIG-FILE ASSIGN TO &#39;CONFIG.DAT&#39;">`CONFIG-FILE`</SwmToken>    | <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> | System config parameters for premium calculation | Input      | Database table with relational structure |
+| <SwmToken path="base/src/LGAPDB01.cbl" pos="9:3:5" line-data="           SELECT INPUT-FILE ASSIGN TO &#39;INPUT.DAT&#39;">`INPUT-FILE`</SwmToken>        | <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> | Policy application and property input data       | Input      | Database table with relational structure |
+| <SwmToken path="base/src/LGAPDB01.cbl" pos="13:3:5" line-data="           SELECT OUTPUT-FILE ASSIGN TO &#39;OUTPUT.DAT&#39;">`OUTPUT-FILE`</SwmToken>    | <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> | Calculated premium results for each policy       | Output     | Database table with relational structure |
+| <SwmToken path="base/src/LGAPDB01.cbl" pos="255:3:5" line-data="           WRITE OUTPUT-RECORD">`OUTPUT-RECORD`</SwmToken>                               | <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> | Single policy premium calculation output         | Output     | Database table with relational structure |
+| <SwmToken path="base/src/LGAPDB01.cbl" pos="27:3:5" line-data="           SELECT SUMMARY-FILE ASSIGN TO &#39;SUMMARY.DAT&#39;">`SUMMARY-FILE`</SwmToken> | <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> | Summary statistics for premium processing run    | Output     | Database table with relational structure |
+| <SwmToken path="base/src/LGAPDB01.cbl" pos="64:3:5" line-data="       01  SUMMARY-RECORD             PIC X(132).">`SUMMARY-RECORD`</SwmToken>            | <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> | Summary line for processing statistics           | Output     | Database table with relational structure |
+
+### <SwmToken path="base/src/lgdpol01.cbl" pos="141:9:9" line-data="           EXEC CICS LINK PROGRAM(LGDPDB01)">`LGDPDB01`</SwmToken> (<SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath>)
+
+| Table / File Name | Type                                                                                                                    | Description                                                    | Usage Mode | Key Fields / Layout Highlights           |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- | ---------- | ---------------------------------------- |
+| POLICY            | <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> | Insurance policy master record (customer, type, dates, broker) | Output     | Database table with relational structure |
+
+### <SwmToken path="base/src/lgupol01.cbl" pos="157:9:9" line-data="           EXEC CICS LINK Program(LGUPDB01)">`LGUPDB01`</SwmToken> (<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>)
+
+| Table / File Name | Type                                                                                                                    | Description                                               | Usage Mode   | Key Fields / Layout Highlights                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ENDOWMENT         | <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> | Endowment policy financial and insured person data        | Output       | <SwmToken path="base/src/lgipdb01.cbl" pos="337:1:1" line-data="                     WITHPROFITS,">`WITHPROFITS`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="338:1:1" line-data="                     EQUITIES,">`EQUITIES`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="339:1:1" line-data="                     MANAGEDFUND,">`MANAGEDFUND`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="340:1:1" line-data="                     FUNDNAME,">`FUNDNAME`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="341:1:1" line-data="                     TERM,">`TERM`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="342:1:1" line-data="                     SUMASSURED,">`SUMASSURED`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="343:1:1" line-data="                     LIFEASSURED,">`LIFEASSURED`</SwmToken>                                                                                                                                                                                                                                         |
+| HOUSE             | <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> | House policy property type, value, and address data       | Output       | <SwmToken path="base/src/lgipdb01.cbl" pos="451:1:1" line-data="                     PROPERTYTYPE,">`PROPERTYTYPE`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="81:7:7" line-data="                 Move CA-H-BEDROOMS      To  ENP3BEDI">`BEDROOMS`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="82:7:7" line-data="                 Move CA-H-VALUE         To  ENP3VALI">`VALUE`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="454:1:1" line-data="                     HOUSENAME,">`HOUSENAME`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="455:1:1" line-data="                     HOUSENUMBER,">`HOUSENUMBER`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="85:7:7" line-data="                 Move CA-H-POSTCODE      To  ENP3HPCI">`POSTCODE`</SwmToken>                                                                                                                                                                                                                                                                                               |
+| MOTOR             | <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> | Motor policy vehicle specs, premium, and accident history | Output       | <SwmToken path="base/src/lgipdb01.cbl" pos="539:1:1" line-data="                     MAKE,">`MAKE`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="540:1:1" line-data="                     MODEL,">`MODEL`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="82:7:7" line-data="                 Move CA-H-VALUE         To  ENP3VALI">`VALUE`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="542:1:1" line-data="                     REGNUMBER,">`REGNUMBER`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="543:1:1" line-data="                     COLOUR,">`COLOUR`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="544:1:1" line-data="                     CC,">`CC`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="545:1:1" line-data="                     YEAROFMANUFACTURE,">`YEAROFMANUFACTURE`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="546:1:1" line-data="                     PREMIUM,">`PREMIUM`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="547:1:1" line-data="                     ACCIDENTS">`ACCIDENTS`</SwmToken> |
+| POLICY            | <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> | Insurance policy core details and lifecycle dates         | Input/Output | <SwmToken path="base/src/lgipdb01.cbl" pos="331:3:3" line-data="             SELECT  ISSUEDATE,">`ISSUEDATE`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="332:1:1" line-data="                     EXPIRYDATE,">`EXPIRYDATE`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="333:1:1" line-data="                     LASTCHANGED,">`LASTCHANGED`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="96:9:9" line-data="                 Move 0                 To CA-BROKERID">`BROKERID`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="335:1:1" line-data="                     BROKERSREFERENCE,">`BROKERSREFERENCE`</SwmToken>, <SwmToken path="base/src/lgupdb01.cbl" pos="278:3:5" line-data="             IF CA-LASTCHANGED EQUAL TO DB2-LASTCHANGED">`CA-LASTCHANGED`</SwmToken>                                                                                                                                                                                                                                                                                            |
+
 ## Detailed View of the Program's Functionality
 
-# House Policy Menu Flow and Inquiry Processing
+a. Entry and Menu Routing
 
-## a. Starting the House Policy Menu Flow
+When the program starts, it checks if there is any incoming transaction data (by checking if the input buffer length is greater than zero). If there is, it jumps to the main input handling section; if not, it initializes all input, output, and communication areas to default values. This includes clearing out any old customer, policy, value, and bedroom fields. After initialization, it sends a clean main menu screen to the user, ensuring the interface is ready for new input.
 
-When the main menu program starts, it first checks if there is any input data from a previous session. If there is, it skips the initialization and goes directly to the main menu logic. If not, it resets all input/output fields and key policy fields to ensure a clean state. It then sends the House Policy Menu screen to the user's terminal, erasing any previous display.
+b. User Input Handling and Action Dispatch
 
-## b. Handling User Menu Actions
+When user input is received, the program sets up handlers for special keys (like CLEAR and <SwmToken path="base/src/lgtestp3.cbl" pos="54:1:1" line-data="                     PF3(ENDIT) END-EXEC.">`PF3`</SwmToken> for ending the session) and handles any map receive failures. It then receives the user's input from the screen and evaluates which menu option was selected:
 
-When the user interacts with the menu, the program sets up handlers for user actions and map failures, then receives the user's input from the menu screen. Based on the user's selection, it performs different actions:
+- If the user selects '1' (Inquiry), it prepares a policy inquiry request, sets the appropriate request ID and keys, and calls the policy inquiry handler. If the inquiry fails (as indicated by a non-zero return code), it displays a 'No data was returned' message and resets the session. If successful, it moves the policy details from the backend to the output fields and sends them to the user.
+- If the user selects '2' (Add), it prepares an add request by setting up all necessary fields (customer, payment, broker, dates, property details), then calls the add handler. If the add fails, it rolls back the transaction and displays an error message (either 'Customer does not exist' or a generic add error). If successful, it updates the output fields, clears the option input, sets a success message, and sends the confirmation to the user.
+- If the user selects '3' (Delete), it prepares a delete request with the relevant keys and calls the delete handler. If the delete fails, it rolls back and displays an error message. If successful, it clears all policy fields, sets a 'House Policy Deleted' message, and sends the updated menu.
+- If the user selects '4' (Update), it first reloads the policy data from the backend, displays it to the user, and then receives updated input. It then prepares an update request and calls the update handler. If the update fails, it displays an error message; if successful, it updates the output fields, clears the option input, sets a success message, and sends the confirmation.
+- If the user enters an invalid option, it prompts the user to enter a valid option and resets the cursor.
 
-- **Inquiry ('1')**: Prepares the request fields and calls the policy inquiry handler to fetch house policy details.
-- **Add ('2')**: Prepares the request fields with user input and defaults, then calls the add policy handler.
-- **Delete ('3')**: Prepares the request fields for deletion and calls the policy deletion handler.
-- **Update ('4')**: Prepares the request fields for update and calls the policy update handler.
-- **Other**: Prompts the user to enter a valid option.
+c. Policy Inquiry Validation and Routing
 
-## c. Processing Policy Inquiry Request
+When a policy inquiry is requested, the program checks if the communication area is present. If not, it logs an error and aborts. If present, it initializes the return code and sets up pointers and lengths. It then converts the customer and policy numbers to the appropriate format for database access and dispatches the request to the correct handler based on the policy type (endowment, house, motor, commercial, etc.).
 
-When an inquiry is requested, the inquiry handler initializes the transaction context, sets the return code to indicate success, and prepares a pointer to the communication area. If no communication area is received, it logs an error, writes an error message, and terminates the transaction. If the input is valid, it delegates the business logic to the policy database handler, which fetches the policy details from the database.
+d. House Policy Data Retrieval
 
-## d. Logging Errors and Message Handling
+For house policy inquiries, the program runs a database SELECT to fetch all relevant house and policy fields. If the fetch is successful, it calculates the required response size and checks if the communication area is large enough. If not, it sets an error code and returns. If the size is sufficient, it moves all the fetched data (handling nulls as needed) into the response structure and marks the end of the data. If no data is found, it sets a 'not found' code; for other errors, it logs the error and sets a generic error code.
 
-Whenever an error occurs (such as missing input or a database failure), the error logging routine captures the current date and time, writes a detailed error message (including the error context and up to 90 bytes of the communication area) to a system queue for monitoring and support. This ensures that all errors are tracked with enough context for troubleshooting.
+e. Add Policy Flow and Error Handling
 
-## e. Retrieving Policy Details from Database
+When adding a policy, the program prepares all necessary fields and calls the add handler. If the add fails, it rolls back the transaction and checks the error code: if the customer does not exist, it displays a specific message; otherwise, it displays a generic add error. If the add is successful, it updates the output fields, clears the option input, sets a success message, and sends the confirmation to the user.
 
-The business logic handler for policy inquiry checks for valid input, determines which policy type is being requested, and calls the appropriate subroutine to fetch details from the database. For each policy type (Endowment, House, Motor, Commercial), it:
+f. Delete Policy Flow and Error Handling
 
-- Runs a SQL SELECT to fetch the policy data.
-- Checks if the data was found, and if so, calculates the required buffer size and moves the data to the output area.
-- Handles nullable fields using indicator variables.
-- Marks the end of the policy data with a special marker.
-- If no data is found or a database error occurs, it sets an appropriate error code and logs the error.
+When deleting a policy, the program prepares the request and calls the delete handler. The delete handler checks the communication area and request ID, and if valid, delegates the actual deletion to the database handler. The database handler deletes the policy record and, if successful, also deletes the corresponding record from the VSAM file. If any step fails, the program logs the error, sets an appropriate error code, and returns. After a successful delete, the program clears all policy fields, sets a 'House Policy Deleted' message, and sends the updated menu.
 
-## f. Handling Policy Inquiry Results
+g. Update Policy Flow and Error Handling
 
-After the inquiry, if no data is found, the program sets an error message for the user and jumps to the error handler to display the message and reset the session. If data is found, it populates the output fields with the retrieved policy details and updates the user's screen.
+When updating a policy, the program first reloads the policy data, displays it to the user, and receives updated input. It then prepares the update request and calls the update handler. The update handler checks the communication area and request ID, verifies the length, and then calls the database update handler. The database update handler opens a cursor on the policy record, fetches the current data, and checks if the timestamps match (to prevent concurrent updates). If they match, it updates the specific policy type table (endowment, house, or motor) and then updates the main policy table with the new data and timestamp. If any step fails, it logs the error and sets an appropriate error code. After a successful update, the program updates the output fields, clears the option input, sets a success message, and sends the confirmation to the user.
 
-## g. Validating and Processing Policy Add Request
+h. Error Logging and Message Queue Integration
 
-When adding a new policy, the add handler validates the incoming request, checks for the presence and length of the input data, and initializes control data. If the input is valid, it links to the database operation handler to perform the actual insert. If an error occurs, it logs the error and aborts the transaction.
+Throughout all flows, whenever an error occurs (such as missing communication area, database errors, or file operation failures), the program captures the current date and time, formats an error message with all relevant context (including customer and policy numbers, SQL codes, and response codes), and sends it to a central logging service via a message queue. If there is additional context data (such as the communication area), it logs up to 90 bytes of that data as well.
 
-## h. Processing Premium Calculations and Summary
+i. Session and Screen Management
 
-For premium calculations, the system:
+After each operation (inquiry, add, delete, update), the program either returns control to the system (with updated session data) or displays an appropriate message to the user (success, error, or prompt for valid input). Special handlers are provided for session end and screen clearing, ensuring that the user interface remains consistent and that session data is properly managed between transactions.
 
-- Loads configuration values (such as maximum risk score and minimum premium) from a configuration file or uses defaults.
-- Opens input, output, and summary files, and writes headers to the output file.
-- Reads each application record, validates it, and processes valid records for premium calculation, while logging errors for invalid records.
+# Data Definitions
 
-## i. Routing Valid Records for Premium Calculation
+### <SwmToken path="base/src/LGAPDB01.cbl" pos="276:4:4" line-data="           CALL &#39;LGAPDB03&#39; USING WS-BASE-RISK-SCR, IN-FIRE-PERIL, ">`LGAPDB03`</SwmToken> (<SwmPath>[base/src/LGAPDB03.cbl](base/src/LGAPDB03.cbl)</SwmPath>)
 
-Valid records are routed to either commercial or non-commercial premium calculation logic. For commercial policies, the system:
+| Table / Record Name | Type                                                                                                                    | Short Description                                    | Usage Mode     |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- | -------------- |
+| RISK_FACTORS        | <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> | Peril risk adjustment values for premium calculation | Input (SELECT) |
 
-- Calculates the property risk score using property details and customer history.
-- Calculates basic insurance premiums using the risk score and peril values.
-- If the case is approved, runs enhanced actuarial calculations for advanced premium computation.
-- Applies business rules to determine the underwriting decision.
-- Writes the output and updates statistics.
+### <SwmToken path="base/src/LGAPDB01.cbl" pos="269:4:4" line-data="           CALL &#39;LGAPDB02&#39; USING IN-PROPERTY-TYPE, IN-POSTCODE, ">`LGAPDB02`</SwmToken> (<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>)
 
-## j. Calculating Property Risk Score
+| Table / Record Name | Type                                                                                                                    | Short Description                                           | Usage Mode     |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- | -------------- |
+| RISK_FACTORS        | <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> | Peril-specific risk adjustment values for insurance scoring | Input (SELECT) |
 
-The risk scoring logic fetches fire and crime risk factors from the database (or uses defaults if missing), then calculates the property's risk score based on property type, postcode, coverage amounts, location, and customer history. The scoring uses hardcoded weights and thresholds.
+### <SwmToken path="base/src/lgipol01.cbl" pos="91:9:9" line-data="           EXEC CICS LINK Program(LGIPDB01)">`LGIPDB01`</SwmToken> (<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>)
 
-## k. Calculating Basic Premiums
+| Table / Record Name | Type                                                                                                                    | Short Description                                                  | Usage Mode             |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ---------------------- |
+| POLICY              | <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> | Insurance policy master data: type, number, dates, broker, payment | Input (DECLARE/SELECT) |
 
-The basic premium calculation logic fetches risk factors, determines the underwriting verdict based on the risk score, and calculates premiums for each peril (fire, crime, flood, weather). Discounts are applied if all perils are present.
+### <SwmToken path="base/src/LGAPDB01.cbl" pos="313:4:4" line-data="               CALL &#39;LGAPDB04&#39; USING LK-INPUT-DATA, LK-COVERAGE-DATA, ">`LGAPDB04`</SwmToken> (<SwmPath>[base/src/LGAPDB04.cbl](base/src/LGAPDB04.cbl)</SwmPath>)
 
-## l. Running Enhanced Actuarial Calculations
+| Table / Record Name | Type                                                                                                                    | Short Description                                             | Usage Mode     |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- | -------------- |
+| RATE_MASTER         | <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> | Territory-based peril rates, min/max premium, effective dates | Input (SELECT) |
 
-For approved cases with a total premium above the minimum, the system prepares detailed input and coverage data, then calls the advanced actuarial calculation module. This module:
+### <SwmToken path="base/src/lgapol01.cbl" pos="103:9:9" line-data="           EXEC CICS Link Program(LGAPDB01)">`LGAPDB01`</SwmToken> (<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>)
 
-- Calculates exposures and base values.
-- Loads base rates.
-- Calculates experience and schedule modifiers.
-- Computes base premiums for each peril.
-- Adds catastrophe, expense, and profit loads.
-- Applies discounts and taxes.
-- Caps the final rate factor if necessary and recalculates the premium.
+| Table / Record Name                                                                                                                                      | Type                                                                                                                    | Short Description                                | Usage Mode |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ | ---------- |
+| <SwmToken path="base/src/LGAPDB01.cbl" pos="17:3:5" line-data="           SELECT CONFIG-FILE ASSIGN TO &#39;CONFIG.DAT&#39;">`CONFIG-FILE`</SwmToken>    | <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> | System config parameters for premium calculation | Input      |
+| <SwmToken path="base/src/LGAPDB01.cbl" pos="9:3:5" line-data="           SELECT INPUT-FILE ASSIGN TO &#39;INPUT.DAT&#39;">`INPUT-FILE`</SwmToken>        | <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> | Policy application and property input data       | Input      |
+| <SwmToken path="base/src/LGAPDB01.cbl" pos="13:3:5" line-data="           SELECT OUTPUT-FILE ASSIGN TO &#39;OUTPUT.DAT&#39;">`OUTPUT-FILE`</SwmToken>    | <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> | Calculated premium results for each policy       | Output     |
+| <SwmToken path="base/src/LGAPDB01.cbl" pos="255:3:5" line-data="           WRITE OUTPUT-RECORD">`OUTPUT-RECORD`</SwmToken>                               | <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> | Single policy premium calculation output         | Output     |
+| <SwmToken path="base/src/LGAPDB01.cbl" pos="27:3:5" line-data="           SELECT SUMMARY-FILE ASSIGN TO &#39;SUMMARY.DAT&#39;">`SUMMARY-FILE`</SwmToken> | <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> | Summary statistics for premium processing run    | Output     |
+| <SwmToken path="base/src/LGAPDB01.cbl" pos="64:3:5" line-data="       01  SUMMARY-RECORD             PIC X(132).">`SUMMARY-RECORD`</SwmToken>            | <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> | Summary line for processing statistics           | Output     |
 
-## m. Applying Underwriting Decision and Updating Stats
+### <SwmToken path="base/src/lgdpol01.cbl" pos="141:9:9" line-data="           EXEC CICS LINK PROGRAM(LGDPDB01)">`LGDPDB01`</SwmToken> (<SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath>)
 
-After calculations, business rules are applied to set the underwriting decision (approved, pending, rejected) based on risk score and premium thresholds. Output is written, and statistics are updated for reporting.
+| Table / Record Name | Type                                                                                                                    | Short Description                                              | Usage Mode      |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- | --------------- |
+| POLICY              | <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> | Insurance policy master record (customer, type, dates, broker) | Output (DELETE) |
 
-## n. Handling Add Policy Errors and User Feedback
+### <SwmToken path="base/src/lgupol01.cbl" pos="157:9:9" line-data="           EXEC CICS LINK Program(LGUPDB01)">`LGUPDB01`</SwmToken> (<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>)
 
-If adding a policy fails, the system rolls back the transaction, checks the error code, and sets a specific message for missing customers or a generic error for other failures. The error is displayed to the user, and the session is reset. If the add is successful, the system updates the session with the new customer and policy numbers and displays a success message.
-
-## o. Validating and Routing Policy Deletion Requests
-
-When deleting a policy, the deletion handler validates the request by checking the communication area length and request ID. If valid, it calls the database deletion handler, which deletes the policy from the database and logs any errors. The deletion is also propagated to the VSAM file handler, which deletes the policy record from the file system.
-
-## p. Validating and Executing Policy Deletion in <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken>
-
-The database deletion handler checks the request, converts IDs to the appropriate format, and calls the actual deletion logic. If the deletion is successful or the record was not found, it returns success. Any errors are logged and returned to the caller.
-
-## q. Deleting Policy Record in VSAM and Handling Errors
-
-The VSAM file handler deletes the policy record from the file. If the delete fails, it logs the error and returns a failure code.
-
-## r. Handling Policy Deletion Results and User Feedback
-
-After attempting to delete a policy, the system checks if the deletion failed. If so, it rolls back the transaction and displays an error message. If successful, it clears the policy fields and displays a success message. For update operations, it retrieves the latest policy data, allows the user to make changes, and then processes the update.
-
-## s. Validating and Routing Policy Update Requests
-
-The update handler checks the communication area length against the expected size for each policy type. If valid, it routes the request to the database update handler. Errors are logged and returned as needed.
-
-## t. Validating and Executing Policy Update in <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken>
-
-The database update handler validates the request, converts IDs to the appropriate format, and calls the update logic for the specific policy type. After updating the database, it calls the VSAM update handler to update the file record as well.
-
-## u. Updating Product-Specific Policy Tables and Finalizing Policy Record
-
-The update logic opens a cursor, fetches the policy row, checks timestamps, updates the product-specific table, and then updates the main policy record. Errors are logged and handled at each step. The cursor is closed at the end of the operation.
-
-## v. Updating Policy Record in VSAM and Logging Errors
-
-The VSAM update handler reads and rewrites the policy record in the file, handling errors and logging them if the operation fails. This ensures the file is kept in sync with the latest policy data.
-
-## w. Handling Update Errors and User Feedback
-
-If updating a policy fails, the system displays an error message and resets the session. If successful, it updates the output fields and displays a success message to the user. Invalid options prompt the user to enter a valid option, and the system returns control to the main menu.
+| Table / Record Name | Type                                                                                                                    | Short Description                                         | Usage Mode                              |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- | --------------------------------------- |
+| ENDOWMENT           | <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> | Endowment policy financial and insured person data        | Output (UPDATE)                         |
+| HOUSE               | <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> | House policy property type, value, and address data       | Output (UPDATE)                         |
+| MOTOR               | <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> | Motor policy vehicle specs, premium, and accident history | Output (UPDATE)                         |
+| POLICY              | <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> | Insurance policy core details and lifecycle dates         | Input (DECLARE/SELECT), Output (UPDATE) |
 
 # Rule Definition
 
-| Paragraph Name                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | Rule ID | Category          | Description                                                                                                                                                                                                                                                                | Conditions                                                                                                                                                                                                                                                                                                                                   | Remarks                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------- | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| <SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath> MAINLINE SECTION, EVALUATE <SwmToken path="base/src/lgtestp3.cbl" pos="64:3:3" line-data="           EVALUATE ENP3OPTO">`ENP3OPTO`</SwmToken> WHEN '1'                                                                                                                                                                                                                                                                                     | RL-001  | Conditional Logic | The system only processes a house policy inquiry when the user selects menu option '1'.                                                                                                                                                                                    | User selects menu option '1' on the House Policy Menu screen.                                                                                                                                                                                                                                                                                | Menu option value is '1'. Only this triggers the inquiry operation. Other options are handled separately.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| <SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath> MAINLINE SECTION, WHEN '1' block                                                                                                                                                                                                                                                                                                                                                                                                           | RL-002  | Data Assignment   | Maps user input fields (customer number, policy number) to the inquiry commarea structure for backend processing.                                                                                                                                                          | Menu option is '1'.                                                                                                                                                                                                                                                                                                                          | <SwmToken path="base/src/lgtestp3.cbl" pos="67:9:13" line-data="                 Move &#39;01IHOU&#39;   To CA-REQUEST-ID">`CA-REQUEST-ID`</SwmToken> is set to <SwmToken path="base/src/lgtestp3.cbl" pos="67:4:4" line-data="                 Move &#39;01IHOU&#39;   To CA-REQUEST-ID">`01IHOU`</SwmToken>. <SwmToken path="base/src/lgtestp3.cbl" pos="68:7:11" line-data="                 Move ENP3CNOO   To CA-CUSTOMER-NUM">`CA-CUSTOMER-NUM`</SwmToken> and <SwmToken path="base/src/lgtestp3.cbl" pos="69:7:11" line-data="                 Move ENP3PNOO   To CA-POLICY-NUM">`CA-POLICY-NUM`</SwmToken> are mapped from <SwmToken path="base/src/lgtestp3.cbl" pos="38:9:9" line-data="           MOVE &#39;0000000000&#39;   To ENP3CNOO.">`ENP3CNOO`</SwmToken> and <SwmToken path="base/src/lgtestp3.cbl" pos="39:9:9" line-data="           MOVE &#39;0000000000&#39;   To ENP3PNOO.">`ENP3PNOO`</SwmToken>. All field formats and lengths must match commarea definitions. |
-| <SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath> MAINLINE SECTION, WHEN '1' block; <SwmPath>[base/src/lgipol01.cbl](base/src/lgipol01.cbl)</SwmPath> MAINLINE SECTION; <SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath> MAINLINE SECTION                                                                                                                                                                                                                                   | RL-003  | Computation       | Calls the backend inquiry logic to retrieve policy details and populates the commarea with results.                                                                                                                                                                        | <SwmToken path="base/src/lgtestp3.cbl" pos="67:9:13" line-data="                 Move &#39;01IHOU&#39;   To CA-REQUEST-ID">`CA-REQUEST-ID`</SwmToken> is <SwmToken path="base/src/lgtestp3.cbl" pos="67:4:4" line-data="                 Move &#39;01IHOU&#39;   To CA-REQUEST-ID">`01IHOU`</SwmToken> and commarea is properly initialized. | Backend program <SwmToken path="base/src/lgtestp3.cbl" pos="70:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGIPOL01&#39;)">`LGIPOL01`</SwmToken> is called, which in turn calls <SwmToken path="base/src/lgipol01.cbl" pos="91:9:9" line-data="           EXEC CICS LINK Program(LGIPDB01)">`LGIPDB01`</SwmToken>. Commarea length is 32500 bytes. Inquiry logic is only performed if commarea is present and valid.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| <SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath> MAINLINE SECTION, WHEN '1' block, IF <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> > 0; <SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath> <SwmToken path="base/src/lgipdb01.cbl" pos="285:3:9" line-data="               PERFORM GET-HOUSE-DB2-INFO">`GET-HOUSE-DB2-INFO`</SwmToken>                                               | RL-004  | Data Assignment   | If the inquiry is successful (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = '00'), the system displays specific policy fields on the output screen.                              | <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = '00' after backend inquiry.                                                                                                                                                                          | Fields displayed: Policy issue date, expiry date, property type, bedrooms, value, house name, house number, postcode. Message field (<SwmToken path="base/src/lgtestp3.cbl" pos="118:3:3" line-data="                   To  ERP3FLDO">`ERP3FLDO`</SwmToken>) is blank. Output formats must match definitions (e.g., dates as string, value as number, etc.).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| <SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath> MAINLINE SECTION, WHEN '1' block, IF <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> > 0, GO TO <SwmToken path="base/src/lgtestp3.cbl" pos="75:5:7" line-data="                   GO TO NO-DATA">`NO-DATA`</SwmToken>; <SwmToken path="base/src/lgtestp3.cbl" pos="75:5:7" line-data="                   GO TO NO-DATA">`NO-DATA`</SwmToken> section | RL-005  | Conditional Logic | If the inquiry is not successful (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = '01'), the system clears all output fields and sets the message field to 'No data was returned.' | <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = '01' after backend inquiry.                                                                                                                                                                          | Message field (<SwmToken path="base/src/lgtestp3.cbl" pos="118:3:3" line-data="                   To  ERP3FLDO">`ERP3FLDO`</SwmToken>) set to 'No data was returned.' All other output fields are cleared (set to spaces or zero as appropriate).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| <SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath> <SwmToken path="base/src/lgipdb01.cbl" pos="285:3:9" line-data="               PERFORM GET-HOUSE-DB2-INFO">`GET-HOUSE-DB2-INFO`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="281:3:9" line-data="               PERFORM GET-ENDOW-DB2-INFO">`GET-ENDOW-DB2-INFO`</SwmToken>, etc.                                                                                                                                               | RL-006  | Conditional Logic | The system uses standardized error codes for inquiry operations: '00' for success, '01' for no data, '90', '98', '99' for general/DB2/SQL/unsupported request errors.                                                                                                      | Backend inquiry operation returns a code.                                                                                                                                                                                                                                                                                                    | Error codes: '00' (Success), '01' (No data found), '90', '98', '99' (General/DB2/SQL/unsupported request errors).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| <SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath> MAINLINE SECTION, WHEN '1' block; <SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath> <SwmToken path="base/src/lgipdb01.cbl" pos="285:3:9" line-data="               PERFORM GET-HOUSE-DB2-INFO">`GET-HOUSE-DB2-INFO`</SwmToken>                                                                                                                                                                                             | RL-007  | Conditional Logic | All input and output field lengths and formats must match the definitions provided in the commarea and screen map structures.                                                                                                                                              | Any field is mapped or displayed for inquiry operation.                                                                                                                                                                                                                                                                                      | Field formats: string, number, date, etc., as defined in commarea and screen map. No truncation or overflow allowed. Alignment and padding must match definitions.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| <SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath> MAINLINE SECTION, WHEN '1' block                                                                                                                                                                                                                                                                                                                                                                                                           | RL-008  | Conditional Logic | The system must not display or process any fields outside those specified for the house policy inquiry operation.                                                                                                                                                          | Inquiry operation is being processed (menu option '1').                                                                                                                                                                                                                                                                                      | Only specified fields are processed and displayed. No additional fields are handled.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Paragraph Name                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | Rule ID | Category          | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | Conditions                                                                                                                                                                                     | Remarks                                                                                                                                                                                                                                                                                                                                                                                              |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| MAINLINE SECTION (<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>), lines 32-37                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | RL-001  | Conditional Logic | Determine if a transaction is returning or new by checking if the communication area length (EIBCALEN) is greater than zero. If new, initialize all input, output, and communication area fields to default values before displaying the main menu.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | EIBCALEN > 0 indicates a returning transaction; EIBCALEN = 0 indicates a new transaction.                                                                                                      | Default values: Customer Number and Policy Number set to '0000000000', Value set to '00000000', Bedrooms set to '000'. All fields must be reset before menu display or new input processing.                                                                                                                                                                                                         |
+| MAINLINE SECTION (<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>), lines 35-48                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | RL-002  | Data Assignment   | Before displaying the main menu, reset all input, output, and commarea fields to their default values and send the main menu screen to the user, erasing any previous content.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Triggered for new transactions or after error handling.                                                                                                                                        | Menu screen: <SwmToken path="base/src/lgtestp3.cbl" pos="45:11:11" line-data="           EXEC CICS SEND MAP (&#39;SSMAPP3&#39;)">`SSMAPP3`</SwmToken>, mapset SSMAP, sent with ERASE option. All previous content cleared.                                                                                                                                                                           |
+| MAINLINE SECTION (<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>), lines 64-230                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | RL-003  | Conditional Logic | Capture user actions from the House Policy Menu screen. The option field determines the requested operation: Inquiry ('1'), Add ('2'), Delete ('3'), Update ('4'), or Other.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | User enters a value in the option field (<SwmToken path="base/src/lgtestp3.cbl" pos="116:9:9" line-data="                 Move &#39; &#39;             To ENP3OPTI">`ENP3OPTI`</SwmToken>).    | Option values: '1' = Inquiry, '2' = Add, '3' = Delete, '4' = Update, other values prompt error message.                                                                                                                                                                                                                                                                                              |
+| MAINLINE SECTION (<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>), lines 66-91; <SwmToken path="base/src/lgtestp3.cbl" pos="70:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGIPOL01&#39;)">`LGIPOL01`</SwmToken>, <SwmToken path="base/src/lgipol01.cbl" pos="91:9:9" line-data="           EXEC CICS LINK Program(LGIPDB01)">`LGIPDB01`</SwmToken>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | RL-004  | Computation       | Prepare an inquiry request using the commarea, call the backend (<SwmToken path="base/src/lgtestp3.cbl" pos="70:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGIPOL01&#39;)">`LGIPOL01`</SwmToken>), and display policy details if found, or a 'No data' message if not found (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = '01').                                                                                                                                                                                                                                                                                                 | Option field is '1'.                                                                                                                                                                           | Backend call: <SwmToken path="base/src/lgtestp3.cbl" pos="70:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGIPOL01&#39;)">`LGIPOL01`</SwmToken> with commarea, length 32500 bytes. Display policy details if <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = '00', else display 'No data'. |
+| MAINLINE SECTION (<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>), lines 92-124; <SwmToken path="base/src/lgtestp3.cbl" pos="106:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGAPOL01&#39;)">`LGAPOL01`</SwmToken>, <SwmToken path="base/src/lgapol01.cbl" pos="103:9:9" line-data="           EXEC CICS Link Program(LGAPDB01)">`LGAPDB01`</SwmToken>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | RL-005  | Computation       | Prepare an add request, set all required commarea fields (including payment=0, broker id=0, brokersref=blank, issue/expiry date, property details), and call the backend (<SwmToken path="base/src/lgtestp3.cbl" pos="106:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGAPOL01&#39;)">`LGAPOL01`</SwmToken>). Display confirmation if successful (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = '00'), 'Customer does not exist' if <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = '70', or 'Error Adding House Policy' for other errors. | Option field is '2'.                                                                                                                                                                           | Backend call: <SwmToken path="base/src/lgtestp3.cbl" pos="106:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGAPOL01&#39;)">`LGAPOL01`</SwmToken> with commarea, length 32500 bytes. Required fields: payment=0, broker id=0, brokersref=blank, issue/expiry date, property details. Error codes: '00'=Success, '70'=Customer does not exist, others=General error.                 |
+| MAINLINE SECTION (<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>), lines 125-153; <SwmToken path="base/src/lgtestp3.cbl" pos="129:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGDPOL01&#39;)">`LGDPOL01`</SwmToken>, <SwmToken path="base/src/lgdpol01.cbl" pos="141:9:9" line-data="           EXEC CICS LINK PROGRAM(LGDPDB01)">`LGDPDB01`</SwmToken>, <SwmToken path="base/src/lgdpdb01.cbl" pos="168:9:9" line-data="               EXEC CICS LINK PROGRAM(LGDPVS01)">`LGDPVS01`</SwmToken>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | RL-006  | Computation       | Prepare a delete request, set the commarea request id and keys, and call the backend (<SwmToken path="base/src/lgtestp3.cbl" pos="129:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGDPOL01&#39;)">`LGDPOL01`</SwmToken>). If successful (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = '00'), clear all policy fields and display 'House Policy Deleted'; for errors, display 'Error Deleting House Policy'.                                                                                                                                                                                                                       | Option field is '3'.                                                                                                                                                                           | Backend call: <SwmToken path="base/src/lgtestp3.cbl" pos="129:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGDPOL01&#39;)">`LGDPOL01`</SwmToken> with commarea, length 32500 bytes. Policy fields cleared on success. Error codes: '00'=Success, '81','82'=VSAM file errors, '90'=General error, '99'=Unknown request.                                                             |
+| MAINLINE SECTION (<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>), lines 155-215; <SwmToken path="base/src/lgtestp3.cbl" pos="196:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGUPOL01&#39;)">`LGUPOL01`</SwmToken>, <SwmToken path="base/src/lgupol01.cbl" pos="157:9:9" line-data="           EXEC CICS LINK Program(LGUPDB01)">`LGUPDB01`</SwmToken>, <SwmToken path="base/src/lgupdb01.cbl" pos="209:9:9" line-data="           EXEC CICS LINK Program(LGUPVS01)">`LGUPVS01`</SwmToken>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | RL-007  | Computation       | Prepare an update request, set all required commarea fields, and call the backend (<SwmToken path="base/src/lgtestp3.cbl" pos="196:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGUPOL01&#39;)">`LGUPOL01`</SwmToken>). If successful (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = '00'), display confirmation; for errors, display 'Error Updating House Policy'.                                                                                                                                                                                                                                                                | Option field is '4'.                                                                                                                                                                           | Backend call: <SwmToken path="base/src/lgtestp3.cbl" pos="196:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGUPOL01&#39;)">`LGUPOL01`</SwmToken> with commarea, length 32500 bytes. Required fields set for update. Error codes: '00'=Success, '02'=Timestamp mismatch, '90'=General error, '99'=Unknown request.                                                                  |
+| MAINLINE SECTION (<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>), lines 217-229                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | RL-008  | Conditional Logic | If the user enters an invalid option, display 'Please enter a valid option' and reset the cursor for the next action.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | Option field is not '1', '2', '3', or '4'.                                                                                                                                                     | Error message displayed in <SwmToken path="base/src/lgtestp3.cbl" pos="118:3:3" line-data="                   To  ERP3FLDO">`ERP3FLDO`</SwmToken> field. Cursor reset for next input.                                                                                                                                                                                                                |
+| All backend calls (<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>, <SwmToken path="base/src/lgtestp3.cbl" pos="70:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGIPOL01&#39;)">`LGIPOL01`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="106:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGAPOL01&#39;)">`LGAPOL01`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="129:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGDPOL01&#39;)">`LGDPOL01`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="196:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGUPOL01&#39;)">`LGUPOL01`</SwmToken>, etc.)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | RL-009  | Data Assignment   | All backend calls must use the commarea structure as defined, with a length of up to 32500 bytes. Only relevant fields for the operation must be populated.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | Any backend call for policy operations.                                                                                                                                                        | Commarea structure, max length 32500 bytes. Only relevant fields populated for each operation.                                                                                                                                                                                                                                                                                                       |
+| Error handling sections in all backend programs (<SwmToken path="base/src/lgtestp3.cbl" pos="70:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGIPOL01&#39;)">`LGIPOL01`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="106:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGAPOL01&#39;)">`LGAPOL01`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="129:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGDPOL01&#39;)">`LGDPOL01`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="196:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGUPOL01&#39;)">`LGUPOL01`</SwmToken>, <SwmToken path="base/src/lgipol01.cbl" pos="91:9:9" line-data="           EXEC CICS LINK Program(LGIPDB01)">`LGIPDB01`</SwmToken>, <SwmToken path="base/src/lgdpol01.cbl" pos="141:9:9" line-data="           EXEC CICS LINK PROGRAM(LGDPDB01)">`LGDPDB01`</SwmToken>, <SwmToken path="base/src/lgupol01.cbl" pos="157:9:9" line-data="           EXEC CICS LINK Program(LGUPDB01)">`LGUPDB01`</SwmToken>, <SwmToken path="base/src/lgdpdb01.cbl" pos="168:9:9" line-data="               EXEC CICS LINK PROGRAM(LGDPVS01)">`LGDPVS01`</SwmToken>, <SwmToken path="base/src/lgupdb01.cbl" pos="209:9:9" line-data="           EXEC CICS LINK Program(LGUPVS01)">`LGUPVS01`</SwmToken>) | RL-010  | Data Assignment   | All error messages must be formatted to include date, time, program name, customer number, policy number, SQLCODE, and extra info, and must be sent to the LGSTSQ audit queue for logging. Truncation of error/context data for logging is limited to 90 bytes.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | Any error or status message generated during processing.                                                                                                                                       | Error message fields: date (string, 8 bytes), time (string, 6 bytes), program name (string, 9 bytes), customer number (string, 10 bytes), policy number (string, 10 bytes), SQLCODE (number, 5 bytes), extra info (variable, up to 90 bytes for context data).                                                                                                                                       |
+| All backend programs (<SwmToken path="base/src/lgtestp3.cbl" pos="70:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGIPOL01&#39;)">`LGIPOL01`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="106:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGAPOL01&#39;)">`LGAPOL01`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="129:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGDPOL01&#39;)">`LGDPOL01`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="196:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGUPOL01&#39;)">`LGUPOL01`</SwmToken>, <SwmToken path="base/src/lgipol01.cbl" pos="91:9:9" line-data="           EXEC CICS LINK Program(LGIPDB01)">`LGIPDB01`</SwmToken>, <SwmToken path="base/src/lgdpol01.cbl" pos="141:9:9" line-data="           EXEC CICS LINK PROGRAM(LGDPDB01)">`LGDPDB01`</SwmToken>, <SwmToken path="base/src/lgupol01.cbl" pos="157:9:9" line-data="           EXEC CICS LINK Program(LGUPDB01)">`LGUPDB01`</SwmToken>, <SwmToken path="base/src/lgdpdb01.cbl" pos="168:9:9" line-data="               EXEC CICS LINK PROGRAM(LGDPVS01)">`LGDPVS01`</SwmToken>, <SwmToken path="base/src/lgupdb01.cbl" pos="209:9:9" line-data="           EXEC CICS LINK Program(LGUPVS01)">`LGUPVS01`</SwmToken>)                            | RL-011  | Data Assignment   | Error codes must be set in <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> as follows: '00' = Success, '01' = Not found, '90' = General error, '98' = Commarea too small, '99' = Unknown/unsupported request, '70' = Customer does not exist (add), '81', '82' = VSAM file errors, '02' = Timestamp mismatch (update).                                                                                                                                                                                                                                                                                                                                    | Any backend operation result.                                                                                                                                                                  | <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> is a string field, 2 bytes. Codes: '00', '01', '90', '98', '99', '70', '81', '82', '02'.                                                                                                                                                                       |
+| All backend programs (<SwmToken path="base/src/lgipol01.cbl" pos="91:9:9" line-data="           EXEC CICS LINK Program(LGIPDB01)">`LGIPDB01`</SwmToken>, <SwmToken path="base/src/lgapol01.cbl" pos="103:9:9" line-data="           EXEC CICS Link Program(LGAPDB01)">`LGAPDB01`</SwmToken>, <SwmToken path="base/src/lgdpol01.cbl" pos="141:9:9" line-data="           EXEC CICS LINK PROGRAM(LGDPDB01)">`LGDPDB01`</SwmToken>, <SwmToken path="base/src/lgupol01.cbl" pos="157:9:9" line-data="           EXEC CICS LINK Program(LGUPDB01)">`LGUPDB01`</SwmToken>)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | RL-012  | Data Assignment   | For all policy operations (inquiry, add, delete, update), move data between commarea fields and map fields for display/input, following the field mappings provided. Only present (<SwmToken path="base/src/lgipdb01.cbl" pos="379:13:15" line-data="      *      check whether PADDINGDATA field is non-null">`non-null`</SwmToken>) fields are moved between <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> and commarea structures.                                                                                                                                                                                                                                 | Any data movement between <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> and commarea for policy operations.          | Field mappings must respect nullability and only move present fields. Data types: string, number, date, etc., as defined in <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> and commarea structures.                                                                                                                         |
+| All backend programs (<SwmToken path="base/src/lgipol01.cbl" pos="91:9:9" line-data="           EXEC CICS LINK Program(LGIPDB01)">`LGIPDB01`</SwmToken>, <SwmToken path="base/src/lgapol01.cbl" pos="103:9:9" line-data="           EXEC CICS Link Program(LGAPDB01)">`LGAPDB01`</SwmToken>, <SwmToken path="base/src/lgdpol01.cbl" pos="141:9:9" line-data="           EXEC CICS LINK PROGRAM(LGDPDB01)">`LGDPDB01`</SwmToken>, <SwmToken path="base/src/lgupol01.cbl" pos="157:9:9" line-data="           EXEC CICS LINK Program(LGUPDB01)">`LGUPDB01`</SwmToken>)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | RL-013  | Computation       | All <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> operations must use the POLICY and HOUSE tables as defined, mapping commarea fields to <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> columns for add, update, delete, and inquiry operations.                                                                                                                                                                                                                                                                                                                                             | Any <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> operation for policy management.                                   | Tables: POLICY, HOUSE. Field mappings as per commarea and <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> definitions.                                                                                                                                                                                                       |
+| <SwmToken path="base/src/lgupol01.cbl" pos="157:9:9" line-data="           EXEC CICS LINK Program(LGUPDB01)">`LGUPDB01`</SwmToken>, lines 277-347                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | RL-014  | Conditional Logic | All concurrency checks for updates must compare <SwmToken path="base/src/lgupdb01.cbl" pos="278:3:5" line-data="             IF CA-LASTCHANGED EQUAL TO DB2-LASTCHANGED">`CA-LASTCHANGED`</SwmToken> with <SwmToken path="base/src/lgipdb01.cbl" pos="348:2:4" line-data="                   :DB2-LASTCHANGED,">`DB2-LASTCHANGED`</SwmToken> and set <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = '02' if mismatched.                                                                                                                                                                                                                                | Update operation requested (<SwmToken path="base/src/lgtestp3.cbl" pos="67:9:13" line-data="                 Move &#39;01IHOU&#39;   To CA-REQUEST-ID">`CA-REQUEST-ID`</SwmToken> for update). | <SwmToken path="base/src/lgupdb01.cbl" pos="278:3:5" line-data="             IF CA-LASTCHANGED EQUAL TO DB2-LASTCHANGED">`CA-LASTCHANGED`</SwmToken> and <SwmToken path="base/src/lgipdb01.cbl" pos="348:2:4" line-data="                   :DB2-LASTCHANGED,">`DB2-LASTCHANGED`</SwmToken> are timestamp fields. Error code '02' for mismatch.                                                      |
+| <SwmToken path="base/src/lgdpdb01.cbl" pos="168:9:9" line-data="               EXEC CICS LINK PROGRAM(LGDPVS01)">`LGDPVS01`</SwmToken>, <SwmToken path="base/src/lgupdb01.cbl" pos="209:9:9" line-data="           EXEC CICS LINK Program(LGUPVS01)">`LGUPVS01`</SwmToken>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | RL-015  | Computation       | All file operations (VSAM/KSDS) must use a 21-byte key for policy records and set error codes as specified if operations fail.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Any VSAM file operation for policy records.                                                                                                                                                    | VSAM key: 21 bytes (request id, customer number, policy number). Error codes: '81', '82' for file errors.                                                                                                                                                                                                                                                                                            |
+| MAINLINE SECTION (<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>), lines 86-89, 119-122, 149-152, 209-212, 223-227, 290-293                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | RL-016  | Data Assignment   | The House Policy Menu screen must always display the latest policy details, status messages, and accept user actions via the option field.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | After any operation or error handling.                                                                                                                                                         | Menu screen: <SwmToken path="base/src/lgtestp3.cbl" pos="45:11:11" line-data="           EXEC CICS SEND MAP (&#39;SSMAPP3&#39;)">`SSMAPP3`</SwmToken>, status messages in ENP3MSG field, policy details mapped to display fields.                                                                                                                                                                    |
+| Error handling sections in all backend programs                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | RL-017  | Data Assignment   | All truncation of error/context data for logging must be limited to 90 bytes when sending to the LGSTSQ audit queue.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | Any error or context data sent to audit queue.                                                                                                                                                 | Context data truncated to 90 bytes maximum.                                                                                                                                                                                                                                                                                                                                                          |
 
 # User Stories
 
-## User Story 1: House Policy Inquiry via Menu Option '1'
+## User Story 1: Initialize and display House Policy Menu
 
 ---
 
 ### Story Description:
 
-As a user, I want to inquire about a house policy by selecting menu option '1' so that I can view the relevant policy details or receive an appropriate message if no data is found.
+As a user, I want the application to initialize all fields and display the House Policy Menu so that I can start a new transaction or continue an existing one with a clear and accurate interface.
 
 ---
 
 ### Business Rule Mapping:
 
-| Rule ID | Paragraph Name                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | Rule Description                                                                                                                                                                                                                                                           |
-| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| RL-001  | <SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath> MAINLINE SECTION, EVALUATE <SwmToken path="base/src/lgtestp3.cbl" pos="64:3:3" line-data="           EVALUATE ENP3OPTO">`ENP3OPTO`</SwmToken> WHEN '1'                                                                                                                                                                                                                                                                                     | The system only processes a house policy inquiry when the user selects menu option '1'.                                                                                                                                                                                    |
-| RL-002  | <SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath> MAINLINE SECTION, WHEN '1' block                                                                                                                                                                                                                                                                                                                                                                                                           | Maps user input fields (customer number, policy number) to the inquiry commarea structure for backend processing.                                                                                                                                                          |
-| RL-003  | <SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath> MAINLINE SECTION, WHEN '1' block; <SwmPath>[base/src/lgipol01.cbl](base/src/lgipol01.cbl)</SwmPath> MAINLINE SECTION; <SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath> MAINLINE SECTION                                                                                                                                                                                                                                   | Calls the backend inquiry logic to retrieve policy details and populates the commarea with results.                                                                                                                                                                        |
-| RL-004  | <SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath> MAINLINE SECTION, WHEN '1' block, IF <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> > 0; <SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath> <SwmToken path="base/src/lgipdb01.cbl" pos="285:3:9" line-data="               PERFORM GET-HOUSE-DB2-INFO">`GET-HOUSE-DB2-INFO`</SwmToken>                                               | If the inquiry is successful (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = '00'), the system displays specific policy fields on the output screen.                              |
-| RL-005  | <SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath> MAINLINE SECTION, WHEN '1' block, IF <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> > 0, GO TO <SwmToken path="base/src/lgtestp3.cbl" pos="75:5:7" line-data="                   GO TO NO-DATA">`NO-DATA`</SwmToken>; <SwmToken path="base/src/lgtestp3.cbl" pos="75:5:7" line-data="                   GO TO NO-DATA">`NO-DATA`</SwmToken> section | If the inquiry is not successful (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = '01'), the system clears all output fields and sets the message field to 'No data was returned.' |
-| RL-007  | <SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath> MAINLINE SECTION, WHEN '1' block; <SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath> <SwmToken path="base/src/lgipdb01.cbl" pos="285:3:9" line-data="               PERFORM GET-HOUSE-DB2-INFO">`GET-HOUSE-DB2-INFO`</SwmToken>                                                                                                                                                                                             | All input and output field lengths and formats must match the definitions provided in the commarea and screen map structures.                                                                                                                                              |
-| RL-008  | <SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath> MAINLINE SECTION, WHEN '1' block                                                                                                                                                                                                                                                                                                                                                                                                           | The system must not display or process any fields outside those specified for the house policy inquiry operation.                                                                                                                                                          |
-| RL-006  | <SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath> <SwmToken path="base/src/lgipdb01.cbl" pos="285:3:9" line-data="               PERFORM GET-HOUSE-DB2-INFO">`GET-HOUSE-DB2-INFO`</SwmToken>, <SwmToken path="base/src/lgipdb01.cbl" pos="281:3:9" line-data="               PERFORM GET-ENDOW-DB2-INFO">`GET-ENDOW-DB2-INFO`</SwmToken>, etc.                                                                                                                                               | The system uses standardized error codes for inquiry operations: '00' for success, '01' for no data, '90', '98', '99' for general/DB2/SQL/unsupported request errors.                                                                                                      |
+| Rule ID | Paragraph Name                                                                                                                                 | Rule Description                                                                                                                                                                                                                                    |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| RL-001  | MAINLINE SECTION (<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>), lines 32-37                                              | Determine if a transaction is returning or new by checking if the communication area length (EIBCALEN) is greater than zero. If new, initialize all input, output, and communication area fields to default values before displaying the main menu. |
+| RL-002  | MAINLINE SECTION (<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>), lines 35-48                                              | Before displaying the main menu, reset all input, output, and commarea fields to their default values and send the main menu screen to the user, erasing any previous content.                                                                      |
+| RL-016  | MAINLINE SECTION (<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>), lines 86-89, 119-122, 149-152, 209-212, 223-227, 290-293 | The House Policy Menu screen must always display the latest policy details, status messages, and accept user actions via the option field.                                                                                                          |
 
 ---
 
 ### Relevant Functionality:
 
-- <SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath> **MAINLINE SECTION**
+- **MAINLINE SECTION (**<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>**)**
   1. **RL-001:**
-     - On receiving input:
-       - If menu option is '1':
-         - Proceed with inquiry logic
-       - Else:
-         - Handle other operations or display error message.
+     - If communication area length > 0:
+       - Process incoming data (returning transaction)
+     - Else:
+       - Initialize all input, output, and commarea fields to default values
+       - Display main menu screen
   2. **RL-002:**
-     - Set <SwmToken path="base/src/lgtestp3.cbl" pos="67:9:13" line-data="                 Move &#39;01IHOU&#39;   To CA-REQUEST-ID">`CA-REQUEST-ID`</SwmToken> to <SwmToken path="base/src/lgtestp3.cbl" pos="67:4:4" line-data="                 Move &#39;01IHOU&#39;   To CA-REQUEST-ID">`01IHOU`</SwmToken>
-     - Set <SwmToken path="base/src/lgtestp3.cbl" pos="68:7:11" line-data="                 Move ENP3CNOO   To CA-CUSTOMER-NUM">`CA-CUSTOMER-NUM`</SwmToken> from input customer number
-     - Set <SwmToken path="base/src/lgtestp3.cbl" pos="69:7:11" line-data="                 Move ENP3PNOO   To CA-POLICY-NUM">`CA-POLICY-NUM`</SwmToken> from input policy number
-     - Pass commarea to backend inquiry logic.
-  3. **RL-003:**
+     - Initialize input, output, and commarea fields
+     - Send main menu screen (<SwmToken path="base/src/lgtestp3.cbl" pos="45:11:11" line-data="           EXEC CICS SEND MAP (&#39;SSMAPP3&#39;)">`SSMAPP3`</SwmToken>) with ERASE option
+  3. **RL-016:**
+     - After each operation, update display fields with latest policy details
+     - Display status or error messages in ENP3MSG field
+     - Accept user actions via option field
+
+## User Story 2: Process user actions from House Policy Menu
+
+---
+
+### Story Description:
+
+As a user, I want to perform policy operations (inquiry, add, delete, update) or receive guidance if I enter an invalid option so that I can manage house policies efficiently and receive immediate feedback.
+
+---
+
+### Business Rule Mapping:
+
+| Rule ID | Paragraph Name                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | Rule Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| RL-003  | MAINLINE SECTION (<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>), lines 64-230                                                                                                                                                                                                                                                                                                                                                                                                                                    | Capture user actions from the House Policy Menu screen. The option field determines the requested operation: Inquiry ('1'), Add ('2'), Delete ('3'), Update ('4'), or Other.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| RL-004  | MAINLINE SECTION (<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>), lines 66-91; <SwmToken path="base/src/lgtestp3.cbl" pos="70:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGIPOL01&#39;)">`LGIPOL01`</SwmToken>, <SwmToken path="base/src/lgipol01.cbl" pos="91:9:9" line-data="           EXEC CICS LINK Program(LGIPDB01)">`LGIPDB01`</SwmToken>                                                                                                                                             | Prepare an inquiry request using the commarea, call the backend (<SwmToken path="base/src/lgtestp3.cbl" pos="70:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGIPOL01&#39;)">`LGIPOL01`</SwmToken>), and display policy details if found, or a 'No data' message if not found (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = '01').                                                                                                                                                                                                                                                                                                 |
+| RL-005  | MAINLINE SECTION (<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>), lines 92-124; <SwmToken path="base/src/lgtestp3.cbl" pos="106:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGAPOL01&#39;)">`LGAPOL01`</SwmToken>, <SwmToken path="base/src/lgapol01.cbl" pos="103:9:9" line-data="           EXEC CICS Link Program(LGAPDB01)">`LGAPDB01`</SwmToken>                                                                                                                                          | Prepare an add request, set all required commarea fields (including payment=0, broker id=0, brokersref=blank, issue/expiry date, property details), and call the backend (<SwmToken path="base/src/lgtestp3.cbl" pos="106:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGAPOL01&#39;)">`LGAPOL01`</SwmToken>). Display confirmation if successful (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = '00'), 'Customer does not exist' if <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = '70', or 'Error Adding House Policy' for other errors. |
+| RL-006  | MAINLINE SECTION (<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>), lines 125-153; <SwmToken path="base/src/lgtestp3.cbl" pos="129:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGDPOL01&#39;)">`LGDPOL01`</SwmToken>, <SwmToken path="base/src/lgdpol01.cbl" pos="141:9:9" line-data="           EXEC CICS LINK PROGRAM(LGDPDB01)">`LGDPDB01`</SwmToken>, <SwmToken path="base/src/lgdpdb01.cbl" pos="168:9:9" line-data="               EXEC CICS LINK PROGRAM(LGDPVS01)">`LGDPVS01`</SwmToken> | Prepare a delete request, set the commarea request id and keys, and call the backend (<SwmToken path="base/src/lgtestp3.cbl" pos="129:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGDPOL01&#39;)">`LGDPOL01`</SwmToken>). If successful (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = '00'), clear all policy fields and display 'House Policy Deleted'; for errors, display 'Error Deleting House Policy'.                                                                                                                                                                                                                       |
+| RL-007  | MAINLINE SECTION (<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>), lines 155-215; <SwmToken path="base/src/lgtestp3.cbl" pos="196:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGUPOL01&#39;)">`LGUPOL01`</SwmToken>, <SwmToken path="base/src/lgupol01.cbl" pos="157:9:9" line-data="           EXEC CICS LINK Program(LGUPDB01)">`LGUPDB01`</SwmToken>, <SwmToken path="base/src/lgupdb01.cbl" pos="209:9:9" line-data="           EXEC CICS LINK Program(LGUPVS01)">`LGUPVS01`</SwmToken>     | Prepare an update request, set all required commarea fields, and call the backend (<SwmToken path="base/src/lgtestp3.cbl" pos="196:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGUPOL01&#39;)">`LGUPOL01`</SwmToken>). If successful (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = '00'), display confirmation; for errors, display 'Error Updating House Policy'.                                                                                                                                                                                                                                                                |
+| RL-008  | MAINLINE SECTION (<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>), lines 217-229                                                                                                                                                                                                                                                                                                                                                                                                                                   | If the user enters an invalid option, display 'Please enter a valid option' and reset the cursor for the next action.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| RL-016  | MAINLINE SECTION (<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>), lines 86-89, 119-122, 149-152, 209-212, 223-227, 290-293                                                                                                                                                                                                                                                                                                                                                                                        | The House Policy Menu screen must always display the latest policy details, status messages, and accept user actions via the option field.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+
+---
+
+### Relevant Functionality:
+
+- **MAINLINE SECTION (**<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>**)**
+  1. **RL-003:**
+     - Evaluate option field
+     - Route to corresponding operation (Inquiry, Add, Delete, Update, or error message)
+  2. **RL-004:**
+     - Set request id and keys in commarea
      - Call <SwmToken path="base/src/lgtestp3.cbl" pos="70:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGIPOL01&#39;)">`LGIPOL01`</SwmToken> with commarea
-       - <SwmToken path="base/src/lgtestp3.cbl" pos="70:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGIPOL01&#39;)">`LGIPOL01`</SwmToken> calls <SwmToken path="base/src/lgipol01.cbl" pos="91:9:9" line-data="           EXEC CICS LINK Program(LGIPDB01)">`LGIPDB01`</SwmToken> with commarea
-       - <SwmToken path="base/src/lgipol01.cbl" pos="91:9:9" line-data="           EXEC CICS LINK Program(LGIPDB01)">`LGIPDB01`</SwmToken> performs <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> SELECT for policy details
-       - Populate commarea with results or error code.
-  4. **RL-004:**
      - If <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = '00':
-       - Move policy details from commarea to output fields
-       - Set message field to blank
-       - Display output screen with mapped fields.
-  5. **RL-005:**
-     - If <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = '01':
-       - Clear all output fields
-       - Set message field to 'No data was returned.'
-       - Display output screen.
-  6. **RL-007:**
-     - When mapping fields:
-       - Ensure field length and format matches definition
-       - Pad or truncate as necessary
-       - Do not process fields outside specification.
-  7. **RL-008:**
-     - During inquiry operation:
-       - Only process and display specified fields
-       - Ignore any other fields in input or output structures.
-- <SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath> <SwmToken path="base/src/lgipdb01.cbl" pos="285:3:9" line-data="               PERFORM GET-HOUSE-DB2-INFO">`GET-HOUSE-DB2-INFO`</SwmToken>
-  1. **RL-006:**
-     - On backend inquiry result:
-       - If SQLCODE = 0, set <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> to '00'
-       - If SQLCODE = 100, set <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> to '01'
-       - For other errors, set <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> to '90', '98', or '99' as appropriate.
+       - Move returned policy details to display fields
+       - Send menu screen with details
+     - Else if <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = '01':
+       - Display 'No data' message
+  3. **RL-005:**
+     - Set request id and all required fields in commarea
+     - Call <SwmToken path="base/src/lgtestp3.cbl" pos="106:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGAPOL01&#39;)">`LGAPOL01`</SwmToken> with commarea
+     - If <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = '00':
+       - Display confirmation message
+     - Else if <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = '70':
+       - Display 'Customer does not exist'
+     - Else:
+       - Display 'Error Adding House Policy'
+  4. **RL-006:**
+     - Set request id and keys in commarea
+     - Call <SwmToken path="base/src/lgtestp3.cbl" pos="129:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGDPOL01&#39;)">`LGDPOL01`</SwmToken> with commarea
+     - If <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = '00':
+       - Clear all policy fields
+       - Display 'House Policy Deleted'
+     - Else:
+       - Display 'Error Deleting House Policy'
+  5. **RL-007:**
+     - Set request id and all required fields in commarea
+     - Call <SwmToken path="base/src/lgtestp3.cbl" pos="196:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGUPOL01&#39;)">`LGUPOL01`</SwmToken> with commarea
+     - If <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = '00':
+       - Display confirmation message
+     - Else if <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = '02':
+       - Display concurrency error
+     - Else:
+       - Display 'Error Updating House Policy'
+  6. **RL-008:**
+     - Display 'Please enter a valid option' message
+     - Reset cursor for next action
+  7. **RL-016:**
+     - After each operation, update display fields with latest policy details
+     - Display status or error messages in ENP3MSG field
+     - Accept user actions via option field
+
+## User Story 3: Backend integration and commarea handling for policy operations
+
+---
+
+### Story Description:
+
+As a system, I want to process policy operations using the commarea structure, map fields between DB2/VSAM and the commarea, and perform concurrency checks so that data integrity and consistency are maintained across all backend operations.
+
+---
+
+### Business Rule Mapping:
+
+| Rule ID | Paragraph Name                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | Rule Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| RL-009  | All backend calls (<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>, <SwmToken path="base/src/lgtestp3.cbl" pos="70:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGIPOL01&#39;)">`LGIPOL01`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="106:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGAPOL01&#39;)">`LGAPOL01`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="129:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGDPOL01&#39;)">`LGDPOL01`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="196:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGUPOL01&#39;)">`LGUPOL01`</SwmToken>, etc.) | All backend calls must use the commarea structure as defined, with a length of up to 32500 bytes. Only relevant fields for the operation must be populated.                                                                                                                                                                                                                                                                                                                                                      |
+| RL-012  | All backend programs (<SwmToken path="base/src/lgipol01.cbl" pos="91:9:9" line-data="           EXEC CICS LINK Program(LGIPDB01)">`LGIPDB01`</SwmToken>, <SwmToken path="base/src/lgapol01.cbl" pos="103:9:9" line-data="           EXEC CICS Link Program(LGAPDB01)">`LGAPDB01`</SwmToken>, <SwmToken path="base/src/lgdpol01.cbl" pos="141:9:9" line-data="           EXEC CICS LINK PROGRAM(LGDPDB01)">`LGDPDB01`</SwmToken>, <SwmToken path="base/src/lgupol01.cbl" pos="157:9:9" line-data="           EXEC CICS LINK Program(LGUPDB01)">`LGUPDB01`</SwmToken>)                                                                                                                                               | For all policy operations (inquiry, add, delete, update), move data between commarea fields and map fields for display/input, following the field mappings provided. Only present (<SwmToken path="base/src/lgipdb01.cbl" pos="379:13:15" line-data="      *      check whether PADDINGDATA field is non-null">`non-null`</SwmToken>) fields are moved between <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> and commarea structures.  |
+| RL-013  | All backend programs (<SwmToken path="base/src/lgipol01.cbl" pos="91:9:9" line-data="           EXEC CICS LINK Program(LGIPDB01)">`LGIPDB01`</SwmToken>, <SwmToken path="base/src/lgapol01.cbl" pos="103:9:9" line-data="           EXEC CICS Link Program(LGAPDB01)">`LGAPDB01`</SwmToken>, <SwmToken path="base/src/lgdpol01.cbl" pos="141:9:9" line-data="           EXEC CICS LINK PROGRAM(LGDPDB01)">`LGDPDB01`</SwmToken>, <SwmToken path="base/src/lgupol01.cbl" pos="157:9:9" line-data="           EXEC CICS LINK Program(LGUPDB01)">`LGUPDB01`</SwmToken>)                                                                                                                                               | All <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> operations must use the POLICY and HOUSE tables as defined, mapping commarea fields to <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> columns for add, update, delete, and inquiry operations.                                                                                                              |
+| RL-014  | <SwmToken path="base/src/lgupol01.cbl" pos="157:9:9" line-data="           EXEC CICS LINK Program(LGUPDB01)">`LGUPDB01`</SwmToken>, lines 277-347                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | All concurrency checks for updates must compare <SwmToken path="base/src/lgupdb01.cbl" pos="278:3:5" line-data="             IF CA-LASTCHANGED EQUAL TO DB2-LASTCHANGED">`CA-LASTCHANGED`</SwmToken> with <SwmToken path="base/src/lgipdb01.cbl" pos="348:2:4" line-data="                   :DB2-LASTCHANGED,">`DB2-LASTCHANGED`</SwmToken> and set <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = '02' if mismatched. |
+| RL-015  | <SwmToken path="base/src/lgdpdb01.cbl" pos="168:9:9" line-data="               EXEC CICS LINK PROGRAM(LGDPVS01)">`LGDPVS01`</SwmToken>, <SwmToken path="base/src/lgupdb01.cbl" pos="209:9:9" line-data="           EXEC CICS LINK Program(LGUPVS01)">`LGUPVS01`</SwmToken>                                                                                                                                                                                                                                                                                                                                                                                                                                         | All file operations (VSAM/KSDS) must use a 21-byte key for policy records and set error codes as specified if operations fail.                                                                                                                                                                                                                                                                                                                                                                                   |
+| RL-016  | MAINLINE SECTION (<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>), lines 86-89, 119-122, 149-152, 209-212, 223-227, 290-293                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | The House Policy Menu screen must always display the latest policy details, status messages, and accept user actions via the option field.                                                                                                                                                                                                                                                                                                                                                                       |
+
+---
+
+### Relevant Functionality:
+
+- **All backend calls (**<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>
+  1. **RL-009:**
+     - Prepare commarea with only relevant fields for the operation
+     - Pass commarea to backend programs with specified length
+- **All backend programs (**<SwmToken path="base/src/lgipol01.cbl" pos="91:9:9" line-data="           EXEC CICS LINK Program(LGIPDB01)">`LGIPDB01`</SwmToken>
+  1. **RL-012:**
+     - For each field in <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> result:
+       - If field is present (not null), move to commarea
+     - For each field in commarea to <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken>:
+       - Only move present fields
+  2. **RL-013:**
+     - Map commarea fields to <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> columns for each operation
+     - Use POLICY and HOUSE tables for all policy operations
+- <SwmToken path="base/src/lgupol01.cbl" pos="157:9:9" line-data="           EXEC CICS LINK Program(LGUPDB01)">`LGUPDB01`</SwmToken>
+  1. **RL-014:**
+     - Fetch <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> row for update
+     - Compare commarea timestamp with <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> timestamp
+     - If mismatch, set <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = '02'
+- <SwmToken path="base/src/lgdpdb01.cbl" pos="168:9:9" line-data="               EXEC CICS LINK PROGRAM(LGDPVS01)">`LGDPVS01`</SwmToken>
+  1. **RL-015:**
+     - Prepare 21-byte key for VSAM file operations
+     - Perform file operation (delete, update)
+     - If error, set appropriate error code
+- **MAINLINE SECTION (**<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>**)**
+  1. **RL-016:**
+     - After each operation, update display fields with latest policy details
+     - Display status or error messages in ENP3MSG field
+     - Accept user actions via option field
+
+## User Story 4: Error handling, status messaging, and audit logging
+
+---
+
+### Story Description:
+
+As a user, I want to see clear error and status messages, and as a system, I want to log all relevant error and context data to the audit queue so that issues can be tracked, diagnosed, and resolved efficiently.
+
+---
+
+### Business Rule Mapping:
+
+| Rule ID | Paragraph Name                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | Rule Description                                                                                                                                                                                                                                                                                                                                                                                             |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| RL-010  | Error handling sections in all backend programs (<SwmToken path="base/src/lgtestp3.cbl" pos="70:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGIPOL01&#39;)">`LGIPOL01`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="106:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGAPOL01&#39;)">`LGAPOL01`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="129:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGDPOL01&#39;)">`LGDPOL01`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="196:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGUPOL01&#39;)">`LGUPOL01`</SwmToken>, <SwmToken path="base/src/lgipol01.cbl" pos="91:9:9" line-data="           EXEC CICS LINK Program(LGIPDB01)">`LGIPDB01`</SwmToken>, <SwmToken path="base/src/lgdpol01.cbl" pos="141:9:9" line-data="           EXEC CICS LINK PROGRAM(LGDPDB01)">`LGDPDB01`</SwmToken>, <SwmToken path="base/src/lgupol01.cbl" pos="157:9:9" line-data="           EXEC CICS LINK Program(LGUPDB01)">`LGUPDB01`</SwmToken>, <SwmToken path="base/src/lgdpdb01.cbl" pos="168:9:9" line-data="               EXEC CICS LINK PROGRAM(LGDPVS01)">`LGDPVS01`</SwmToken>, <SwmToken path="base/src/lgupdb01.cbl" pos="209:9:9" line-data="           EXEC CICS LINK Program(LGUPVS01)">`LGUPVS01`</SwmToken>) | All error messages must be formatted to include date, time, program name, customer number, policy number, SQLCODE, and extra info, and must be sent to the LGSTSQ audit queue for logging. Truncation of error/context data for logging is limited to 90 bytes.                                                                                                                                              |
+| RL-011  | All backend programs (<SwmToken path="base/src/lgtestp3.cbl" pos="70:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGIPOL01&#39;)">`LGIPOL01`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="106:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGAPOL01&#39;)">`LGAPOL01`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="129:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGDPOL01&#39;)">`LGDPOL01`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="196:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGUPOL01&#39;)">`LGUPOL01`</SwmToken>, <SwmToken path="base/src/lgipol01.cbl" pos="91:9:9" line-data="           EXEC CICS LINK Program(LGIPDB01)">`LGIPDB01`</SwmToken>, <SwmToken path="base/src/lgdpol01.cbl" pos="141:9:9" line-data="           EXEC CICS LINK PROGRAM(LGDPDB01)">`LGDPDB01`</SwmToken>, <SwmToken path="base/src/lgupol01.cbl" pos="157:9:9" line-data="           EXEC CICS LINK Program(LGUPDB01)">`LGUPDB01`</SwmToken>, <SwmToken path="base/src/lgdpdb01.cbl" pos="168:9:9" line-data="               EXEC CICS LINK PROGRAM(LGDPVS01)">`LGDPVS01`</SwmToken>, <SwmToken path="base/src/lgupdb01.cbl" pos="209:9:9" line-data="           EXEC CICS LINK Program(LGUPVS01)">`LGUPVS01`</SwmToken>)                            | Error codes must be set in <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> as follows: '00' = Success, '01' = Not found, '90' = General error, '98' = Commarea too small, '99' = Unknown/unsupported request, '70' = Customer does not exist (add), '81', '82' = VSAM file errors, '02' = Timestamp mismatch (update). |
+| RL-017  | Error handling sections in all backend programs                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | All truncation of error/context data for logging must be limited to 90 bytes when sending to the LGSTSQ audit queue.                                                                                                                                                                                                                                                                                         |
+| RL-016  | MAINLINE SECTION (<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>), lines 86-89, 119-122, 149-152, 209-212, 223-227, 290-293                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | The House Policy Menu screen must always display the latest policy details, status messages, and accept user actions via the option field.                                                                                                                                                                                                                                                                   |
+
+---
+
+### Relevant Functionality:
+
+- **Error handling sections in all backend programs (**<SwmToken path="base/src/lgtestp3.cbl" pos="70:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGIPOL01&#39;)">`LGIPOL01`</SwmToken>
+  1. **RL-010:**
+     - Format error message with required fields
+     - Truncate context data to 90 bytes if needed
+     - Send error message and context to LGSTSQ audit queue
+- **All backend programs (**<SwmToken path="base/src/lgtestp3.cbl" pos="70:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGIPOL01&#39;)">`LGIPOL01`</SwmToken>
+  1. **RL-011:**
+     - Set <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> according to operation result
+     - Use specified codes for success, not found, errors, etc.
+- **Error handling sections in all backend programs**
+  1. **RL-017:**
+     - If context data length > 90 bytes, truncate to 90 bytes
+     - Send to LGSTSQ audit queue
+- **MAINLINE SECTION (**<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>**)**
+  1. **RL-016:**
+     - After each operation, update display fields with latest policy details
+     - Display status or error messages in ENP3MSG field
+     - Accept user actions via option field
 
 # Workflow
 
-# Starting the House Policy Menu Flow
+# Entry and Menu Routing
 
-This section is responsible for initializing the House Policy Menu flow, ensuring that either previous session data is handled or a fresh menu is presented to the user.
+```mermaid
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+flowchart TD
+    node1{"Is this a returning transaction? (EIBCALEN > 0)"}
+    click node1 openCode "base/src/lgtestp3.cbl:32:33"
+    node1 -->|"Yes"| node2["Go to A-GAIN section"]
+    click node2 openCode "base/src/lgtestp3.cbl:33:33"
+    node1 -->|"No"| node3["Initialize input, output, and communication area"]
+    click node3 openCode "base/src/lgtestp3.cbl:35:37"
+    node3 --> node4["Set business fields to default values"]
+    click node4 openCode "base/src/lgtestp3.cbl:38:41"
+    node4 --> node5["Send initial screen to user"]
+    click node5 openCode "base/src/lgtestp3.cbl:45:48"
+classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
 
-| Category       | Rule Name           | Description                                                                                                                                  |
-| -------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| Business logic | Session Continuity  | If previous session input data exists, the menu flow must resume from the last session rather than starting fresh.                           |
-| Business logic | Menu Initialization | All input and output map areas, as well as key policy fields, must be reset to zero before presenting the menu to the user.                  |
-| Business logic | Screen Refresh      | The House Policy Menu screen must be sent to the user terminal with any previous display erased, ensuring only current information is shown. |
+%% Swimm:
+%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+%% flowchart TD
+%%     node1{"Is this a returning transaction? (EIBCALEN > 0)"}
+%%     click node1 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:32:33"
+%%     node1 -->|"Yes"| node2["Go to <SwmToken path="base/src/lgtestp3.cbl" pos="33:5:7" line-data="              GO TO A-GAIN.">`A-GAIN`</SwmToken> section"]
+%%     click node2 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:33:33"
+%%     node1 -->|"No"| node3["Initialize input, output, and communication area"]
+%%     click node3 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:35:37"
+%%     node3 --> node4["Set business fields to default values"]
+%%     click node4 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:38:41"
+%%     node4 --> node5["Send initial screen to user"]
+%%     click node5 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:45:48"
+%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+```
+
+This section determines whether to process a returning user transaction or to display the main menu. It ensures the user interface is reset and ready for new input when appropriate.
+
+| Rule ID | Category        | Rule Name                              | Description                                                                                                                     | Implementation Details                                                                                                                                                                                                                              |
+| ------- | --------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Calculation     | Reset business fields for menu display | When there is no user input, all business fields are reset to their default values before displaying the menu.                  | Business fields are set to the following default values: customer number = '0000000000', policy number = '0000000000', validation field = '00000000', bed field = '000'. These are all strings of fixed length, left-aligned, zero-padded as shown. |
+| BR-002  | Decision Making | Route to user input handling           | When a transaction contains user input, processing is routed to the user input handling section instead of displaying the menu. | This rule is triggered when the transaction length is greater than zero, indicating a user action. No output is generated in this path from this section.                                                                                           |
+| BR-003  | Writing Output  | Display clean main menu                | When displaying the main menu, the screen is cleared and the menu is shown to the user with all fields in their default state.  | The menu screen is sent with the ERASE option, ensuring all previous content is cleared. The output is a user interface screen with all fields in their default state as described above.                                                           |
 
 <SwmSnippet path="/base/src/lgtestp3.cbl" line="30">
 
 ---
 
-In <SwmToken path="base/src/lgtestp3.cbl" pos="30:1:1" line-data="       MAINLINE SECTION.">`MAINLINE`</SwmToken>, we kick off the flow by checking if there's any input data from the previous session (EIBCALEN). If there is, we jump straight to <SwmToken path="base/src/lgtestp3.cbl" pos="33:5:7" line-data="              GO TO A-GAIN.">`A-GAIN`</SwmToken> to start the user menu logic.
+In <SwmToken path="base/src/lgtestp3.cbl" pos="30:1:1" line-data="       MAINLINE SECTION.">`MAINLINE`</SwmToken>, the flow checks if EIBCALEN > 0 to decide if it should process incoming data (user action) or just show the menu. If there's input, it jumps to <SwmToken path="base/src/lgtestp3.cbl" pos="33:5:7" line-data="              GO TO A-GAIN.">`A-GAIN`</SwmToken> for handling; otherwise, it stays in the main section.
 
 ```cobol
        MAINLINE SECTION.
@@ -296,7 +498,7 @@ In <SwmToken path="base/src/lgtestp3.cbl" pos="30:1:1" line-data="       MAINLIN
 
 ---
 
-Here we reset the input/output map areas and key policy fields to zero, making sure the menu starts with a clean slate before any user action.
+After the initial check, the code resets all the input/output maps and commarea fields to default values. This clears out any old data before showing the menu or handling new input.
 
 ```cobol
            Initialize SSMAPP3I.
@@ -316,7 +518,7 @@ Here we reset the input/output map areas and key policy fields to zero, making s
 
 ---
 
-Finally, we send the House Policy Menu screen to the user terminal, wiping any previous display and setting up for new input.
+Finally, the code sends the main menu screen to the user, wiping any previous content so the interface is clean and ready for input.
 
 ```cobol
            EXEC CICS SEND MAP ('SSMAPP3')
@@ -329,168 +531,211 @@ Finally, we send the House Policy Menu screen to the user terminal, wiping any p
 
 </SwmSnippet>
 
-# Handling User Menu Actions
+# User Input Handling and Action Dispatch
 
 ```mermaid
 %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
 flowchart TD
-    node1["User selects menu option"] --> node2{"Which option did the user select? (ENP3OPTO)"}
+    node1["User triggers House Policy Menu"] 
     click node1 openCode "base/src/lgtestp3.cbl:50:61"
-    click node2 openCode "base/src/lgtestp3.cbl:50:61"
+    node1 --> node2{"Which menu option?"}
+    click node2 openCode "base/src/lgtestp3.cbl:66:66"
     node2 -->|"Inquiry ('1')"| node3["Prepare inquiry request"]
-    click node3 openCode "base/src/lgtestp3.cbl:66:73"
-    node3 --> node4["Processing Policy Inquiry Request"]
+    click node3 openCode "base/src/lgtestp3.cbl:67:73"
+    node3 --> node4["Policy Inquiry Validation and Routing"]
     
-    node4 --> node5{"Was data found? (CA-RETURN-CODE > 0)"}
+    node4 --> node5{"Policy found? (CA-RETURN-CODE > 0)"}
     click node5 openCode "base/src/lgtestp3.cbl:74:76"
-    node5 -->|"Yes"| node6["Handling No Data Returned"]
+    node5 -->|"No"| node6["Show policy details"]
+    click node6 openCode "base/src/lgtestp3.cbl:78:89"
+    node6 --> node7["Send policy details to user"]
+    click node7 openCode "base/src/lgtestp3.cbl:86:89"
+    node7 --> node8["Wait for next action"]
+    click node8 openCode "base/src/lgtestp3.cbl:89:89"
+    node5 -->|"Yes"| node9["Show 'No data' message"]
+    click node9 openCode "base/src/lgtestp3.cbl:285:287"
+    node9 --> node8
+    node2 -->|"Add ('2')"| node10["Prepare add request"]
+    click node10 openCode "base/src/lgtestp3.cbl:93:105"
+    node10 --> node11["Policy Premium Calculation Entry"]
     
-    node5 -->|"No"| node7["Display policy details to user"]
-    click node7 openCode "base/src/lgtestp3.cbl:78:89"
-    node2 -->|"Add ('2')"| node8["Prepare add request"]
-    click node8 openCode "base/src/lgtestp3.cbl:92:105"
-    node8 --> node9["Validating and Processing Policy Add Request"]
+    node11 --> node12{"Policy added? (CA-RETURN-CODE > 0)"}
+    click node12 openCode "base/src/lgtestp3.cbl:110:113"
+    node12 -->|"No"| node13["Show 'Policy added' message"]
+    click node13 openCode "base/src/lgtestp3.cbl:114:122"
+    node13 --> node14["Send confirmation to user"]
+    click node14 openCode "base/src/lgtestp3.cbl:119:122"
+    node14 --> node15["Wait for next action"]
+    click node15 openCode "base/src/lgtestp3.cbl:122:122"
+    node12 -->|"Yes"| node16{"Error type?"}
+    click node16 openCode "base/src/lgtestp3.cbl:267:275"
+    node16 -->|"Customer missing (70)"| node17["Show 'Customer does not exist'"]
+    click node17 openCode "base/src/lgtestp3.cbl:270:271"
+    node17 --> node18["Error Message Display and Session Reset"]
     
-    node9 --> node10{"Add successful? (CA-RETURN-CODE > 0)"}
-    click node10 openCode "base/src/lgtestp3.cbl:110:113"
-    node10 -->|"Yes"| node11{"CA-RETURN-CODE = 70?"}
-    click node11 openCode "base/src/lgtestp3.cbl:268:274"
-    node11 -->|"Yes"| node12["Displaying Error and Resetting State"]
+    node18 --> node15
+    node16 -->|"Other"| node19["Show 'Error Adding House Policy'"]
+    click node19 openCode "base/src/lgtestp3.cbl:273:274"
+    node19 --> node18
+    node2 -->|"Delete ('3')"| node20["Prepare delete request"]
+    click node20 openCode "base/src/lgtestp3.cbl:126:132"
+    node20 --> node21["Validating and Routing Policy Delete Requests"]
     
-    node11 -->|"No"| node13["Displaying Error and Resetting State"]
+    node21 --> node22{"Policy deleted? (CA-RETURN-CODE > 0)"}
+    click node22 openCode "base/src/lgtestp3.cbl:133:136"
+    node22 -->|"No"| node23["Show 'Policy deleted' message"]
+    click node23 openCode "base/src/lgtestp3.cbl:138:148"
+    node23 --> node24["Send confirmation to user"]
+    click node24 openCode "base/src/lgtestp3.cbl:149:152"
+    node24 --> node25["Wait for next action"]
+    click node25 openCode "base/src/lgtestp3.cbl:152:152"
+    node22 -->|"Yes"| node26["Show 'Error Deleting House Policy'"]
+    click node26 openCode "base/src/lgtestp3.cbl:282:283"
+    node26 --> node18
+    node2 -->|"Update ('4')"| node27["Prepare update request"]
+    click node27 openCode "base/src/lgtestp3.cbl:183:195"
+    node27 --> node28["Validating and Preparing Policy Update"]
     
-    node10 -->|"No"| node14["Show 'New House Policy Inserted'"]
-    click node14 openCode "base/src/lgtestp3.cbl:114:122"
-    node2 -->|"Delete ('3')"| node15["Prepare delete request"]
-    click node15 openCode "base/src/lgtestp3.cbl:125:132"
-    node15 --> node16["Validating and Routing Policy Deletion Requests"]
-    
-    node16 --> node17{"Delete successful? (CA-RETURN-CODE > 0)"}
-    click node17 openCode "base/src/lgtestp3.cbl:133:136"
-    node17 -->|"Yes"| node18["Displaying Error and Resetting State"]
-    
-    node17 -->|"No"| node19["Show 'House Policy Deleted'"]
-    click node19 openCode "base/src/lgtestp3.cbl:138:152"
-    node2 -->|"Update ('4')"| node20["Prepare update request"]
-    click node20 openCode "base/src/lgtestp3.cbl:183:195"
-    node20 --> node21["Validating and Routing Policy Update Requests"]
-    
-    node21 --> node22{"Update successful? (CA-RETURN-CODE > 0)"}
-    click node22 openCode "base/src/lgtestp3.cbl:200:202"
-    node22 -->|"Yes"| node23["Displaying Error and Resetting State"]
-    
-    node22 -->|"No"| node24["Show 'House Policy Updated'"]
-    click node24 openCode "base/src/lgtestp3.cbl:204:212"
-    node2 -->|"Other"| node25["Prompt for valid option"]
-    click node25 openCode "base/src/lgtestp3.cbl:219:228"
+    node28 --> node29{"Policy updated? (CA-RETURN-CODE > 0)"}
+    click node29 openCode "base/src/lgtestp3.cbl:200:202"
+    node29 -->|"No"| node30["Show 'Policy updated' message"]
+    click node30 openCode "base/src/lgtestp3.cbl:204:212"
+    node30 --> node31["Send confirmation to user"]
+    click node31 openCode "base/src/lgtestp3.cbl:209:212"
+    node31 --> node32["Wait for next action"]
+    click node32 openCode "base/src/lgtestp3.cbl:212:212"
+    node29 -->|"Yes"| node33["Show 'Error Updating House Policy'"]
+    click node33 openCode "base/src/lgtestp3.cbl:278:279"
+    node33 --> node18
+    node2 -->|"Other"| node34["Show 'Please enter a valid option'"]
+    click node34 openCode "base/src/lgtestp3.cbl:219:227"
+    node34 --> node35["Send error message to user"]
+    click node35 openCode "base/src/lgtestp3.cbl:223:227"
+    node35 --> node36["Wait for next action"]
+    click node36 openCode "base/src/lgtestp3.cbl:228:228"
+
 classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
-click node4 goToHeading "Processing Policy Inquiry Request"
+click node4 goToHeading "Policy Inquiry Validation and Routing"
 node4:::HeadingStyle
-click node6 goToHeading "Handling No Data Returned"
-node6:::HeadingStyle
-click node9 goToHeading "Validating and Processing Policy Add Request"
-node9:::HeadingStyle
-click node12 goToHeading "Displaying Error and Resetting State"
-node12:::HeadingStyle
-click node13 goToHeading "Displaying Error and Resetting State"
-node13:::HeadingStyle
-click node16 goToHeading "Validating and Routing Policy Deletion Requests"
-node16:::HeadingStyle
-click node18 goToHeading "Displaying Error and Resetting State"
+click node11 goToHeading "Policy Premium Calculation Entry"
+node11:::HeadingStyle
+click node18 goToHeading "Error Message Display and Session Reset"
 node18:::HeadingStyle
-click node21 goToHeading "Validating and Routing Policy Update Requests"
+click node21 goToHeading "Validating and Routing Policy Delete Requests"
 node21:::HeadingStyle
-click node23 goToHeading "Displaying Error and Resetting State"
-node23:::HeadingStyle
+click node28 goToHeading "Validating and Preparing Policy Update"
+node28:::HeadingStyle
 
 %% Swimm:
 %% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
 %% flowchart TD
-%%     node1["User selects menu option"] --> node2{"Which option did the user select? (<SwmToken path="base/src/lgtestp3.cbl" pos="64:3:3" line-data="           EVALUATE ENP3OPTO">`ENP3OPTO`</SwmToken>)"}
+%%     node1["User triggers House Policy Menu"] 
 %%     click node1 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:50:61"
-%%     click node2 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:50:61"
+%%     node1 --> node2{"Which menu option?"}
+%%     click node2 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:66:66"
 %%     node2 -->|"Inquiry ('1')"| node3["Prepare inquiry request"]
-%%     click node3 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:66:73"
-%%     node3 --> node4["Processing Policy Inquiry Request"]
+%%     click node3 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:67:73"
+%%     node3 --> node4["Policy Inquiry Validation and Routing"]
 %%     
-%%     node4 --> node5{"Was data found? (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> > 0)"}
+%%     node4 --> node5{"Policy found? (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> > 0)"}
 %%     click node5 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:74:76"
-%%     node5 -->|"Yes"| node6["Handling No Data Returned"]
+%%     node5 -->|"No"| node6["Show policy details"]
+%%     click node6 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:78:89"
+%%     node6 --> node7["Send policy details to user"]
+%%     click node7 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:86:89"
+%%     node7 --> node8["Wait for next action"]
+%%     click node8 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:89:89"
+%%     node5 -->|"Yes"| node9["Show 'No data' message"]
+%%     click node9 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:285:287"
+%%     node9 --> node8
+%%     node2 -->|"Add ('2')"| node10["Prepare add request"]
+%%     click node10 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:93:105"
+%%     node10 --> node11["Policy Premium Calculation Entry"]
 %%     
-%%     node5 -->|"No"| node7["Display policy details to user"]
-%%     click node7 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:78:89"
-%%     node2 -->|"Add ('2')"| node8["Prepare add request"]
-%%     click node8 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:92:105"
-%%     node8 --> node9["Validating and Processing Policy Add Request"]
+%%     node11 --> node12{"Policy added? (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> > 0)"}
+%%     click node12 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:110:113"
+%%     node12 -->|"No"| node13["Show 'Policy added' message"]
+%%     click node13 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:114:122"
+%%     node13 --> node14["Send confirmation to user"]
+%%     click node14 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:119:122"
+%%     node14 --> node15["Wait for next action"]
+%%     click node15 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:122:122"
+%%     node12 -->|"Yes"| node16{"Error type?"}
+%%     click node16 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:267:275"
+%%     node16 -->|"Customer missing (70)"| node17["Show 'Customer does not exist'"]
+%%     click node17 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:270:271"
+%%     node17 --> node18["Error Message Display and Session Reset"]
 %%     
-%%     node9 --> node10{"Add successful? (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> > 0)"}
-%%     click node10 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:110:113"
-%%     node10 -->|"Yes"| node11{"<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = 70?"}
-%%     click node11 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:268:274"
-%%     node11 -->|"Yes"| node12["Displaying Error and Resetting State"]
+%%     node18 --> node15
+%%     node16 -->|"Other"| node19["Show 'Error Adding House Policy'"]
+%%     click node19 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:273:274"
+%%     node19 --> node18
+%%     node2 -->|"Delete ('3')"| node20["Prepare delete request"]
+%%     click node20 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:126:132"
+%%     node20 --> node21["Validating and Routing Policy Delete Requests"]
 %%     
-%%     node11 -->|"No"| node13["Displaying Error and Resetting State"]
+%%     node21 --> node22{"Policy deleted? (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> > 0)"}
+%%     click node22 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:133:136"
+%%     node22 -->|"No"| node23["Show 'Policy deleted' message"]
+%%     click node23 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:138:148"
+%%     node23 --> node24["Send confirmation to user"]
+%%     click node24 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:149:152"
+%%     node24 --> node25["Wait for next action"]
+%%     click node25 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:152:152"
+%%     node22 -->|"Yes"| node26["Show 'Error Deleting House Policy'"]
+%%     click node26 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:282:283"
+%%     node26 --> node18
+%%     node2 -->|"Update ('4')"| node27["Prepare update request"]
+%%     click node27 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:183:195"
+%%     node27 --> node28["Validating and Preparing Policy Update"]
 %%     
-%%     node10 -->|"No"| node14["Show 'New House Policy Inserted'"]
-%%     click node14 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:114:122"
-%%     node2 -->|"Delete ('3')"| node15["Prepare delete request"]
-%%     click node15 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:125:132"
-%%     node15 --> node16["Validating and Routing Policy Deletion Requests"]
-%%     
-%%     node16 --> node17{"Delete successful? (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> > 0)"}
-%%     click node17 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:133:136"
-%%     node17 -->|"Yes"| node18["Displaying Error and Resetting State"]
-%%     
-%%     node17 -->|"No"| node19["Show 'House Policy Deleted'"]
-%%     click node19 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:138:152"
-%%     node2 -->|"Update ('4')"| node20["Prepare update request"]
-%%     click node20 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:183:195"
-%%     node20 --> node21["Validating and Routing Policy Update Requests"]
-%%     
-%%     node21 --> node22{"Update successful? (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> > 0)"}
-%%     click node22 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:200:202"
-%%     node22 -->|"Yes"| node23["Displaying Error and Resetting State"]
-%%     
-%%     node22 -->|"No"| node24["Show 'House Policy Updated'"]
-%%     click node24 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:204:212"
-%%     node2 -->|"Other"| node25["Prompt for valid option"]
-%%     click node25 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:219:228"
+%%     node28 --> node29{"Policy updated? (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> > 0)"}
+%%     click node29 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:200:202"
+%%     node29 -->|"No"| node30["Show 'Policy updated' message"]
+%%     click node30 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:204:212"
+%%     node30 --> node31["Send confirmation to user"]
+%%     click node31 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:209:212"
+%%     node31 --> node32["Wait for next action"]
+%%     click node32 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:212:212"
+%%     node29 -->|"Yes"| node33["Show 'Error Updating House Policy'"]
+%%     click node33 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:278:279"
+%%     node33 --> node18
+%%     node2 -->|"Other"| node34["Show 'Please enter a valid option'"]
+%%     click node34 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:219:227"
+%%     node34 --> node35["Send error message to user"]
+%%     click node35 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:223:227"
+%%     node35 --> node36["Wait for next action"]
+%%     click node36 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:228:228"
+%% 
 %% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
-%% click node4 goToHeading "Processing Policy Inquiry Request"
+%% click node4 goToHeading "Policy Inquiry Validation and Routing"
 %% node4:::HeadingStyle
-%% click node6 goToHeading "Handling No Data Returned"
-%% node6:::HeadingStyle
-%% click node9 goToHeading "Validating and Processing Policy Add Request"
-%% node9:::HeadingStyle
-%% click node12 goToHeading "Displaying Error and Resetting State"
-%% node12:::HeadingStyle
-%% click node13 goToHeading "Displaying Error and Resetting State"
-%% node13:::HeadingStyle
-%% click node16 goToHeading "Validating and Routing Policy Deletion Requests"
-%% node16:::HeadingStyle
-%% click node18 goToHeading "Displaying Error and Resetting State"
+%% click node11 goToHeading "Policy Premium Calculation Entry"
+%% node11:::HeadingStyle
+%% click node18 goToHeading "Error Message Display and Session Reset"
 %% node18:::HeadingStyle
-%% click node21 goToHeading "Validating and Routing Policy Update Requests"
+%% click node21 goToHeading "Validating and Routing Policy Delete Requests"
 %% node21:::HeadingStyle
-%% click node23 goToHeading "Displaying Error and Resetting State"
-%% node23:::HeadingStyle
+%% click node28 goToHeading "Validating and Preparing Policy Update"
+%% node28:::HeadingStyle
 ```
 
-This section governs how user menu selections for house policy management are interpreted and routed to the appropriate backend operations, ensuring that each action (inquiry, add, delete, update) is validated, processed, and results are communicated to the user.
+This section is responsible for interpreting user actions from the House Policy Menu and dispatching the appropriate business process (inquiry, add, delete, update, or error handling). It ensures that the correct business logic is triggered for each menu option and that the user receives clear feedback for each action.
 
-| Category        | Rule Name                                 | Description                                                                                                                                                                                                                                                             |
-| --------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Data validation | Valid Menu Option Required                | If the user selects an invalid menu option, the system must prompt the user to select a valid option before proceeding.                                                                                                                                                 |
-| Business logic  | Policy Inquiry Result                     | When the user selects 'Inquiry', the system must retrieve and display the full house policy details for the provided customer and policy number. If no data is found, a 'No data was returned' message must be shown.                                                   |
-| Business logic  | Policy Add Validation and Confirmation    | When the user selects 'Add', the system must validate all required policy fields and attempt to add a new house policy. If the add fails, an error message must be displayed and the session state reset. If successful, a confirmation message must be shown.          |
-| Business logic  | Policy Delete Validation and Confirmation | When the user selects 'Delete', the system must validate the request and attempt to delete the specified house policy. If the delete fails, an error message must be displayed and the session state reset. If successful, a confirmation message must be shown.        |
-| Business logic  | Policy Update Validation and Confirmation | When the user selects 'Update', the system must validate the update request and attempt to update the specified house policy. If the update fails, an error message must be displayed and the session state reset. If successful, a confirmation message must be shown. |
+| Rule ID | Category        | Rule Name                                 | Description                                                                                                                                                                                                                                                                                                                                       | Implementation Details                                                                                                                                                                                                                                                                                                              |
+| ------- | --------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Data validation | Invalid Option Handling                   | If the user selects an invalid menu option, the system displays a 'Please enter a valid option' message and waits for the next action.                                                                                                                                                                                                            | The error message is displayed in user-readable text. The system waits for the next user action after displaying the message.                                                                                                                                                                                                       |
+| BR-002  | Decision Making | Policy Inquiry Dispatch                   | When the user selects the inquiry option ('1'), the system prepares an inquiry request and attempts to retrieve policy details. If policy data is found, the details are shown to the user; if not, a 'No data was returned' message is displayed.                                                                                                | The inquiry request uses a request code of <SwmToken path="base/src/lgtestp3.cbl" pos="67:4:4" line-data="                 Move &#39;01IHOU&#39;   To CA-REQUEST-ID">`01IHOU`</SwmToken>. Policy details are shown in a structured format; if no data is found, a message is displayed to the user indicating no data was returned. |
+| BR-003  | Decision Making | Policy Add Dispatch and Error Handling    | When the user selects the add option ('2'), the system prepares an add request and attempts to add a new policy. If the addition is successful, a confirmation message is shown. If the customer does not exist (error code 70), a specific error message is displayed. For other errors, a generic 'Error Adding House Policy' message is shown. | The add request uses a request code of '02AHOU'. Error code 70 triggers a 'Customer does not exist' message. Other errors result in a generic error message. Confirmation and error messages are displayed in user-readable text.                                                                                                   |
+| BR-004  | Decision Making | Policy Delete Dispatch and Error Handling | When the user selects the delete option ('3'), the system prepares a delete request and attempts to delete the policy. If the deletion is successful, a confirmation message is shown. If an error occurs, a generic 'Error Deleting House Policy' message is displayed.                                                                          | The delete request uses a request code of '03DHOU'. Confirmation and error messages are displayed in user-readable text. No specific error codes are handled beyond the generic error message.                                                                                                                                      |
+| BR-005  | Decision Making | Policy Update Dispatch and Error Handling | When the user selects the update option ('4'), the system prepares an update request and attempts to update the policy. If the update is successful, a confirmation message is shown. If an error occurs, a generic 'Error Updating House Policy' message is displayed.                                                                           | The update request uses a request code of '04UHOU'. Confirmation and error messages are displayed in user-readable text. No specific error codes are handled beyond the generic error message.                                                                                                                                      |
+| BR-006  | Decision Making | Session Continuation After Output         | After displaying any confirmation or error message, the system waits for the next user action, allowing the user to continue interacting with the menu.                                                                                                                                                                                           | The system returns to a state where it can receive further user input after displaying a message.                                                                                                                                                                                                                                   |
 
 <SwmSnippet path="/base/src/lgtestp3.cbl" line="50">
 
 ---
 
-In <SwmToken path="base/src/lgtestp3.cbl" pos="50:1:3" line-data="       A-GAIN.">`A-GAIN`</SwmToken>, we set up handlers for user actions and map failures, then receive the user's input from the menu screen into our working area.
+In <SwmToken path="base/src/lgtestp3.cbl" pos="50:1:3" line-data="       A-GAIN.">`A-GAIN`</SwmToken>, the code sets up handlers for CLEAR and <SwmToken path="base/src/lgtestp3.cbl" pos="54:1:1" line-data="                     PF3(ENDIT) END-EXEC.">`PF3`</SwmToken> keys, handles map receive failures, and grabs the user's input from the screen for further processing.
 
 ```cobol
        A-GAIN.
@@ -515,7 +760,7 @@ In <SwmToken path="base/src/lgtestp3.cbl" pos="50:1:3" line-data="       A-GAIN.
 
 ---
 
-Next, when the user selects option '1', we prep the request fields and call <SwmToken path="base/src/lgtestp3.cbl" pos="70:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGIPOL01&#39;)">`LGIPOL01`</SwmToken> to fetch the house policy details from the backend.
+Next, the code sets up the request for a house policy inquiry and calls <SwmToken path="base/src/lgtestp3.cbl" pos="70:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGIPOL01&#39;)">`LGIPOL01`</SwmToken>, which actually fetches the policy details from the backend.
 
 ```cobol
              WHEN '1'
@@ -532,46 +777,19 @@ Next, when the user selects option '1', we prep the request fields and call <Swm
 
 </SwmSnippet>
 
-## Processing Policy Inquiry Request
+## Policy Inquiry Validation and Routing
 
-```mermaid
-%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
-flowchart TD
-    node1["Initialize transaction context, set return code to '00', and prepare commarea pointer"] --> node2{"Is commarea length zero? (EIBCALEN = 0)"}
-    click node1 openCode "base/src/lgipol01.cbl:72:88"
-    node2 -->|"No"| node3["Delegate to business logic program (LGIPDB01)"]
-    click node2 openCode "base/src/lgipol01.cbl:79:83"
-    node3 --> node5["Return control to CICS"]
-    click node3 openCode "base/src/lgipol01.cbl:91:94"
-    node2 -->|"Yes"| node4["Log error 'NO COMMAREA RECEIVED', write error message, and terminate transaction"]
-    click node4 openCode "base/src/lgipol01.cbl:80:82"
-    node4 --> node5
-    click node5 openCode "base/src/lgipol01.cbl:96:96"
-classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+This section validates the presence of the commarea at the start of a policy inquiry transaction and routes the flow accordingly. It ensures that no processing occurs without required input data and that errors are logged for audit and integration.
 
-%% Swimm:
-%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
-%% flowchart TD
-%%     node1["Initialize transaction context, set return code to '00', and prepare commarea pointer"] --> node2{"Is commarea length zero? (EIBCALEN = 0)"}
-%%     click node1 openCode "<SwmPath>[base/src/lgipol01.cbl](base/src/lgipol01.cbl)</SwmPath>:72:88"
-%%     node2 -->|"No"| node3["Delegate to business logic program (<SwmToken path="base/src/lgipol01.cbl" pos="91:9:9" line-data="           EXEC CICS LINK Program(LGIPDB01)">`LGIPDB01`</SwmToken>)"]
-%%     click node2 openCode "<SwmPath>[base/src/lgipol01.cbl](base/src/lgipol01.cbl)</SwmPath>:79:83"
-%%     node3 --> node5["Return control to CICS"]
-%%     click node3 openCode "<SwmPath>[base/src/lgipol01.cbl](base/src/lgipol01.cbl)</SwmPath>:91:94"
-%%     node2 -->|"Yes"| node4["Log error 'NO COMMAREA RECEIVED', write error message, and terminate transaction"]
-%%     click node4 openCode "<SwmPath>[base/src/lgipol01.cbl](base/src/lgipol01.cbl)</SwmPath>:80:82"
-%%     node4 --> node5
-%%     click node5 openCode "<SwmPath>[base/src/lgipol01.cbl](base/src/lgipol01.cbl)</SwmPath>:96:96"
-%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
-```
-
-This section is responsible for validating the input for a policy inquiry, handling errors related to missing input, and passing valid requests to the business logic for further processing.
+| Rule ID | Category        | Rule Name                        | Description                                                                                                                      | Implementation Details                                                                                                                                                                                                                                                                                                             |
+| ------- | --------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Data validation | Commarea required for processing | If the commarea is not present at transaction start, an error message is logged and the transaction is aborted with code 'LGCA'. | The error message content is ' NO COMMAREA RECEIVED'. The abort code is 'LGCA'. The error message is logged with current date, time, and transaction data. The output format for the error message includes date (string, 8 bytes), time (string, 6 bytes), program name (string, 9 bytes), and error variable (string, 21 bytes). |
 
 <SwmSnippet path="/base/src/lgipol01.cbl" line="70">
 
 ---
 
-<SwmToken path="base/src/lgipol01.cbl" pos="70:1:1" line-data="       MAINLINE SECTION.">`MAINLINE`</SwmToken> in <SwmToken path="base/src/lgtestp3.cbl" pos="70:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGIPOL01&#39;)">`LGIPOL01`</SwmToken> checks for valid input, logs and aborts if missing, then calls <SwmToken path="base/src/lgipol01.cbl" pos="91:9:9" line-data="           EXEC CICS LINK Program(LGIPDB01)">`LGIPDB01`</SwmToken> to actually fetch the policy details from the database.
+In <SwmToken path="base/src/lgipol01.cbl" pos="70:1:1" line-data="       MAINLINE SECTION.">`MAINLINE`</SwmToken> of <SwmToken path="base/src/lgtestp3.cbl" pos="70:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGIPOL01&#39;)">`LGIPOL01`</SwmToken>, the code checks if the commarea is present. If not, it logs an error and aborts, since it can't do anything without input data.
 
 ```cobol
        MAINLINE SECTION.
@@ -588,8 +806,40 @@ This section is responsible for validating the input for a policy inquiry, handl
                PERFORM WRITE-ERROR-MESSAGE
                EXEC CICS ABEND ABCODE('LGCA') NODUMP END-EXEC
            END-IF
+```
 
-      * initialize commarea return code to zero
+---
+
+</SwmSnippet>
+
+### Error Logging and Message Queue Write
+
+This section handles the logging of errors and the writing of messages to a message queue, ensuring that error context is captured and available for downstream processing or audit.
+
+| Rule ID | Category       | Rule Name                   | Description                                                                                                                   | Implementation Details                                                                                                                                                                                                                                                                                                                                        |
+| ------- | -------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Writing Output | Error log entry composition | When an error occurs, the error log entry includes the error date, error time, and error context information.                 | The error log entry includes: error date (8 characters, string), error time (6 characters, string), and error context (21 characters, string). The log entry also includes a 9-character identifier (' <SwmToken path="base/src/lgtestp3.cbl" pos="70:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGIPOL01&#39;)">`LGIPOL01`</SwmToken>'). |
+| BR-002  | Writing Output | Message queue composition   | When a message is written to the message queue, it includes a 9-character identifier and up to 90 characters of context data. | The message includes: a 9-character identifier ('COMMAREA='), and up to 90 characters of context data (string, padded with spaces if shorter).                                                                                                                                                                                                                |
+
+See <SwmLink doc-title="Capturing and Routing Error Messages">[Capturing and Routing Error Messages](.swm%5Ccapturing-and-routing-error-messages.4s11m3ku.sw.md)</SwmLink>
+
+### Post-Error Handling and Database Call
+
+This section coordinates the post-validation workflow by setting the return code, preparing the commarea, invoking the database fetch for policy details, and returning control to the caller.
+
+| Rule ID | Category                        | Rule Name                    | Description                                                                                                                                                                                                                                   | Implementation Details                                                                                                |
+| ------- | ------------------------------- | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Calculation                     | Set success return code      | The return code is set to '00' before invoking the database fetch process, indicating a successful precondition for the database operation.                                                                                                   | The return code is set to the string '00', which is a two-character numeric value indicating success.                 |
+| BR-002  | Writing Output                  | Return control to caller     | After the database fetch is complete, control is returned to the caller, signaling the end of this section's processing.                                                                                                                      | Control is returned using a standard return operation; no additional data is output at this step.                     |
+| BR-003  | Invoking a Service or a Process | Invoke policy database fetch | The database fetch process for policy details is invoked by calling the <SwmToken path="base/src/lgipol01.cbl" pos="91:9:9" line-data="           EXEC CICS LINK Program(LGIPDB01)">`LGIPDB01`</SwmToken> service with the prepared commarea. | The database fetch is invoked via a service call, passing the commarea as input. The commarea length is 32,500 bytes. |
+
+<SwmSnippet path="/base/src/lgipol01.cbl" line="86">
+
+---
+
+After <SwmToken path="base/src/lgtestp3.cbl" pos="70:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGIPOL01&#39;)">`LGIPOL01`</SwmToken> validates the input, it calls <SwmToken path="base/src/lgipol01.cbl" pos="91:9:9" line-data="           EXEC CICS LINK Program(LGIPDB01)">`LGIPDB01`</SwmToken> to do the database fetch for the policy details, then returns control back up the stack.
+
+```cobol
            MOVE '00' TO CA-RETURN-CODE
            MOVE EIBCALEN TO WS-CALEN.
            SET WS-ADDR-DFHCOMMAREA TO ADDRESS OF DFHCOMMAREA.
@@ -607,309 +857,60 @@ This section is responsible for validating the input for a policy inquiry, handl
 
 </SwmSnippet>
 
-## Logging Errors and Message Handling
+## Database Inquiry Preparation
 
 ```mermaid
 %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
 flowchart TD
-    node1["Capture current date and time for error log"]
-    click node1 openCode "base/src/lgipol01.cbl:110:115"
-    node1 --> node2["Write error message (with date/time) to system queue"]
-    click node2 openCode "base/src/lgipol01.cbl:116:122"
-    node2 --> node3{"Is commarea length > 0?"}
-    click node3 openCode "base/src/lgipol01.cbl:124:124"
-    node3 -->|"No"| node6["Finish"]
-    node3 -->|"Yes"| node4{"Is commarea length < 91?"}
-    click node4 openCode "base/src/lgipol01.cbl:125:125"
-    node4 -->|"Yes"| node5["Write all commarea data to system queue"]
-    click node5 openCode "base/src/lgipol01.cbl:126:130"
-    node4 -->|"No"| node7["Write first 90 bytes of commarea data to system queue"]
-    click node7 openCode "base/src/lgipol01.cbl:132:136"
-    node5 --> node6
-    node7 --> node6
-    click node6 openCode "base/src/lgipol01.cbl:139:139"
-classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
-
-%% Swimm:
-%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
-%% flowchart TD
-%%     node1["Capture current date and time for error log"]
-%%     click node1 openCode "<SwmPath>[base/src/lgipol01.cbl](base/src/lgipol01.cbl)</SwmPath>:110:115"
-%%     node1 --> node2["Write error message (with date/time) to system queue"]
-%%     click node2 openCode "<SwmPath>[base/src/lgipol01.cbl](base/src/lgipol01.cbl)</SwmPath>:116:122"
-%%     node2 --> node3{"Is commarea length > 0?"}
-%%     click node3 openCode "<SwmPath>[base/src/lgipol01.cbl](base/src/lgipol01.cbl)</SwmPath>:124:124"
-%%     node3 -->|"No"| node6["Finish"]
-%%     node3 -->|"Yes"| node4{"Is commarea length < 91?"}
-%%     click node4 openCode "<SwmPath>[base/src/lgipol01.cbl](base/src/lgipol01.cbl)</SwmPath>:125:125"
-%%     node4 -->|"Yes"| node5["Write all commarea data to system queue"]
-%%     click node5 openCode "<SwmPath>[base/src/lgipol01.cbl](base/src/lgipol01.cbl)</SwmPath>:126:130"
-%%     node4 -->|"No"| node7["Write first 90 bytes of commarea data to system queue"]
-%%     click node7 openCode "<SwmPath>[base/src/lgipol01.cbl](base/src/lgipol01.cbl)</SwmPath>:132:136"
-%%     node5 --> node6
-%%     node7 --> node6
-%%     click node6 openCode "<SwmPath>[base/src/lgipol01.cbl](base/src/lgipol01.cbl)</SwmPath>:139:139"
-%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
-```
-
-This section ensures that all error events are logged with accurate timestamps and relevant context data, and that these logs are reliably sent to system queues for monitoring and potential response.
-
-| Category       | Rule Name                     | Description                                                                                                                                                               |
-| -------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Business logic | Timestamped error logging     | Every error message must include the current date and time to ensure accurate event tracking.                                                                             |
-| Business logic | Dual queue logging            | Error messages must be written to both the TDQ and TSQ system queues for redundancy and monitoring.                                                                       |
-| Business logic | Commarea data inclusion       | If commarea data is present and its length is less than 91 bytes, the entire commarea must be included in the error log; otherwise, only the first 90 bytes are included. |
-| Business logic | Special message handling      | Messages starting with 'Q=' must have their extension and content adjusted before logging, and their length recalculated accordingly.                                     |
-| Business logic | Response to received messages | If the error message is received from another program, a response must be sent back to the sender.                                                                        |
-
-<SwmSnippet path="/base/src/lgipol01.cbl" line="107">
-
----
-
-<SwmToken path="base/src/lgipol01.cbl" pos="107:1:5" line-data="       WRITE-ERROR-MESSAGE.">`WRITE-ERROR-MESSAGE`</SwmToken> logs errors with timestamps, sends both the error details and up to 90 bytes of commarea data to LGSTSQ for queueing and monitoring.
-
-```cobol
-       WRITE-ERROR-MESSAGE.
-      * Save SQLCODE in message
-      * Obtain and format current time and date
-           EXEC CICS ASKTIME ABSTIME(ABS-TIME)
-           END-EXEC
-           EXEC CICS FORMATTIME ABSTIME(ABS-TIME)
-                     MMDDYYYY(DATE1)
-                     TIME(TIME1)
-           END-EXEC
-           MOVE DATE1 TO EM-DATE
-           MOVE TIME1 TO EM-TIME
-      * Write output message to TDQ
-           EXEC CICS LINK PROGRAM('LGSTSQ')
-                     COMMAREA(ERROR-MSG)
-                     LENGTH(LENGTH OF ERROR-MSG)
-           END-EXEC.
-      * Write 90 bytes or as much as we have of commarea to TDQ
-           IF EIBCALEN > 0 THEN
-             IF EIBCALEN < 91 THEN
-               MOVE DFHCOMMAREA(1:EIBCALEN) TO CA-DATA
-               EXEC CICS LINK PROGRAM('LGSTSQ')
-                         COMMAREA(CA-ERROR-MSG)
-                         LENGTH(LENGTH OF CA-ERROR-MSG)
-               END-EXEC
-             ELSE
-               MOVE DFHCOMMAREA(1:90) TO CA-DATA
-               EXEC CICS LINK PROGRAM('LGSTSQ')
-                         COMMAREA(CA-ERROR-MSG)
-                         LENGTH(LENGTH OF CA-ERROR-MSG)
-               END-EXEC
-             END-IF
-           END-IF.
-           EXIT.
-```
-
----
-
-</SwmSnippet>
-
-<SwmSnippet path="/base/src/lgstsq.cbl" line="55">
-
----
-
-<SwmToken path="base/src/lgstsq.cbl" pos="55:1:1" line-data="       MAINLINE SECTION.">`MAINLINE`</SwmToken> in LGSTSQ checks if the invoking program is present to decide how to prep the message, handles special 'Q=' messages, adjusts lengths, and writes to both TDQ and TSQ. If the message was received, it sends a response back.
-
-```cobol
-       MAINLINE SECTION.
-
-           MOVE SPACES TO WRITE-MSG.
-           MOVE SPACES TO WS-RECV.
-
-           EXEC CICS ASSIGN SYSID(WRITE-MSG-SYSID)
-                RESP(WS-RESP)
-           END-EXEC.
-
-           EXEC CICS ASSIGN INVOKINGPROG(WS-INVOKEPROG)
-                RESP(WS-RESP)
-           END-EXEC.
-           
-           IF WS-INVOKEPROG NOT = SPACES
-              MOVE 'C' To WS-FLAG
-              MOVE COMMA-DATA  TO WRITE-MSG-MSG
-              MOVE EIBCALEN    TO WS-RECV-LEN
-           ELSE
-              EXEC CICS RECEIVE INTO(WS-RECV)
-                  LENGTH(WS-RECV-LEN)
-                  RESP(WS-RESP)
-              END-EXEC
-              MOVE 'R' To WS-FLAG
-              MOVE WS-RECV-DATA  TO WRITE-MSG-MSG
-              SUBTRACT 5 FROM WS-RECV-LEN
-           END-IF.
-
-           MOVE 'GENAERRS' TO STSQ-NAME.
-           IF WRITE-MSG-MSG(1:2) = 'Q=' THEN
-              MOVE WRITE-MSG-MSG(3:4) TO STSQ-EXT
-              MOVE WRITE-MSG-REST TO TEMPO
-              MOVE TEMPO          TO WRITE-MSG-MSG
-              SUBTRACT 7 FROM WS-RECV-LEN
-           END-IF.
-
-           ADD 5 TO WS-RECV-LEN.
-
-      * Write output message to TDQ CSMT
-      *
-           EXEC CICS WRITEQ TD QUEUE(STDQ-NAME)
-                     FROM(WRITE-MSG)
-                     RESP(WS-RESP)
-                     LENGTH(WS-RECV-LEN)
-
-           END-EXEC.
-
-      * Write output message to Genapp TSQ
-      * If no space is available then the task will not wait for
-      *  storage to become available but will ignore the request...
-      *
-           EXEC CICS WRITEQ TS QUEUE(STSQ-NAME)
-                     FROM(WRITE-MSG)
-                     RESP(WS-RESP)
-                     NOSUSPEND
-                     LENGTH(WS-RECV-LEN)
-
-           END-EXEC.
-
-           If WS-FLAG = 'R' Then
-             EXEC CICS SEND TEXT FROM(FILLER-X)
-              WAIT
-              ERASE
-              LENGTH(1)
-              FREEKB
-             END-EXEC.
-
-           EXEC CICS RETURN
-           END-EXEC.
-```
-
----
-
-</SwmSnippet>
-
-## Retrieving Policy Details from Database
-
-```mermaid
-%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
-flowchart TD
-    node1["Start: Initialize business context"]
-    click node1 openCode "base/src/lgipdb01.cbl:230:246"
-    node1 --> node2{"Was input data received?"}
+    node1["Prepare and validate incoming request"] --> node2{"Is request data present? (EIBCALEN > 0)"}
+    click node1 openCode "base/src/lgipdb01.cbl:230:245"
+    node2 -->|"No"| node3["Database Error Reporting and Queue Integration"]
     click node2 openCode "base/src/lgipdb01.cbl:251:255"
-    node2 -->|"No"| node3["Set error: No input data
-End with error (code '99')"]
-    click node3 openCode "base/src/lgipdb01.cbl:252:254"
-    node2 -->|"Yes"| node4["Prepare input for processing"]
-    click node4 openCode "base/src/lgipdb01.cbl:258:267"
-    node4 --> node5{"Requested policy type?"}
-    click node5 openCode "base/src/lgipdb01.cbl:277:310"
-    node5 -->|"Endowment"| node6["Retrieve Endowment policy data"]
-    click node6 openCode "base/src/lgipdb01.cbl:280:282"
-    node5 -->|"House"| node7["Retrieve House policy data"]
-    click node7 openCode "base/src/lgipdb01.cbl:284:286"
-    node5 -->|"Motor"| node8["Retrieve Motor policy data"]
-    click node8 openCode "base/src/lgipdb01.cbl:288:290"
-    node5 -->|"Commercial"| node9["Retrieve Commercial policy data"]
-    click node9 openCode "base/src/lgipdb01.cbl:292:305"
-    node5 -->|"Other"| node10["Set error: Unsupported request
-End with error (code '99')"]
-    click node10 openCode "base/src/lgipdb01.cbl:308:309"
-    node6 --> node11{"Was policy data found?"}
-    click node11 openCode "base/src/lgipdb01.cbl:370:429"
-    node7 --> node12{"Was policy data found?"}
-    click node12 openCode "base/src/lgipdb01.cbl:478:519"
-    node8 --> node13{"Was policy data found?"}
-    click node13 openCode "base/src/lgipdb01.cbl:572:617"
-    node9 --> node14{"Was policy data found?"}
-    click node14 openCode "base/src/lgipdb01.cbl:---:---"
-    node11 -->|"Yes"| node15["Return success (code '00')"]
-    click node15 openCode "base/src/lgipdb01.cbl:373:418"
-    node11 -->|"No"| node16["Set error: Not found (code '01')"]
-    click node16 openCode "base/src/lgipdb01.cbl:421:424"
-    node11 -->|"DB error"| node17["Set error: General error (code '90')
-Write error message"]
-    click node17 openCode "base/src/lgipdb01.cbl:425:429"
-    node12 -->|"Yes"| node15
-    node12 -->|"No"| node16
-    node12 -->|"DB error"| node17
-    node13 -->|"Yes"| node15
-    node13 -->|"No"| node16
-    node13 -->|"DB error"| node17
-    node14 -->|"Yes"| node15
-    node14 -->|"No"| node16
-    node14 -->|"DB error"| node17
+    
+    node2 -->|"Yes"| node4{"What type of policy request? (CA-REQUEST-ID)"}
+    click node4 openCode "base/src/lgipdb01.cbl:277:310"
+    node4 -->|"Endowment (01IEND)"| node5["Endowment Policy Data Retrieval"]
+    
+    node4 -->|"Other/Unknown"| node3
 classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+click node3 goToHeading "Database Error Reporting and Queue Integration"
+node3:::HeadingStyle
+click node5 goToHeading "Endowment Policy Data Retrieval"
+node5:::HeadingStyle
 
 %% Swimm:
 %% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
 %% flowchart TD
-%%     node1["Start: Initialize business context"]
-%%     click node1 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:230:246"
-%%     node1 --> node2{"Was input data received?"}
+%%     node1["Prepare and validate incoming request"] --> node2{"Is request data present? (EIBCALEN > 0)"}
+%%     click node1 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:230:245"
+%%     node2 -->|"No"| node3["Database Error Reporting and Queue Integration"]
 %%     click node2 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:251:255"
-%%     node2 -->|"No"| node3["Set error: No input data
-%% End with error (code '99')"]
-%%     click node3 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:252:254"
-%%     node2 -->|"Yes"| node4["Prepare input for processing"]
-%%     click node4 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:258:267"
-%%     node4 --> node5{"Requested policy type?"}
-%%     click node5 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:277:310"
-%%     node5 -->|"Endowment"| node6["Retrieve Endowment policy data"]
-%%     click node6 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:280:282"
-%%     node5 -->|"House"| node7["Retrieve House policy data"]
-%%     click node7 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:284:286"
-%%     node5 -->|"Motor"| node8["Retrieve Motor policy data"]
-%%     click node8 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:288:290"
-%%     node5 -->|"Commercial"| node9["Retrieve Commercial policy data"]
-%%     click node9 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:292:305"
-%%     node5 -->|"Other"| node10["Set error: Unsupported request
-%% End with error (code '99')"]
-%%     click node10 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:308:309"
-%%     node6 --> node11{"Was policy data found?"}
-%%     click node11 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:370:429"
-%%     node7 --> node12{"Was policy data found?"}
-%%     click node12 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:478:519"
-%%     node8 --> node13{"Was policy data found?"}
-%%     click node13 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:572:617"
-%%     node9 --> node14{"Was policy data found?"}
-%%     click node14 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:---:---"
-%%     node11 -->|"Yes"| node15["Return success (code '00')"]
-%%     click node15 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:373:418"
-%%     node11 -->|"No"| node16["Set error: Not found (code '01')"]
-%%     click node16 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:421:424"
-%%     node11 -->|"DB error"| node17["Set error: General error (code '90')
-%% Write error message"]
-%%     click node17 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:425:429"
-%%     node12 -->|"Yes"| node15
-%%     node12 -->|"No"| node16
-%%     node12 -->|"DB error"| node17
-%%     node13 -->|"Yes"| node15
-%%     node13 -->|"No"| node16
-%%     node13 -->|"DB error"| node17
-%%     node14 -->|"Yes"| node15
-%%     node14 -->|"No"| node16
-%%     node14 -->|"DB error"| node17
+%%     
+%%     node2 -->|"Yes"| node4{"What type of policy request? (<SwmToken path="base/src/lgtestp3.cbl" pos="67:9:13" line-data="                 Move &#39;01IHOU&#39;   To CA-REQUEST-ID">`CA-REQUEST-ID`</SwmToken>)"}
+%%     click node4 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:277:310"
+%%     node4 -->|"Endowment (<SwmToken path="base/src/lgipdb01.cbl" pos="279:4:4" line-data="             WHEN &#39;01IEND&#39;">`01IEND`</SwmToken>)"| node5["Endowment Policy Data Retrieval"]
+%%     
+%%     node4 -->|"Other/Unknown"| node3
 %% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+%% click node3 goToHeading "Database Error Reporting and Queue Integration"
+%% node3:::HeadingStyle
+%% click node5 goToHeading "Endowment Policy Data Retrieval"
+%% node5:::HeadingStyle
 ```
 
-This section governs the retrieval of insurance policy details from the database, ensuring that only valid requests are processed and that errors are handled according to business requirements. It supports multiple policy types and ensures that output data is correctly formatted and returned to the caller.
+This section prepares for and validates incoming database inquiry requests, ensuring required input is present and routing the request to the appropriate processing or error handling routine based on the request type.
 
-| Category        | Rule Name                         | Description                                                                                                                                      |
-| --------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Data validation | Supported policy type enforcement | Only supported policy types (Endowment, House, Motor, Commercial) may be processed. Any other policy type must result in error code '99'.        |
-| Data validation | Insufficient buffer size handling | If the commarea buffer provided is not large enough to hold the required policy data, the process must return error code '98'.                   |
-| Business logic  | Successful policy retrieval       | On successful retrieval, all relevant policy data fields must be populated in the commarea, and the process must return success code '00'.       |
-| Business logic  | Nullable field handling           | Nullable fields in the database must only be populated in the output if they are not null, as indicated by their respective indicator variables. |
-| Business logic  | Policy data end marker            | The end of the returned policy data must be marked with the string 'FINAL' in the appropriate output field for each policy type.                 |
-| Business logic  | Error message composition         | All error messages must include the customer number, policy number, SQL request type, and SQLCODE for tracking and audit purposes.               |
+| Rule ID | Category        | Rule Name                                          | Description                                                                                                                                                                                                                                                        | Implementation Details                                                                                                                              |
+| ------- | --------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Data validation | Missing input data error handling                  | If no input data is present in the request (commarea length is zero), an error message is generated and the transaction is abended.                                                                                                                                | The error message includes the text ' NO COMMAREA RECEIVED' and is sent to a message queue. The transaction is abended with abend code 'LGCA'.      |
+| BR-002  | Decision Making | Endowment policy data retrieval                    | If the request type is for an endowment policy (<SwmToken path="base/src/lgipdb01.cbl" pos="279:4:4" line-data="             WHEN &#39;01IEND&#39;">`01IEND`</SwmToken>), the system retrieves endowment policy data for the specified customer and policy number. | The request ID is a 6-character string. The output is the full endowment policy data placed in the commarea for the caller.                         |
+| BR-003  | Decision Making | Unknown or unsupported request type error handling | If the request type is not recognized as an endowment policy, the system generates an error message and routes the request to error handling.                                                                                                                      | The error message is formatted and sent to a message queue. The specific handling may include logging and abending, depending on the error routine. |
 
 <SwmSnippet path="/base/src/lgipdb01.cbl" line="230">
 
 ---
 
-<SwmToken path="base/src/lgipdb01.cbl" pos="230:1:1" line-data="       MAINLINE SECTION.">`MAINLINE`</SwmToken> in <SwmToken path="base/src/lgipol01.cbl" pos="91:9:9" line-data="           EXEC CICS LINK Program(LGIPDB01)">`LGIPDB01`</SwmToken> checks for valid input, figures out which policy type is requested, and calls the right subroutine to fetch details from the database. Errors and missing data are handled with return codes and logging.
+In <SwmToken path="base/src/lgipdb01.cbl" pos="230:1:1" line-data="       MAINLINE SECTION.">`MAINLINE`</SwmToken> of <SwmToken path="base/src/lgipol01.cbl" pos="91:9:9" line-data="           EXEC CICS LINK Program(LGIPDB01)">`LGIPDB01`</SwmToken>, the code resets all working storage and <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> variables to start with a clean slate for the database inquiry.
 
 ```cobol
        MAINLINE SECTION.
@@ -928,82 +929,86 @@ This section governs the retrieval of insurance policy details from the database
            INITIALIZE DB2-IN-INTEGERS.
            INITIALIZE DB2-OUT-INTEGERS.
            INITIALIZE DB2-POLICY.
-
-      *---------------------------------------------------------------*
-      * Check commarea and obtain required details                    *
-      *---------------------------------------------------------------*
-      * If NO commarea received issue an ABEND
-           IF EIBCALEN IS EQUAL TO ZERO
-             MOVE ' NO COMMAREA RECEIVED' TO EM-VARIABLE
-             PERFORM WRITE-ERROR-MESSAGE
-             EXEC CICS ABEND ABCODE('LGCA') NODUMP END-EXEC
-           END-IF
-
-      * initialize commarea return code to zero
-           MOVE '00' TO CA-RETURN-CODE
-           MOVE EIBCALEN TO WS-CALEN
-           SET WS-ADDR-DFHCOMMAREA TO ADDRESS OF DFHCOMMAREA
-
-      * Convert commarea customer & policy nums to DB2 integer format
-           MOVE CA-CUSTOMER-NUM TO DB2-CUSTOMERNUM-INT
-           MOVE CA-POLICY-NUM   TO DB2-POLICYNUM-INT
-      * and save in error msg field incase required
-           MOVE CA-CUSTOMER-NUM TO EM-CUSNUM
-           MOVE CA-POLICY-NUM   TO EM-POLNUM
-
-      *----------------------------------------------------------------*
-      * Check which policy type is being requested                     *
-      * This is not actually required whilst only endowment policy     *
-      * inquires are supported, but will make future expansion simpler *
-      *----------------------------------------------------------------*
-      * Upper case value passed in Request Id field                    *
-           MOVE FUNCTION UPPER-CASE(CA-REQUEST-ID) TO WS-REQUEST-ID
-
-           EVALUATE WS-REQUEST-ID
-
-             WHEN '01IEND'
-               INITIALIZE DB2-ENDOWMENT
-               PERFORM GET-ENDOW-DB2-INFO
-
-             WHEN '01IHOU'
-               INITIALIZE DB2-HOUSE
-               PERFORM GET-HOUSE-DB2-INFO
-
-             WHEN '01IMOT'
-               INITIALIZE DB2-MOTOR
-               PERFORM GET-MOTOR-DB2-INFO
-
-             WHEN '01ICOM'
-               INITIALIZE DB2-COMMERCIAL
-               PERFORM GET-COMMERCIAL-DB2-INFO-1
-
-             WHEN '02ICOM'
-               INITIALIZE DB2-COMMERCIAL
-               PERFORM GET-COMMERCIAL-DB2-INFO-2
-
-             WHEN '03ICOM'
-               INITIALIZE DB2-COMMERCIAL
-               PERFORM GET-COMMERCIAL-DB2-INFO-3
-
-             WHEN '05ICOM'
-               INITIALIZE DB2-COMMERCIAL
-               PERFORM GET-COMMERCIAL-DB2-INFO-5
-
-             WHEN OTHER
-               MOVE '99' TO CA-RETURN-CODE
-
-           END-EVALUATE.
 ```
 
 ---
 
 </SwmSnippet>
 
+<SwmSnippet path="/base/src/lgipdb01.cbl" line="251">
+
+---
+
+Before doing anything else, the code checks if the commarea is present. If not, it logs the error and abends, just like in the previous modules.
+
+```cobol
+           IF EIBCALEN IS EQUAL TO ZERO
+             MOVE ' NO COMMAREA RECEIVED' TO EM-VARIABLE
+             PERFORM WRITE-ERROR-MESSAGE
+             EXEC CICS ABEND ABCODE('LGCA') NODUMP END-EXEC
+           END-IF
+```
+
+---
+
+</SwmSnippet>
+
+### Database Error Reporting and Queue Integration
+
+```mermaid
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+flowchart TD
+    node1["Record error: SQL error code, date, and time"] --> node2["Send error message to LGSTSQ audit queue"]
+    click node1 openCode "base/src/lgipdb01.cbl:997:1009"
+    click node2 openCode "base/src/lgipdb01.cbl:1010:1013"
+    node2 --> node3{"Is there transaction data? (EIBCALEN > 0)"}
+    click node3 openCode "base/src/lgipdb01.cbl:1015:1015"
+    node3 -->|"Yes"| node4{"Is transaction data length < 91?"}
+    click node4 openCode "base/src/lgipdb01.cbl:1016:1016"
+    node3 -->|"No"| node7["Finish"]
+    click node7 openCode "base/src/lgipdb01.cbl:1030:1030"
+    node4 -->|"Yes"| node5["Send all transaction data to LGSTSQ audit queue"]
+    click node5 openCode "base/src/lgipdb01.cbl:1017:1021"
+    node4 -->|"No"| node6["Send first 90 characters of transaction data to LGSTSQ audit queue"]
+    click node6 openCode "base/src/lgipdb01.cbl:1023:1027"
+    node5 --> node7
+    node6 --> node7
+classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+
+%% Swimm:
+%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+%% flowchart TD
+%%     node1["Record error: SQL error code, date, and time"] --> node2["Send error message to LGSTSQ audit queue"]
+%%     click node1 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:997:1009"
+%%     click node2 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:1010:1013"
+%%     node2 --> node3{"Is there transaction data? (EIBCALEN > 0)"}
+%%     click node3 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:1015:1015"
+%%     node3 -->|"Yes"| node4{"Is transaction data length < 91?"}
+%%     click node4 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:1016:1016"
+%%     node3 -->|"No"| node7["Finish"]
+%%     click node7 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:1030:1030"
+%%     node4 -->|"Yes"| node5["Send all transaction data to LGSTSQ audit queue"]
+%%     click node5 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:1017:1021"
+%%     node4 -->|"No"| node6["Send first 90 characters of transaction data to LGSTSQ audit queue"]
+%%     click node6 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:1023:1027"
+%%     node5 --> node7
+%%     node6 --> node7
+%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+```
+
+This section is responsible for recording database errors and integrating with the system audit queue. It ensures that error context and relevant transaction data are captured for later analysis and debugging.
+
+| Rule ID | Category        | Rule Name                       | Description                                                                                                                                                                                         | Implementation Details                                                                                                                                                                                                                                     |
+| ------- | --------------- | ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Calculation     | Error context capture           | When a database error occurs, the error message sent to the audit queue includes the SQL error code, the current date, and the current time.                                                        | The error message includes: SQL error code (5 digits), date (8 characters, MMDDYYYY), and time (6 characters, HHMMSS). These are included in the output message structure.                                                                                 |
+| BR-002  | Decision Making | Transaction data audit logging  | If transaction data is present, it is sent to the audit queue as a separate message. If the transaction data is less than 91 bytes, all of it is sent; otherwise, only the first 90 bytes are sent. | If transaction data is present and less than 91 bytes, the entire data is sent. If 91 bytes or more, only the first 90 bytes are sent. The audit message includes a prefix 'COMMAREA=' (9 characters) followed by up to 90 characters of transaction data. |
+| BR-003  | Writing Output  | Error message queue integration | Every error message is sent to the LGSTSQ audit queue for logging and integration.                                                                                                                  | The error message is sent as a structured message to the audit queue. The message includes the error context as described above.                                                                                                                           |
+
 <SwmSnippet path="/base/src/lgipdb01.cbl" line="997">
 
 ---
 
-<SwmToken path="base/src/lgipdb01.cbl" pos="997:1:5" line-data="       WRITE-ERROR-MESSAGE.">`WRITE-ERROR-MESSAGE`</SwmToken> here saves the SQLCODE, formats the timestamp, and calls LGSTSQ to log both the error message and up to 90 bytes of commarea data for tracking.
+In <SwmToken path="base/src/lgipdb01.cbl" pos="997:1:5" line-data="       WRITE-ERROR-MESSAGE.">`WRITE-ERROR-MESSAGE`</SwmToken>, the code logs the SQLCODE and current timestamp, then sends the error message to the message queue for later analysis.
 
 ```cobol
        WRITE-ERROR-MESSAGE.
@@ -1016,6 +1021,19 @@ This section governs the retrieval of insurance policy details from the database
                      MMDDYYYY(DATE1)
                      TIME(TIME1)
            END-EXEC
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgipdb01.cbl" line="1007">
+
+---
+
+After formatting the error message, the code calls LGSTSQ to write the message to the system queues for logging and integration.
+
+```cobol
            MOVE DATE1 TO EM-DATE
            MOVE TIME1 TO EM-TIME
       * Write output message to TDQ
@@ -1023,7 +1041,19 @@ This section governs the retrieval of insurance policy details from the database
                      COMMAREA(ERROR-MSG)
                      LENGTH(LENGTH OF ERROR-MSG)
            END-EXEC.
-      * Write 90 bytes or as much as we have of commarea to TDQ
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgipdb01.cbl" line="1015">
+
+---
+
+After returning from LGSTSQ, the code checks the commarea length and writes up to 90 bytes of it to the queue for debugging or audit, using the same logging mechanism.
+
+```cobol
            IF EIBCALEN > 0 THEN
              IF EIBCALEN < 91 THEN
                MOVE DFHCOMMAREA(1:EIBCALEN) TO CA-DATA
@@ -1046,11 +1076,167 @@ This section governs the retrieval of insurance policy details from the database
 
 </SwmSnippet>
 
+### Finalization After Error Logging
+
+This section prepares the environment for the next policy processing step after error handling, ensuring all required fields are set and routing the request to the correct handler based on the policy type.
+
+| Rule ID | Category        | Rule Name                            | Description                                                                                                                                                                                                                                                                                     | Implementation Details                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| ------- | --------------- | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Calculation     | Reset return code after error        | The return code is reset to '00' after error handling to indicate a successful state for subsequent processing.                                                                                                                                                                                 | The return code is set to the string '00', which is a two-digit alphanumeric value.                                                                                                                                                                                                                                                                                                                                                                              |
+| BR-002  | Calculation     | Transfer customer and policy numbers | The customer and policy numbers from the commarea are transferred to both <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> integer fields and error message fields for use in subsequent processing and error reporting. | Customer and policy numbers are transferred as 10-digit numeric values to both <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> integer fields and error message fields. The error message fields are alphanumeric, while the <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> fields are signed 9-digit integers. |
+| BR-003  | Decision Making | Dispatch by request id               | The request is dispatched to the appropriate policy handler based on the upper-cased request id value.                                                                                                                                                                                          | The request id is a 6-character alphanumeric string, upper-cased before evaluation. For example, <SwmToken path="base/src/lgipdb01.cbl" pos="279:4:4" line-data="             WHEN &#39;01IEND&#39;">`01IEND`</SwmToken> triggers the endowment policy handler.                                                                                                                                                                                                  |
+
+<SwmSnippet path="/base/src/lgipdb01.cbl" line="258">
+
+---
+
+After returning from the error handling, the code resets the return code and prepares all the fields for the next step, which is figuring out what policy type to process.
+
+```cobol
+           MOVE '00' TO CA-RETURN-CODE
+           MOVE EIBCALEN TO WS-CALEN
+           SET WS-ADDR-DFHCOMMAREA TO ADDRESS OF DFHCOMMAREA
+
+      * Convert commarea customer & policy nums to DB2 integer format
+           MOVE CA-CUSTOMER-NUM TO DB2-CUSTOMERNUM-INT
+           MOVE CA-POLICY-NUM   TO DB2-POLICYNUM-INT
+      * and save in error msg field incase required
+           MOVE CA-CUSTOMER-NUM TO EM-CUSNUM
+           MOVE CA-POLICY-NUM   TO EM-POLNUM
+
+      *----------------------------------------------------------------*
+      * Check which policy type is being requested                     *
+      * This is not actually required whilst only endowment policy     *
+      * inquires are supported, but will make future expansion simpler *
+      *----------------------------------------------------------------*
+      * Upper case value passed in Request Id field                    *
+           MOVE FUNCTION UPPER-CASE(CA-REQUEST-ID) TO WS-REQUEST-ID
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgipdb01.cbl" line="277">
+
+---
+
+The code checks the request id and dispatches to the right handler for the policy type, so each policy type gets processed by its own routine.
+
+```cobol
+           EVALUATE WS-REQUEST-ID
+
+             WHEN '01IEND'
+               INITIALIZE DB2-ENDOWMENT
+               PERFORM GET-ENDOW-DB2-INFO
+```
+
+---
+
+</SwmSnippet>
+
+### Endowment Policy Data Retrieval
+
+```mermaid
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+flowchart TD
+  node1["Query endowment policy details from database"]
+  click node1 openCode "base/src/lgipdb01.cbl:327:368"
+  node2{"Was the query successful? (SQLCODE = 0)"}
+  click node2 openCode "base/src/lgipdb01.cbl:370:371"
+  node3["Calculate required response size"]
+  click node3 openCode "base/src/lgipdb01.cbl:373:375"
+  node4{"Is space sufficient? (EIBCALEN < WS-REQUIRED-CA-LEN)"}
+  click node4 openCode "base/src/lgipdb01.cbl:390:390"
+  node5["Set return code to '98' (insufficient space)"]
+  click node5 openCode "base/src/lgipdb01.cbl:391:392"
+  node6["Move policy and endowment data to response (only present fields)"]
+  click node6 openCode "base/src/lgipdb01.cbl:394:413"
+  node7["Set end marker in response"]
+  click node7 openCode "base/src/lgipdb01.cbl:417:417"
+  node8{"Was no data found? (SQLCODE = 100)"}
+  click node8 openCode "base/src/lgipdb01.cbl:421:421"
+  node9["Set return code to '01' (not found)"]
+  click node9 openCode "base/src/lgipdb01.cbl:423:423"
+  node10["Set return code to '90' (error)"]
+  click node10 openCode "base/src/lgipdb01.cbl:426:426"
+  node11["Return"]
+  click node11 openCode "base/src/lgipdb01.cbl:432:432"
+
+  node1 --> node2
+  node2 -->|"Yes"| node3
+  node2 -->|"No"| node8
+  node3 --> node4
+  node4 -->|"Yes"| node5
+  node4 -->|"No"| node6
+  node5 --> node11
+  node6 --> node7
+  node7 --> node11
+  node8 -->|"Yes"| node9
+  node8 -->|"No"| node10
+  node9 --> node11
+  node10 --> node11
+classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+
+%% Swimm:
+%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+%% flowchart TD
+%%   node1["Query endowment policy details from database"]
+%%   click node1 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:327:368"
+%%   node2{"Was the query successful? (SQLCODE = 0)"}
+%%   click node2 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:370:371"
+%%   node3["Calculate required response size"]
+%%   click node3 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:373:375"
+%%   node4{"Is space sufficient? (EIBCALEN < <SwmToken path="base/src/lgipdb01.cbl" pos="374:13:19" line-data="             ADD WS-CA-HEADERTRAILER-LEN TO WS-REQUIRED-CA-LEN">`WS-REQUIRED-CA-LEN`</SwmToken>)"}
+%%   click node4 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:390:390"
+%%   node5["Set return code to '98' (insufficient space)"]
+%%   click node5 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:391:392"
+%%   node6["Move policy and endowment data to response (only present fields)"]
+%%   click node6 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:394:413"
+%%   node7["Set end marker in response"]
+%%   click node7 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:417:417"
+%%   node8{"Was no data found? (SQLCODE = 100)"}
+%%   click node8 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:421:421"
+%%   node9["Set return code to '01' (not found)"]
+%%   click node9 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:423:423"
+%%   node10["Set return code to '90' (error)"]
+%%   click node10 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:426:426"
+%%   node11["Return"]
+%%   click node11 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:432:432"
+%% 
+%%   node1 --> node2
+%%   node2 -->|"Yes"| node3
+%%   node2 -->|"No"| node8
+%%   node3 --> node4
+%%   node4 -->|"Yes"| node5
+%%   node4 -->|"No"| node6
+%%   node5 --> node11
+%%   node6 --> node7
+%%   node7 --> node11
+%%   node8 -->|"Yes"| node9
+%%   node8 -->|"No"| node10
+%%   node9 --> node11
+%%   node10 --> node11
+%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+```
+
+This section retrieves endowment policy details from the database and populates the response commarea with the results or an error code, depending on the outcome of the query and buffer size checks.
+
+| Rule ID | Category        | Rule Name                             | Description                                                                                                                                                                                              | Implementation Details                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| ------- | --------------- | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Data validation | Insufficient commarea space           | If the commarea is too short to hold all required data, the return code is set to '98' and no data is returned.                                                                                          | The return code '98' is set in the commarea. No policy or endowment data is returned. The required length includes header/trailer (+33), full endowment (+124), and any variable-length padding data.                                                                                                                                                                                                                                   |
+| BR-002  | Calculation     | Commarea length calculation           | The required commarea length is calculated by adding the header/trailer length (+33), the full endowment length (+124), and the length of any variable-length padding data if present.                   | Header/trailer length is 33 bytes, full endowment length is 124 bytes, and variable-length padding data is included if not null. All lengths are in bytes.                                                                                                                                                                                                                                                                              |
+| BR-003  | Decision Making | Policy not found handling             | If the database query returns no data (SQLCODE = 100), the return code is set to '01' to indicate the policy was not found.                                                                              | The return code '01' is set in the commarea. No policy or endowment data is returned.                                                                                                                                                                                                                                                                                                                                                   |
+| BR-004  | Decision Making | General error handling                | If the database query fails for any reason other than 'not found', the return code is set to '90' to indicate a general error.                                                                           | The return code '90' is set in the commarea. No policy or endowment data is returned.                                                                                                                                                                                                                                                                                                                                                   |
+| BR-005  | Decision Making | Null field exclusion                  | Nullable fields from the database are only moved to the commarea if their indicator variable is not -1, ensuring that null values are not returned in the response.                                      | Only <SwmToken path="base/src/lgipdb01.cbl" pos="379:13:15" line-data="      *      check whether PADDINGDATA field is non-null">`non-null`</SwmToken> fields are populated in the commarea. Null fields are omitted from the response.                                                                                                                                                                                                 |
+| BR-006  | Writing Output  | Populate commarea on successful query | If the database query for endowment policy details is successful, the response commarea is populated with the policy and endowment data fields, including only those fields that are present (not null). | The commarea includes policy and endowment fields as defined in the struct, with only <SwmToken path="base/src/lgipdb01.cbl" pos="379:13:15" line-data="      *      check whether PADDINGDATA field is non-null">`non-null`</SwmToken> fields populated. The output format aligns with the commarea structure, and the 'FINAL' marker is placed at the end of the policy data. Field sizes and alignment follow the struct definition. |
+| BR-007  | Writing Output  | End marker placement                  | The 'FINAL' marker is placed at the end of the policy data in the commarea to indicate the end of the returned data.                                                                                     | The string 'FINAL' (5 bytes) is written at the position immediately after the last policy data byte in the commarea.                                                                                                                                                                                                                                                                                                                    |
+
 <SwmSnippet path="/base/src/lgipdb01.cbl" line="327">
 
 ---
 
-<SwmToken path="base/src/lgipdb01.cbl" pos="327:1:7" line-data="       GET-ENDOW-DB2-INFO.">`GET-ENDOW-DB2-INFO`</SwmToken> fetches endowment policy data, checks for variable-length PADDINGDATA, adjusts buffer sizes, and sets repository-specific return codes and end markers. Nullable fields are handled using indicator variables.
+In <SwmToken path="base/src/lgipdb01.cbl" pos="327:1:7" line-data="       GET-ENDOW-DB2-INFO.">`GET-ENDOW-DB2-INFO`</SwmToken>, the code runs the SQL SELECT for endowment policy details, assuming the input numbers and commarea are valid. If the commarea is too short, it bails out with an error code.
 
 ```cobol
        GET-ENDOW-DB2-INFO.
@@ -1095,27 +1281,55 @@ This section governs the retrieval of insurance policy details from the database
                      POLICY.POLICYNUMBER =
                         :DB2-POLICYNUM-INT               )
            END-EXEC
+```
 
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgipdb01.cbl" line="370">
+
+---
+
+After a successful fetch, the code adds up the required commarea length, including any extra space for variable-length fields like PADDINGDATA, so the output fits.
+
+```cobol
            IF SQLCODE = 0
       *      Select was successful
 
       *      Calculate size of commarea required to return all data
              ADD WS-CA-HEADERTRAILER-LEN TO WS-REQUIRED-CA-LEN
              ADD WS-FULL-ENDOW-LEN       TO WS-REQUIRED-CA-LEN
+```
 
-      *----------------------------------------------------------------*
-      *      Specific code to allow for length of VACHAR data
-      *      check whether PADDINGDATA field is non-null
-      *        and calculate length of endowment policy
-      *        and position of free space in commarea after policy data
-      *----------------------------------------------------------------*
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgipdb01.cbl" line="383">
+
+---
+
+If PADDINGDATA isn't null, the code adds its length to the commarea size and updates the end marker position, so all the data fits.
+
+```cobol
              IF IND-E-PADDINGDATAL NOT EQUAL MINUS-ONE
                ADD DB2-E-PADDING-LEN TO WS-REQUIRED-CA-LEN
                ADD DB2-E-PADDING-LEN TO END-POLICY-POS
              END-IF
+```
 
-      *      if commarea received is not large enough ...
-      *        set error return code and return to caller
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgipdb01.cbl" line="390">
+
+---
+
+Before moving <SwmToken path="base/src/lgipdb01.cbl" pos="398:3:3" line-data="                 MOVE DB2-BROKERID-INT    TO DB2-BROKERID">`DB2`</SwmToken> fields to the commarea, the code checks if they're null using indicator variables. It also uses specific codes and a 'FINAL' marker for signaling errors and end-of-data.
+
+```cobol
              IF EIBCALEN IS LESS THAN WS-REQUIRED-CA-LEN
                MOVE '98' TO CA-RETURN-CODE
                EXEC CICS RETURN END-EXEC
@@ -1126,10 +1340,35 @@ This section governs the retrieval of insurance policy details from the database
                IF IND-BROKERID NOT EQUAL MINUS-ONE
                  MOVE DB2-BROKERID-INT    TO DB2-BROKERID
                END-IF
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgipdb01.cbl" line="400">
+
+---
+
+The code only moves the payment value if it's not null, following the same pattern as for other nullable fields.
+
+```cobol
                IF IND-PAYMENT NOT EQUAL MINUS-ONE
                  MOVE DB2-PAYMENT-INT TO DB2-PAYMENT
                END-IF
-      *----------------------------------------------------------------*
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgipdb01.cbl" line="404">
+
+---
+
+After handling nulls, the code copies the <SwmToken path="base/src/lgipdb01.cbl" pos="404:3:3" line-data="               MOVE DB2-E-TERM-SINT       TO DB2-E-TERM">`DB2`</SwmToken> policy and endowment data into the commarea fields, following the repo's data structure layout.
+
+```cobol
                MOVE DB2-E-TERM-SINT       TO DB2-E-TERM
                MOVE DB2-E-SUMASSURED-INT  TO DB2-E-SUMASSURED
 
@@ -1140,9 +1379,19 @@ This section governs the retrieval of insurance policy details from the database
                  MOVE DB2-E-PADDINGDATA TO
                      CA-E-PADDING-DATA(1:DB2-E-PADDING-LEN)
                END-IF
-             END-IF
+```
 
-      *      Mark the end of the policy data
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgipdb01.cbl" line="417">
+
+---
+
+After moving all the data, the code writes 'FINAL' at the end of the policy data in the commarea, so downstream code knows where the data ends.
+
+```cobol
              MOVE 'FINAL' TO CA-E-PADDING-DATA(END-POLICY-POS:5)
 
            ELSE
@@ -1153,8 +1402,33 @@ This section governs the retrieval of insurance policy details from the database
              ELSE
       *        something has gone wrong
                MOVE '90' TO CA-RETURN-CODE
-      *        Write error message to TD QUEUE(CSMT)
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgipdb01.cbl" line="428">
+
+---
+
+If the SQL fetch fails, the code calls <SwmToken path="base/src/lgipdb01.cbl" pos="428:3:7" line-data="               PERFORM WRITE-ERROR-MESSAGE">`WRITE-ERROR-MESSAGE`</SwmToken> to log the error and all the context for support teams.
+
+```cobol
                PERFORM WRITE-ERROR-MESSAGE
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgipdb01.cbl" line="429">
+
+---
+
+After either moving the data or handling an error, the code just exits, returning control and the commarea (with data or error code) to the caller.
+
+```cobol
              END-IF
 
            END-IF.
@@ -1165,11 +1439,178 @@ This section governs the retrieval of insurance policy details from the database
 
 </SwmSnippet>
 
+### Other Policy Type Dispatch
+
+```mermaid
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+flowchart TD
+    node1{"What is the insurance request type?"}
+    click node1 openCode "base/src/lgipdb01.cbl:283:310"
+    node1 -->|"House (01IHOU)"| node2["Initialize and process house insurance"]
+    click node2 openCode "base/src/lgipdb01.cbl:284:285"
+    node1 -->|"Motor (01IMOT)"| node3["Initialize and process motor insurance"]
+    click node3 openCode "base/src/lgipdb01.cbl:288:289"
+    subgraph commercial["Commercial insurance requests"]
+      node1 -->|"Commercial 1 (01ICOM)"| node4["Initialize and process commercial type 1"]
+      click node4 openCode "base/src/lgipdb01.cbl:292:293"
+      node1 -->|"Commercial 2 (02ICOM)"| node5["Initialize and process commercial type 2"]
+      click node5 openCode "base/src/lgipdb01.cbl:296:297"
+      node1 -->|"Commercial 3 (03ICOM)"| node6["Initialize and process commercial type 3"]
+      click node6 openCode "base/src/lgipdb01.cbl:300:301"
+      node1 -->|"Commercial 5 (05ICOM)"| node7["Initialize and process commercial type 5"]
+      click node7 openCode "base/src/lgipdb01.cbl:304:305"
+    end
+    node1 -->|"Other"| node8["Return error code '99'"]
+    click node8 openCode "base/src/lgipdb01.cbl:308:309"
+
+classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+
+%% Swimm:
+%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+%% flowchart TD
+%%     node1{"What is the insurance request type?"}
+%%     click node1 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:283:310"
+%%     node1 -->|"House (<SwmToken path="base/src/lgtestp3.cbl" pos="67:4:4" line-data="                 Move &#39;01IHOU&#39;   To CA-REQUEST-ID">`01IHOU`</SwmToken>)"| node2["Initialize and process house insurance"]
+%%     click node2 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:284:285"
+%%     node1 -->|"Motor (<SwmToken path="base/src/lgipdb01.cbl" pos="287:4:4" line-data="             WHEN &#39;01IMOT&#39;">`01IMOT`</SwmToken>)"| node3["Initialize and process motor insurance"]
+%%     click node3 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:288:289"
+%%     subgraph commercial["Commercial insurance requests"]
+%%       node1 -->|"Commercial 1 (<SwmToken path="base/src/lgipdb01.cbl" pos="291:4:4" line-data="             WHEN &#39;01ICOM&#39;">`01ICOM`</SwmToken>)"| node4["Initialize and process commercial type 1"]
+%%       click node4 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:292:293"
+%%       node1 -->|"Commercial 2 (<SwmToken path="base/src/lgipdb01.cbl" pos="295:4:4" line-data="             WHEN &#39;02ICOM&#39;">`02ICOM`</SwmToken>)"| node5["Initialize and process commercial type 2"]
+%%       click node5 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:296:297"
+%%       node1 -->|"Commercial 3 (<SwmToken path="base/src/lgipdb01.cbl" pos="299:4:4" line-data="             WHEN &#39;03ICOM&#39;">`03ICOM`</SwmToken>)"| node6["Initialize and process commercial type 3"]
+%%       click node6 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:300:301"
+%%       node1 -->|"Commercial 5 (<SwmToken path="base/src/lgipdb01.cbl" pos="303:4:4" line-data="             WHEN &#39;05ICOM&#39;">`05ICOM`</SwmToken>)"| node7["Initialize and process commercial type 5"]
+%%       click node7 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:304:305"
+%%     end
+%%     node1 -->|"Other"| node8["Return error code '99'"]
+%%     click node8 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:308:309"
+%% 
+%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+```
+
+This section routes insurance requests to the correct handler based on the policy type code. It ensures that only supported policy types are processed and signals an error for unsupported types.
+
+| Rule ID | Category        | Rule Name                            | Description                                                                                                                                                                                                                           | Implementation Details                                                                                                                                                                                                   |
+| ------- | --------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| BR-001  | Decision Making | House insurance dispatch             | If the insurance request type is <SwmToken path="base/src/lgtestp3.cbl" pos="67:4:4" line-data="                 Move &#39;01IHOU&#39;   To CA-REQUEST-ID">`01IHOU`</SwmToken>, the system dispatches to the house insurance handler. | The policy type code <SwmToken path="base/src/lgtestp3.cbl" pos="67:4:4" line-data="                 Move &#39;01IHOU&#39;   To CA-REQUEST-ID">`01IHOU`</SwmToken> is a 6-character string representing house insurance. |
+| BR-002  | Decision Making | Motor insurance dispatch             | If the insurance request type is <SwmToken path="base/src/lgipdb01.cbl" pos="287:4:4" line-data="             WHEN &#39;01IMOT&#39;">`01IMOT`</SwmToken>, the system dispatches to the motor insurance handler.                       | The policy type code <SwmToken path="base/src/lgipdb01.cbl" pos="287:4:4" line-data="             WHEN &#39;01IMOT&#39;">`01IMOT`</SwmToken> is a 6-character string representing motor insurance.                       |
+| BR-003  | Decision Making | Commercial type 1 insurance dispatch | If the insurance request type is <SwmToken path="base/src/lgipdb01.cbl" pos="291:4:4" line-data="             WHEN &#39;01ICOM&#39;">`01ICOM`</SwmToken>, the system dispatches to the commercial type 1 insurance handler.           | The policy type code <SwmToken path="base/src/lgipdb01.cbl" pos="291:4:4" line-data="             WHEN &#39;01ICOM&#39;">`01ICOM`</SwmToken> is a 6-character string representing commercial insurance type 1.           |
+| BR-004  | Decision Making | Commercial type 2 insurance dispatch | If the insurance request type is <SwmToken path="base/src/lgipdb01.cbl" pos="295:4:4" line-data="             WHEN &#39;02ICOM&#39;">`02ICOM`</SwmToken>, the system dispatches to the commercial type 2 insurance handler.           | The policy type code <SwmToken path="base/src/lgipdb01.cbl" pos="295:4:4" line-data="             WHEN &#39;02ICOM&#39;">`02ICOM`</SwmToken> is a 6-character string representing commercial insurance type 2.           |
+| BR-005  | Decision Making | Commercial type 3 insurance dispatch | If the insurance request type is <SwmToken path="base/src/lgipdb01.cbl" pos="299:4:4" line-data="             WHEN &#39;03ICOM&#39;">`03ICOM`</SwmToken>, the system dispatches to the commercial type 3 insurance handler.           | The policy type code <SwmToken path="base/src/lgipdb01.cbl" pos="299:4:4" line-data="             WHEN &#39;03ICOM&#39;">`03ICOM`</SwmToken> is a 6-character string representing commercial insurance type 3.           |
+| BR-006  | Decision Making | Commercial type 5 insurance dispatch | If the insurance request type is <SwmToken path="base/src/lgipdb01.cbl" pos="303:4:4" line-data="             WHEN &#39;05ICOM&#39;">`05ICOM`</SwmToken>, the system dispatches to the commercial type 5 insurance handler.           | The policy type code <SwmToken path="base/src/lgipdb01.cbl" pos="303:4:4" line-data="             WHEN &#39;05ICOM&#39;">`05ICOM`</SwmToken> is a 6-character string representing commercial insurance type 5.           |
+| BR-007  | Decision Making | Unsupported insurance type error     | If the insurance request type does not match any known value, the system sets the return code to '99' to indicate an error.                                                                                                           | The error code '99' is a 2-digit numeric value indicating an unsupported insurance type.                                                                                                                                 |
+
+<SwmSnippet path="/base/src/lgipdb01.cbl" line="283">
+
+---
+
+After returning from <SwmToken path="base/src/lgipdb01.cbl" pos="281:3:9" line-data="               PERFORM GET-ENDOW-DB2-INFO">`GET-ENDOW-DB2-INFO`</SwmToken>, the code checks for other policy types and dispatches to the right handler (house, motor, commercial, etc.), each with its own logic.
+
+```cobol
+             WHEN '01IHOU'
+               INITIALIZE DB2-HOUSE
+               PERFORM GET-HOUSE-DB2-INFO
+
+             WHEN '01IMOT'
+               INITIALIZE DB2-MOTOR
+               PERFORM GET-MOTOR-DB2-INFO
+
+             WHEN '01ICOM'
+               INITIALIZE DB2-COMMERCIAL
+               PERFORM GET-COMMERCIAL-DB2-INFO-1
+
+             WHEN '02ICOM'
+               INITIALIZE DB2-COMMERCIAL
+               PERFORM GET-COMMERCIAL-DB2-INFO-2
+
+             WHEN '03ICOM'
+               INITIALIZE DB2-COMMERCIAL
+               PERFORM GET-COMMERCIAL-DB2-INFO-3
+
+             WHEN '05ICOM'
+               INITIALIZE DB2-COMMERCIAL
+               PERFORM GET-COMMERCIAL-DB2-INFO-5
+
+             WHEN OTHER
+               MOVE '99' TO CA-RETURN-CODE
+
+           END-EVALUATE.
+```
+
+---
+
+</SwmSnippet>
+
+## House Policy Data Retrieval
+
+```mermaid
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+flowchart TD
+    node1["Query house and policy info from database"] --> node2{"Was query successful?"}
+    click node1 openCode "base/src/lgipdb01.cbl:443:476"
+    node2 -->|"SQLCODE = 0"| node3{"Is commarea large enough?"}
+    click node2 openCode "base/src/lgipdb01.cbl:478:478"
+    node3 -->|"Yes"| node4["Prepare and return house and policy data"]
+    click node3 openCode "base/src/lgipdb01.cbl:487:505"
+    node3 -->|"No"| node5["Set return code '98' (commarea too small)"]
+    click node5 openCode "base/src/lgipdb01.cbl:488:489"
+    node4 --> node9["Mark response as FINAL"]
+    click node4 openCode "base/src/lgipdb01.cbl:508:508"
+    node9 --> node10["Exit"]
+    click node9 openCode "base/src/lgipdb01.cbl:523:523"
+    node2 -->|"SQLCODE != 0"| node6{"No data found?"}
+    click node6 openCode "base/src/lgipdb01.cbl:512:512"
+    node6 -->|"SQLCODE = 100"| node7["Set return code '01' (not found)"]
+    click node7 openCode "base/src/lgipdb01.cbl:514:514"
+    node6 -->|"Other"| node8["Set return code '90' (error)"]
+    click node8 openCode "base/src/lgipdb01.cbl:517:517"
+    node7 --> node10
+    node8 --> node10
+classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+
+%% Swimm:
+%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+%% flowchart TD
+%%     node1["Query house and policy info from database"] --> node2{"Was query successful?"}
+%%     click node1 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:443:476"
+%%     node2 -->|"SQLCODE = 0"| node3{"Is commarea large enough?"}
+%%     click node2 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:478:478"
+%%     node3 -->|"Yes"| node4["Prepare and return house and policy data"]
+%%     click node3 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:487:505"
+%%     node3 -->|"No"| node5["Set return code '98' (commarea too small)"]
+%%     click node5 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:488:489"
+%%     node4 --> node9["Mark response as FINAL"]
+%%     click node4 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:508:508"
+%%     node9 --> node10["Exit"]
+%%     click node9 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:523:523"
+%%     node2 -->|"SQLCODE != 0"| node6{"No data found?"}
+%%     click node6 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:512:512"
+%%     node6 -->|"SQLCODE = 100"| node7["Set return code '01' (not found)"]
+%%     click node7 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:514:514"
+%%     node6 -->|"Other"| node8["Set return code '90' (error)"]
+%%     click node8 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:517:517"
+%%     node7 --> node10
+%%     node8 --> node10
+%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+```
+
+This section retrieves house and policy information from the database and returns it in a structured commarea, or sets an appropriate error code if the data cannot be retrieved or the commarea is too small.
+
+| Rule ID | Category        | Rule Name                                     | Description                                                                                                                                                                                                                | Implementation Details                                                                                                                                                                                                                                                                          |
+| ------- | --------------- | --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Data validation | Commarea too small error                      | If the commarea provided is too small to hold the required data, the system sets the return code to '98' and returns without providing house or policy data.                                                               | The return code '98' indicates the commarea is too small. No house or policy data is returned in this case.                                                                                                                                                                                     |
+| BR-002  | Decision Making | Successful data retrieval and commarea sizing | If the database query for house and policy data is successful, the system checks if the commarea is large enough to hold all required data. If it is, the house and policy data are prepared and returned in the commarea. | The required commarea length is calculated as the sum of 33 (header/trailer) and 130 (full house data), totaling 163 bytes. The returned data includes all house and policy fields as defined in the commarea structure, with string and numeric fields as specified in the struct definitions. |
+| BR-003  | Decision Making | No data found error                           | If the database query returns no data (SQLCODE = 100), the system sets the return code to '01' to indicate that the requested house or policy was not found.                                                               | The return code '01' indicates that the requested data was not found. No house or policy data is returned in this case.                                                                                                                                                                         |
+| BR-004  | Decision Making | General database error                        | If the database query fails for any reason other than 'no data found', the system sets the return code to '90' to indicate a general error.                                                                                | The return code '90' indicates a general error. No house or policy data is returned in this case.                                                                                                                                                                                               |
+| BR-005  | Writing Output  | Mark response as FINAL                        | After successfully preparing and moving the house and policy data into the commarea, the system marks the response as 'FINAL' to indicate the end of the data.                                                             | The string 'FINAL' is written at the end of the policy data in the commarea, occupying 5 bytes. This signals to downstream processes that the data is complete.                                                                                                                                 |
+
 <SwmSnippet path="/base/src/lgipdb01.cbl" line="441">
 
 ---
 
-<SwmToken path="base/src/lgipdb01.cbl" pos="441:1:7" line-data="       GET-HOUSE-DB2-INFO.">`GET-HOUSE-DB2-INFO`</SwmToken> retrieves house policy data, checks buffer size, handles nullable fields, moves <SwmToken path="base/src/lgipdb01.cbl" pos="441:5:5" line-data="       GET-HOUSE-DB2-INFO.">`DB2`</SwmToken> results to the output, and sets repository-specific error codes and end markers.
+In <SwmToken path="base/src/lgipdb01.cbl" pos="441:1:7" line-data="       GET-HOUSE-DB2-INFO.">`GET-HOUSE-DB2-INFO`</SwmToken>, the code runs the SQL SELECT for house policy details, assuming the input and commarea are valid and structured as expected.
 
 ```cobol
        GET-HOUSE-DB2-INFO.
@@ -1208,7 +1649,19 @@ This section governs the retrieval of insurance policy details from the database
                      POLICY.POLICYNUMBER =
                         :DB2-POLICYNUM-INT               )
            END-EXEC
+```
 
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgipdb01.cbl" line="478">
+
+---
+
+After fetching the house policy, the code checks if the commarea is big enough. If not, it sets an error code and returns; otherwise, it moves the data, handling nulls with indicator variables.
+
+```cobol
            IF SQLCODE = 0
       *      Select was successful
 
@@ -1228,17 +1681,54 @@ This section governs the retrieval of insurance policy details from the database
                IF IND-BROKERID NOT EQUAL MINUS-ONE
                  MOVE DB2-BROKERID-INT  TO DB2-BROKERID
                END-IF
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgipdb01.cbl" line="497">
+
+---
+
+The code only moves the payment value if it's not null, following the same pattern as for other nullable fields.
+
+```cobol
                IF IND-PAYMENT NOT EQUAL MINUS-ONE
                  MOVE DB2-PAYMENT-INT TO DB2-PAYMENT
                END-IF
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgipdb01.cbl" line="500">
+
+---
+
+After handling nulls, the code copies the <SwmToken path="base/src/lgipdb01.cbl" pos="500:3:3" line-data="               MOVE DB2-H-BEDROOMS-SINT TO DB2-H-BEDROOMS">`DB2`</SwmToken> policy and house data into the commarea fields, following the repo's data structure layout.
+
+```cobol
                MOVE DB2-H-BEDROOMS-SINT TO DB2-H-BEDROOMS
                MOVE DB2-H-VALUE-INT     TO DB2-H-VALUE
 
                MOVE DB2-POLICY-COMMON   TO CA-POLICY-COMMON
                MOVE DB2-HOUSE           TO CA-HOUSE(1:WS-HOUSE-LEN)
              END-IF
+```
 
-      *      Mark the end of the policy data
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgipdb01.cbl" line="508">
+
+---
+
+After moving all the data, the code writes 'FINAL' at the end of the policy data in the commarea, so downstream code knows where the data ends.
+
+```cobol
              MOVE 'FINAL' TO CA-H-FILLER(1:5)
 
            ELSE
@@ -1249,8 +1739,33 @@ This section governs the retrieval of insurance policy details from the database
              ELSE
       *        something has gone wrong
                MOVE '90' TO CA-RETURN-CODE
-      *        Write error message to TD QUEUE(CSMT)
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgipdb01.cbl" line="519">
+
+---
+
+Here the code calls <SwmToken path="base/src/lgipdb01.cbl" pos="519:3:7" line-data="               PERFORM WRITE-ERROR-MESSAGE">`WRITE-ERROR-MESSAGE`</SwmToken> to log the SQL error and context if the fetch failed. This makes sure error details are captured for support and monitoring.
+
+```cobol
                PERFORM WRITE-ERROR-MESSAGE
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgipdb01.cbl" line="520">
+
+---
+
+Back in <SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>, after handling errors or moving data, the code just exits and returns the commarea. The caller gets either the requested data or an error code, depending on what happened.
+
+```cobol
              END-IF
 
            END-IF.
@@ -1261,11 +1776,89 @@ This section governs the retrieval of insurance policy details from the database
 
 </SwmSnippet>
 
+## Motor Policy Data Fetch and Preparation
+
+```mermaid
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+flowchart TD
+    node1["Query motor policy details from database"]
+    click node1 openCode "base/src/lgipdb01.cbl:531:570"
+    node1 --> node2
+    node2{"Was query successful? (SQLCODE = 0)"}
+    click node2 openCode "base/src/lgipdb01.cbl:572:572"
+    node2 -->|"Yes"| node3
+    node2 -->|"No"| node7
+    node3{"Is commarea large enough? (EIBCALEN < WS-REQUIRED-CA-LEN)"}
+    click node3 openCode "base/src/lgipdb01.cbl:581:581"
+    node3 -->|"Yes"| node4
+    node3 -->|"No"| node5
+    node4["Return code 98: Commarea too small"]
+    click node4 openCode "base/src/lgipdb01.cbl:582:583"
+    node5["Map fields, handle nulls, finalize output"]
+    click node5 openCode "base/src/lgipdb01.cbl:588:606"
+    node5 --> node6
+    node6["Return data with code 00 (success)"]
+    click node6 openCode "base/src/lgipdb01.cbl:606:607"
+    node7{"No record found? (SQLCODE = 100)"}
+    click node7 openCode "base/src/lgipdb01.cbl:610:610"
+    node7 -->|"Yes"| node8
+    node7 -->|"No"| node9
+    node8["Return code 01: Not found"]
+    click node8 openCode "base/src/lgipdb01.cbl:612:613"
+    node9["Return code 90: Database error"]
+    click node9 openCode "base/src/lgipdb01.cbl:615:615"
+
+classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+
+%% Swimm:
+%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+%% flowchart TD
+%%     node1["Query motor policy details from database"]
+%%     click node1 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:531:570"
+%%     node1 --> node2
+%%     node2{"Was query successful? (SQLCODE = 0)"}
+%%     click node2 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:572:572"
+%%     node2 -->|"Yes"| node3
+%%     node2 -->|"No"| node7
+%%     node3{"Is commarea large enough? (EIBCALEN < <SwmToken path="base/src/lgipdb01.cbl" pos="374:13:19" line-data="             ADD WS-CA-HEADERTRAILER-LEN TO WS-REQUIRED-CA-LEN">`WS-REQUIRED-CA-LEN`</SwmToken>)"}
+%%     click node3 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:581:581"
+%%     node3 -->|"Yes"| node4
+%%     node3 -->|"No"| node5
+%%     node4["Return code 98: Commarea too small"]
+%%     click node4 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:582:583"
+%%     node5["Map fields, handle nulls, finalize output"]
+%%     click node5 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:588:606"
+%%     node5 --> node6
+%%     node6["Return data with code 00 (success)"]
+%%     click node6 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:606:607"
+%%     node7{"No record found? (SQLCODE = 100)"}
+%%     click node7 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:610:610"
+%%     node7 -->|"Yes"| node8
+%%     node7 -->|"No"| node9
+%%     node8["Return code 01: Not found"]
+%%     click node8 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:612:613"
+%%     node9["Return code 90: Database error"]
+%%     click node9 openCode "<SwmPath>[base/src/lgipdb01.cbl](base/src/lgipdb01.cbl)</SwmPath>:615:615"
+%% 
+%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+```
+
+This section fetches motor policy details from the database and prepares the output commarea for the caller. It ensures the commarea is large enough, handles missing data, and sets appropriate return codes for the result.
+
+| Rule ID | Category        | Rule Name                            | Description                                                                                                                                                                                                                                                                                                                                                             | Implementation Details                                                                                                           |
+| ------- | --------------- | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Data validation | Commarea size validation             | If the commarea provided by the caller is smaller than the required length, the return code is set to 98 to indicate the commarea is too small, and no data is returned.                                                                                                                                                                                                | Return code is '98' (as a two-character string). No policy data is returned in this case.                                        |
+| BR-002  | Calculation     | Required commarea length calculation | If the database query for the motor policy is successful, the required commarea length is calculated as the sum of the header/trailer length (33) and the full motor policy length (137).                                                                                                                                                                               | The required commarea length is 170 bytes (33 + 137).                                                                            |
+| BR-003  | Decision Making | Policy not found handling            | If the database query returns no matching record, the return code is set to 01 to indicate 'not found'.                                                                                                                                                                                                                                                                 | Return code is '01' (as a two-character string). No policy data is returned in this case.                                        |
+| BR-004  | Decision Making | Database error handling              | If the database query fails for any reason other than 'not found', the return code is set to 90 to indicate a database error.                                                                                                                                                                                                                                           | Return code is '90' (as a two-character string). No policy data is returned in this case.                                        |
+| BR-005  | Writing Output  | Field mapping with null handling     | If the database query is successful and the commarea is large enough, all <SwmToken path="base/src/lgipdb01.cbl" pos="379:13:15" line-data="      *      check whether PADDINGDATA field is non-null">`non-null`</SwmToken> motor policy fields are mapped from the database to the output commarea. Fields that are null in the database are not copied to the output. | All output fields are filled except those that are null in the database. Nulls are detected using indicator variables set to -1. |
+| BR-006  | Writing Output  | End of data marker                   | After all data is moved to the commarea, the string 'FINAL' is written at the end of the policy data to indicate the end of the data block.                                                                                                                                                                                                                             | The string 'FINAL' (5 characters) is written at the end of the policy data in the commarea.                                      |
+
 <SwmSnippet path="/base/src/lgipdb01.cbl" line="529">
 
 ---
 
-<SwmToken path="base/src/lgipdb01.cbl" pos="529:1:7" line-data="       GET-MOTOR-DB2-INFO.">`GET-MOTOR-DB2-INFO`</SwmToken> fetches motor policy data, checks buffer size, handles nullable fields, moves results to the output, and sets error codes and end markers as per repo conventions.
+In <SwmToken path="base/src/lgipdb01.cbl" pos="529:1:7" line-data="       GET-MOTOR-DB2-INFO.">`GET-MOTOR-DB2-INFO`</SwmToken>, the code runs the SQL SELECT to pull all the motor policy fields by joining POLICY and MOTOR tables using the provided customer and policy numbers. It assumes the input values are valid and that EIBCALEN is set right by the caller. If the fetch works, it gets ready to move the results into the commarea, but only if there's enough space.
 
 ```cobol
        GET-MOTOR-DB2-INFO.
@@ -1310,7 +1903,19 @@ This section governs the retrieval of insurance policy details from the database
                      POLICY.POLICYNUMBER =
                         :DB2-POLICYNUM-INT               )
            END-EXEC
+```
 
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgipdb01.cbl" line="572">
+
+---
+
+After the SQL SELECT, the code checks if the commarea is big enough (using <SwmToken path="base/src/lgipdb01.cbl" pos="576:13:19" line-data="             ADD WS-CA-HEADERTRAILER-LEN TO WS-REQUIRED-CA-LEN">`WS-REQUIRED-CA-LEN`</SwmToken>). If not, it sets an error code and returns. If the size is fine, it starts moving <SwmToken path="base/src/lgipdb01.cbl" pos="589:3:3" line-data="                 MOVE DB2-BROKERID-INT TO DB2-BROKERID">`DB2`</SwmToken> fields to the commarea, but only if the indicator variables say they're not null.
+
+```cobol
            IF SQLCODE = 0
       *      Select was successful
 
@@ -1330,9 +1935,35 @@ This section governs the retrieval of insurance policy details from the database
                IF IND-BROKERID NOT EQUAL MINUS-ONE
                  MOVE DB2-BROKERID-INT TO DB2-BROKERID
                END-IF
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgipdb01.cbl" line="591">
+
+---
+
+Here the code moves the payment and broker ID fields from <SwmToken path="base/src/lgipdb01.cbl" pos="592:3:3" line-data="                 MOVE DB2-PAYMENT-INT    TO DB2-PAYMENT">`DB2`</SwmToken> to the commarea, but only if the indicator variables show they're not null. This avoids copying over junk if the <SwmToken path="base/src/lgipdb01.cbl" pos="592:3:3" line-data="                 MOVE DB2-PAYMENT-INT    TO DB2-PAYMENT">`DB2`</SwmToken> field is missing.
+
+```cobol
                IF IND-PAYMENT NOT EQUAL MINUS-ONE
                  MOVE DB2-PAYMENT-INT    TO DB2-PAYMENT
                END-IF
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgipdb01.cbl" line="594">
+
+---
+
+Now the code copies the rest of the <SwmToken path="base/src/lgipdb01.cbl" pos="594:3:3" line-data="               MOVE DB2-M-CC-SINT      TO DB2-M-CC">`DB2`</SwmToken> motor fields into both the <SwmToken path="base/src/lgipdb01.cbl" pos="594:3:3" line-data="               MOVE DB2-M-CC-SINT      TO DB2-M-CC">`DB2`</SwmToken> and commarea structures, so all the output fields are filled for whoever needs them next.
+
+```cobol
                MOVE DB2-M-CC-SINT      TO DB2-M-CC
                MOVE DB2-M-VALUE-INT    TO DB2-M-VALUE
                MOVE DB2-M-PREMIUM-INT  TO DB2-M-PREMIUM
@@ -1343,8 +1974,19 @@ This section governs the retrieval of insurance policy details from the database
                MOVE DB2-POLICY-COMMON  TO CA-POLICY-COMMON
                MOVE DB2-MOTOR          TO CA-MOTOR(1:WS-MOTOR-LEN)
              END-IF
+```
 
-      *      Mark the end of the policy data
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgipdb01.cbl" line="606">
+
+---
+
+After moving all the data, the code writes 'FINAL' at the end of the policy data in the commarea. If the SQL fetch failed, it sets an error code for either 'no data' or 'other error' and handles logging if needed.
+
+```cobol
              MOVE 'FINAL' TO CA-M-FILLER(1:5)
 
            ELSE
@@ -1355,8 +1997,33 @@ This section governs the retrieval of insurance policy details from the database
              ELSE
       *        something has gone wrong
                MOVE '90' TO CA-RETURN-CODE
-      *        Write error message to TD QUEUE(CSMT)
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgipdb01.cbl" line="617">
+
+---
+
+Here the code calls <SwmToken path="base/src/lgipdb01.cbl" pos="617:3:7" line-data="               PERFORM WRITE-ERROR-MESSAGE">`WRITE-ERROR-MESSAGE`</SwmToken> again if the SQL fetch failed for reasons other than 'no data'. This logs the error details for support and monitoring, just like before.
+
+```cobol
                PERFORM WRITE-ERROR-MESSAGE
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgipdb01.cbl" line="618">
+
+---
+
+Back in <SwmToken path="base/src/lgipdb01.cbl" pos="289:3:9" line-data="               PERFORM GET-MOTOR-DB2-INFO">`GET-MOTOR-DB2-INFO`</SwmToken>, after logging any errors, the code exits and returns the commarea—either filled with data or just an error code—so the caller can handle the result.
+
+```cobol
              END-IF
 
            END-IF.
@@ -1367,13 +2034,19 @@ This section governs the retrieval of insurance policy details from the database
 
 </SwmSnippet>
 
-## Handling Policy Inquiry Results
+## Post-Inquiry Result Handling
+
+This section determines whether to display an error message to the user after an inquiry operation, based on the return code from a service call.
+
+| Rule ID | Category        | Rule Name                 | Description                                                                                | Implementation Details                                                                                      |
+| ------- | --------------- | ------------------------- | ------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| BR-001  | Decision Making | Error or No Data Handling | If the return code is greater than zero, the user is directed to an error message routine. | The return code is a two-digit number. No additional constants or output formats are involved in this rule. |
 
 <SwmSnippet path="/base/src/lgtestp3.cbl" line="74">
 
 ---
 
-In <SwmToken path="base/src/lgtestp3.cbl" pos="75:5:7" line-data="                   GO TO NO-DATA">`NO-DATA`</SwmToken>, we set the error message for the user and jump to <SwmToken path="base/src/lgtestp3.cbl" pos="271:5:7" line-data="               Go To ERROR-OUT">`ERROR-OUT`</SwmToken> to display it and reset the session.
+Back in <SwmToken path="base/src/lgtestp3.cbl" pos="33:5:7" line-data="              GO TO A-GAIN.">`A-GAIN`</SwmToken>, after returning from <SwmPath>[base/src/lgipol01.cbl](base/src/lgipol01.cbl)</SwmPath>, if <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> is set (error or no data), the code jumps to <SwmToken path="base/src/lgtestp3.cbl" pos="75:5:7" line-data="                   GO TO NO-DATA">`NO-DATA`</SwmToken> to show the user an error message.
 
 ```cobol
                  IF CA-RETURN-CODE > 0
@@ -1385,15 +2058,19 @@ In <SwmToken path="base/src/lgtestp3.cbl" pos="75:5:7" line-data="              
 
 </SwmSnippet>
 
-## Handling No Data Returned
+## No Data Error Handling
 
-This section ensures that users are promptly informed when their request does not yield any data, providing clear feedback to avoid confusion and improve user experience.
+This section handles the scenario where no data is available to process, ensuring the user is informed and the session state is reset appropriately.
+
+| Rule ID | Category       | Rule Name              | Description                                                                                                                                              | Implementation Details                                   |
+| ------- | -------------- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| BR-001  | Writing Output | No Data Returned Error | When no data is available to process, an error message stating 'No data was returned.' is set and the program transitions to the error handling routine. | The error message is the string 'No data was returned.'. |
 
 <SwmSnippet path="/base/src/lgtestp3.cbl" line="285">
 
 ---
 
-In <SwmToken path="base/src/lgtestp3.cbl" pos="287:5:7" line-data="           Go To ERROR-OUT.">`ERROR-OUT`</SwmToken>, we send the error message to the user's screen using the <SwmToken path="base/src/lgtestp3.cbl" pos="45:11:11" line-data="           EXEC CICS SEND MAP (&#39;SSMAPP3&#39;)">`SSMAPP3`</SwmToken> map from the SSMAP mapset, so the user sees the feedback right away.
+In <SwmToken path="base/src/lgtestp3.cbl" pos="285:1:3" line-data="       NO-DATA.">`NO-DATA`</SwmToken>, the code sets the error message for 'No data was returned' and then jumps to <SwmToken path="base/src/lgtestp3.cbl" pos="287:5:7" line-data="           Go To ERROR-OUT.">`ERROR-OUT`</SwmToken> to display it and reset the session state.
 
 ```cobol
        NO-DATA.
@@ -1405,21 +2082,19 @@ In <SwmToken path="base/src/lgtestp3.cbl" pos="287:5:7" line-data="           Go
 
 </SwmSnippet>
 
-## Displaying Error and Resetting State
+## Error Message Display and Session Reset
 
-This section ensures that users are informed of errors and that the application state is properly reset to avoid data corruption or inconsistent sessions.
+This section handles the display of error messages to the user by sending the House Policy Menu screen with the error message, and resets the session state for continued use.
 
-| Category       | Rule Name                  | Description                                                                                                                            |
-| -------------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Business logic | Error message display      | Whenever an error is detected, an error message must be displayed to the user using the designated error map.                          |
-| Business logic | Session data reset         | After displaying the error, all session-related data areas must be reset to their initial state to prevent data leakage or corruption. |
-| Business logic | Return control after error | Control must be returned to the system after error handling, ensuring the session is updated and ready for further user actions.       |
+| Rule ID | Category       | Rule Name                     | Description                                                                                                      | Implementation Details                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| ------- | -------------- | ----------------------------- | ---------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Writing Output | Error message display on menu | When an error occurs, the House Policy Menu screen is displayed to the user, showing the relevant error message. | The House Policy Menu screen is identified as <SwmToken path="base/src/lgtestp3.cbl" pos="45:11:11" line-data="           EXEC CICS SEND MAP (&#39;SSMAPP3&#39;)">`SSMAPP3`</SwmToken> and is sent using the 'SSMAP' mapset. The error message is included in the output map. The output format is determined by the <SwmToken path="base/src/lgtestp3.cbl" pos="45:11:11" line-data="           EXEC CICS SEND MAP (&#39;SSMAPP3&#39;)">`SSMAPP3`</SwmToken> map definition, which is an alphanumeric screen layout. |
 
 <SwmSnippet path="/base/src/lgtestp3.cbl" line="289">
 
 ---
 
-After showing the error, we reset all relevant data areas and jump to <SwmToken path="base/src/lgtestp3.cbl" pos="228:5:7" line-data="                 GO TO ENDIT-STARTIT">`ENDIT-STARTIT`</SwmToken> to return control to the system with the updated session.
+In <SwmToken path="base/src/lgtestp3.cbl" pos="289:1:3" line-data="       ERROR-OUT.">`ERROR-OUT`</SwmToken>, the code sends the House Policy Menu screen (<SwmToken path="base/src/lgtestp3.cbl" pos="290:11:11" line-data="           EXEC CICS SEND MAP (&#39;SSMAPP3&#39;)">`SSMAPP3`</SwmToken>) to the user, showing the error message using the SSMAP mapset.
 
 ```cobol
        ERROR-OUT.
@@ -1437,7 +2112,7 @@ After showing the error, we reset all relevant data areas and jump to <SwmToken 
 
 ---
 
-After showing the error, we reset all relevant data areas and jump to <SwmToken path="base/src/lgtestp3.cbl" pos="299:5:7" line-data="           GO TO ENDIT-STARTIT.">`ENDIT-STARTIT`</SwmToken> to return control to the system with the updated session.
+After displaying the error, the code initializes the input/output maps and commarea, then jumps to <SwmToken path="base/src/lgtestp3.cbl" pos="299:5:7" line-data="           GO TO ENDIT-STARTIT.">`ENDIT-STARTIT`</SwmToken> to return control and session data to the system.
 
 ```cobol
            Initialize SSMAPP3I.
@@ -1451,13 +2126,54 @@ After showing the error, we reset all relevant data areas and jump to <SwmToken 
 
 </SwmSnippet>
 
-## Displaying Retrieved Policy Data
+## Populating Output Fields After Data Fetch
+
+```mermaid
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+flowchart TD
+    node1["Prepare property data for display (issue date, expiry date, property type, bedrooms, value, house name, house number, postcode)"]
+    click node1 openCode "base/src/lgtestp3.cbl:78:85"
+    node1 --> node2["Show property data to user (CICS SEND MAP)"]
+    click node2 openCode "base/src/lgtestp3.cbl:86:89"
+    node2 --> node3{"Is user action type '2'?"}
+    click node3 openCode "base/src/lgtestp3.cbl:92:92"
+    node3 -->|"Yes"| node4["Prepare customer and policy data for transaction (set request id, customer num, payment=0, broker id=0, brokersref=blank, issue/expiry date, property details)"]
+    click node4 openCode "base/src/lgtestp3.cbl:93:105"
+    node4 --> node5["Trigger main business operation (CICS LINK to LGAPOL01)"]
+    click node5 openCode "base/src/lgtestp3.cbl:106:109"
+    node3 -->|"No"| node2
+classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+
+%% Swimm:
+%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+%% flowchart TD
+%%     node1["Prepare property data for display (issue date, expiry date, property type, bedrooms, value, house name, house number, postcode)"]
+%%     click node1 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:78:85"
+%%     node1 --> node2["Show property data to user (CICS SEND MAP)"]
+%%     click node2 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:86:89"
+%%     node2 --> node3{"Is user action type '2'?"}
+%%     click node3 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:92:92"
+%%     node3 -->|"Yes"| node4["Prepare customer and policy data for transaction (set request id, customer num, payment=0, broker id=0, brokersref=blank, issue/expiry date, property details)"]
+%%     click node4 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:93:105"
+%%     node4 --> node5["Trigger main business operation (CICS LINK to <SwmToken path="base/src/lgtestp3.cbl" pos="106:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGAPOL01&#39;)">`LGAPOL01`</SwmToken>)"]
+%%     click node5 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:106:109"
+%%     node3 -->|"No"| node2
+%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+```
+
+This section manages the display of property policy data to the user and prepares the necessary data for further policy processing based on user actions. It ensures that the correct information is shown and that downstream operations receive the required input.
+
+| Rule ID | Category                        | Rule Name                                         | Description                                                                                                                                                                                                                                                                                                     | Implementation Details                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| ------- | ------------------------------- | ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Decision Making                 | Prepare transaction data for action type 2        | When the user action type is '2', the system prepares a transaction by setting the request id, customer number, payment, broker id, brokersref, issue/expiry date, and property details in the commarea for the next business operation.                                                                        | The request id is set to <SwmToken path="base/src/lgtestp3.cbl" pos="93:4:4" line-data="                 Move &#39;01AHOU&#39;          To CA-REQUEST-ID">`01AHOU`</SwmToken> (6 chars), payment and broker id are set to 0, brokersref is set to 8 spaces, and all property details are mapped from the output fields to the commarea. Field formats: customer number (10 digits), issue/expiry date (10 chars), property type, bedrooms, value, house name (20 chars), house number (4 chars), postcode (8 chars). |
+| BR-002  | Writing Output                  | Display property policy details                   | After a successful data fetch, the property policy details (issue date, expiry date, property type, bedrooms, value, house name, house number, postcode) are displayed to the user.                                                                                                                             | The output fields are displayed as strings with the following formats: issue date (10 chars), expiry date (10 chars), property type (as defined in commarea), bedrooms (as defined in commarea), value (as defined in commarea), house name (20 chars), house number (4 chars), postcode (8 chars).                                                                                                                                                                                                                  |
+| BR-003  | Invoking a Service or a Process | Trigger main business operation for action type 2 | When the user action type is '2', the system triggers the main business operation by linking to the <SwmToken path="base/src/lgtestp3.cbl" pos="106:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGAPOL01&#39;)">`LGAPOL01`</SwmToken> program, passing the prepared commarea and its length. | The commarea is passed with a length of 32,500 bytes to the <SwmToken path="base/src/lgtestp3.cbl" pos="106:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGAPOL01&#39;)">`LGAPOL01`</SwmToken> program for further processing.                                                                                                                                                                                                                                                                     |
 
 <SwmSnippet path="/base/src/lgtestp3.cbl" line="78">
 
 ---
 
-Next, for option '2', we set up the request fields with user input and defaults, getting ready to call the add policy handler.
+Back in <SwmToken path="base/src/lgtestp3.cbl" pos="33:5:7" line-data="              GO TO A-GAIN.">`A-GAIN`</SwmToken>, if <SwmToken path="base/src/lgtestp3.cbl" pos="75:5:7" line-data="                   GO TO NO-DATA">`NO-DATA`</SwmToken> wasn't triggered, the code moves the policy details from the commarea to the output fields and sends the updated House Policy Menu screen to the user.
 
 ```cobol
                  Move CA-ISSUE-DATE      To  ENP3IDAI
@@ -1482,7 +2198,7 @@ Next, for option '2', we set up the request fields with user input and defaults,
 
 ---
 
-We call <SwmToken path="base/src/lgtestp3.cbl" pos="106:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGAPOL01&#39;)">`LGAPOL01`</SwmToken> to add the new policy.
+Here the code sets up all the commarea fields for the next policy operation, making sure everything <SwmToken path="base/src/lgtestp3.cbl" pos="106:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGAPOL01&#39;)">`LGAPOL01`</SwmToken> needs is ready before calling it.
 
 ```cobol
              WHEN '2'
@@ -1509,7 +2225,7 @@ We call <SwmToken path="base/src/lgtestp3.cbl" pos="106:10:10" line-data="      
 
 ---
 
-We call <SwmToken path="base/src/lgtestp3.cbl" pos="106:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGAPOL01&#39;)">`LGAPOL01`</SwmToken> to add the new policy.
+Here the code links to <SwmToken path="base/src/lgtestp3.cbl" pos="106:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGAPOL01&#39;)">`LGAPOL01`</SwmToken>, passing the commarea and length so it can process the policy premium calculation or validation.
 
 ```cobol
                  EXEC CICS LINK PROGRAM('LGAPOL01')
@@ -1522,62 +2238,20 @@ We call <SwmToken path="base/src/lgtestp3.cbl" pos="106:10:10" line-data="      
 
 </SwmSnippet>
 
-## Validating and Processing Policy Add Request
+## Policy Premium Calculation Entry
 
-```mermaid
-%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
-flowchart TD
-    node1["Validate incoming request and initialize control data"] --> node2{"Is input data present? (EIBCALEN = 0)"}
-    click node1 openCode "base/src/lgapol01.cbl:68:77"
-    node2 -->|"No"| node3["Set error message: No commarea received"]
-    click node2 openCode "base/src/lgapol01.cbl:83:87"
-    node3 --> node4["Handle error (P999-ERROR), abort with ABEND"]
-    click node3 openCode "base/src/lgapol01.cbl:84:86"
-    click node4 openCode "base/src/lgapol01.cbl:119:151"
-    node2 -->|"Yes"| node5{"Is input data length sufficient? (EIBCALEN < W4-REQ-LEN)"}
-    click node5 openCode "base/src/lgapol01.cbl:95:98"
-    node5 -->|"No"| node6["Set error code '98', return"]
-    click node6 openCode "base/src/lgapol01.cbl:96:97"
-    node5 -->|"Yes"| node7["Set success code '00', link to database operation (LGAPDB01)"]
-    click node7 openCode "base/src/lgapol01.cbl:89:106"
-    node7 --> node8["Return success"]
-    click node8 openCode "base/src/lgapol01.cbl:108:108"
-classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+This section initializes transaction control fields and validates the presence of the commarea before any policy premium calculation logic is executed. It ensures that the transaction context is properly set up and that required input data is available.
 
-%% Swimm:
-%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
-%% flowchart TD
-%%     node1["Validate incoming request and initialize control data"] --> node2{"Is input data present? (EIBCALEN = 0)"}
-%%     click node1 openCode "<SwmPath>[base/src/lgapol01.cbl](base/src/lgapol01.cbl)</SwmPath>:68:77"
-%%     node2 -->|"No"| node3["Set error message: No commarea received"]
-%%     click node2 openCode "<SwmPath>[base/src/lgapol01.cbl](base/src/lgapol01.cbl)</SwmPath>:83:87"
-%%     node3 --> node4["Handle error (<SwmToken path="base/src/lgapol01.cbl" pos="85:3:5" line-data="               PERFORM P999-ERROR">`P999-ERROR`</SwmToken>), abort with ABEND"]
-%%     click node3 openCode "<SwmPath>[base/src/lgapol01.cbl](base/src/lgapol01.cbl)</SwmPath>:84:86"
-%%     click node4 openCode "<SwmPath>[base/src/lgapol01.cbl](base/src/lgapol01.cbl)</SwmPath>:119:151"
-%%     node2 -->|"Yes"| node5{"Is input data length sufficient? (EIBCALEN < <SwmToken path="base/src/lgapol01.cbl" pos="92:11:15" line-data="           ADD W4-HDR-LEN TO W4-REQ-LEN">`W4-REQ-LEN`</SwmToken>)"}
-%%     click node5 openCode "<SwmPath>[base/src/lgapol01.cbl](base/src/lgapol01.cbl)</SwmPath>:95:98"
-%%     node5 -->|"No"| node6["Set error code '98', return"]
-%%     click node6 openCode "<SwmPath>[base/src/lgapol01.cbl](base/src/lgapol01.cbl)</SwmPath>:96:97"
-%%     node5 -->|"Yes"| node7["Set success code '00', link to database operation (<SwmToken path="base/src/lgapol01.cbl" pos="103:9:9" line-data="           EXEC CICS Link Program(LGAPDB01)">`LGAPDB01`</SwmToken>)"]
-%%     click node7 openCode "<SwmPath>[base/src/lgapol01.cbl](base/src/lgapol01.cbl)</SwmPath>:89:106"
-%%     node7 --> node8["Return success"]
-%%     click node8 openCode "<SwmPath>[base/src/lgapol01.cbl](base/src/lgapol01.cbl)</SwmPath>:108:108"
-%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
-```
-
-This section is responsible for validating incoming policy add requests and ensuring that only requests with sufficient and correct data are processed. It also handles error reporting and logging for monitoring purposes.
-
-| Category        | Rule Name                           | Description                                                                                                                                                                                                                                                    |
-| --------------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Data validation | Missing input data rejection        | If no input data is present in the request (commarea length is zero), the system must reject the request, log the error with a timestamp and up to 90 bytes of received data, and abort the operation.                                                         |
-| Data validation | Insufficient input length rejection | If the input data length is less than the required minimum (<SwmToken path="base/src/lgapol01.cbl" pos="92:11:15" line-data="           ADD W4-HDR-LEN TO W4-REQ-LEN">`W4-REQ-LEN`</SwmToken>), the system must reject the request and return error code '98'. |
-| Business logic  | Successful policy add processing    | If the input data passes all validations, the system must set a success code ('00') and proceed to process the policy addition by linking to the database operation.                                                                                           |
+| Rule ID | Category        | Rule Name                 | Description                                                                                                                                               | Implementation Details                                                                                                                                                                                                        |
+| ------- | --------------- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Data validation | Commarea required         | If the commarea is not present (length is zero), log an error message and abend the transaction with code 'LGCA'.                                         | The error message is ' NO COMMAREA RECEIVED'. The abend code is 'LGCA'. Error details are logged with current date and time. No output is produced to the user; the transaction is terminated.                                |
+| BR-002  | Technical Step  | Initialize control fields | At the start of transaction processing, initialize control fields for transaction, terminal, task, and commarea length for tracking and logging purposes. | Control fields include transaction ID (4 characters), terminal ID (4 characters), task number (7 digits), and commarea length (signed 4-digit number). These are used for logging and traceability, not exposed to end users. |
 
 <SwmSnippet path="/base/src/lgapol01.cbl" line="68">
 
 ---
 
-<SwmToken path="base/src/lgapol01.cbl" pos="85:3:5" line-data="               PERFORM P999-ERROR">`P999-ERROR`</SwmToken> logs errors with timestamps, sends both the error details and up to 90 bytes of commarea data to LGSTSQ for queueing and monitoring.
+In <SwmToken path="base/src/lgapol01.cbl" pos="68:1:3" line-data="       P100-MAIN SECTION.">`P100-MAIN`</SwmToken>, the code sets up the control fields by moving EIB values into <SwmToken path="base/src/lgapol01.cbl" pos="73:3:3" line-data="           INITIALIZE W1-CONTROL.">`W1`</SwmToken> for tracking and logging during the transaction.
 
 ```cobol
        P100-MAIN SECTION.
@@ -1590,48 +2264,89 @@ This section is responsible for validating incoming policy add requests and ensu
            MOVE EIBTRMID TO W1-TRM.
            MOVE EIBTASKN TO W1-TSK.
            MOVE EIBCALEN TO W1-LEN.
-      *----------------------------------------------------------------*
-
-      *----------------------------------------------------------------*
-      * Check commarea and obtain required details                     *
-      *----------------------------------------------------------------*
-           IF EIBCALEN IS EQUAL TO ZERO
-               MOVE ' NO COMMAREA RECEIVED' TO W3-DETAIL
-               PERFORM P999-ERROR
-               EXEC CICS ABEND ABCODE('LGCA') NODUMP END-EXEC
-           END-IF
-
-           MOVE '00' TO CA-RETURN-CODE
-           SET W1-PTR TO ADDRESS OF DFHCOMMAREA.
-
-           ADD W4-HDR-LEN TO W4-REQ-LEN
-
-
-           IF EIBCALEN IS LESS THAN W4-REQ-LEN
-             MOVE '98' TO CA-RETURN-CODE
-             EXEC CICS RETURN END-EXEC
-           END-IF
-
-      *----------------------------------------------------------------*
-      *    Perform the data Inserts                                    *
-      *----------------------------------------------------------------*
-           EXEC CICS Link Program(LGAPDB01)
-                Commarea(DFHCOMMAREA)
-                LENGTH(32500)
-           END-EXEC.
-
-           EXEC CICS RETURN END-EXEC.
 ```
 
 ---
 
 </SwmSnippet>
 
+<SwmSnippet path="/base/src/lgapol01.cbl" line="83">
+
+---
+
+Here the code checks if EIBCALEN is zero (no commarea), logs the error, and abends the transaction to stop processing.
+
+```cobol
+           IF EIBCALEN IS EQUAL TO ZERO
+               MOVE ' NO COMMAREA RECEIVED' TO W3-DETAIL
+               PERFORM P999-ERROR
+               EXEC CICS ABEND ABCODE('LGCA') NODUMP END-EXEC
+           END-IF
+```
+
+---
+
+</SwmSnippet>
+
+### Error Logging and Message Queue Write
+
+```mermaid
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+flowchart TD
+    node1["Record current date and time for error event"]
+    click node1 openCode "base/src/lgapol01.cbl:122:127"
+    node1 --> node2["Log main error message with timestamp"]
+    click node2 openCode "base/src/lgapol01.cbl:128:134"
+    node2 --> node3{"Are there additional error details?"}
+    click node3 openCode "base/src/lgapol01.cbl:136:150"
+    node3 -->|"No"| node6["Error event logged for audit"]
+    node3 -->|"Yes"| node4{"Are details less than 91 characters?"}
+    click node4 openCode "base/src/lgapol01.cbl:137:138"
+    node4 -->|"Yes"| node5["Log all additional details"]
+    click node5 openCode "base/src/lgapol01.cbl:139:142"
+    node4 -->|"No"| node7["Log first 90 characters of details"]
+    click node7 openCode "base/src/lgapol01.cbl:145:148"
+    node5 --> node6
+    node7 --> node6
+    click node6 openCode "base/src/lgapol01.cbl:151:151"
+classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+
+%% Swimm:
+%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+%% flowchart TD
+%%     node1["Record current date and time for error event"]
+%%     click node1 openCode "<SwmPath>[base/src/lgapol01.cbl](base/src/lgapol01.cbl)</SwmPath>:122:127"
+%%     node1 --> node2["Log main error message with timestamp"]
+%%     click node2 openCode "<SwmPath>[base/src/lgapol01.cbl](base/src/lgapol01.cbl)</SwmPath>:128:134"
+%%     node2 --> node3{"Are there additional error details?"}
+%%     click node3 openCode "<SwmPath>[base/src/lgapol01.cbl](base/src/lgapol01.cbl)</SwmPath>:136:150"
+%%     node3 -->|"No"| node6["Error event logged for audit"]
+%%     node3 -->|"Yes"| node4{"Are details less than 91 characters?"}
+%%     click node4 openCode "<SwmPath>[base/src/lgapol01.cbl](base/src/lgapol01.cbl)</SwmPath>:137:138"
+%%     node4 -->|"Yes"| node5["Log all additional details"]
+%%     click node5 openCode "<SwmPath>[base/src/lgapol01.cbl](base/src/lgapol01.cbl)</SwmPath>:139:142"
+%%     node4 -->|"No"| node7["Log first 90 characters of details"]
+%%     click node7 openCode "<SwmPath>[base/src/lgapol01.cbl](base/src/lgapol01.cbl)</SwmPath>:145:148"
+%%     node5 --> node6
+%%     node7 --> node6
+%%     click node6 openCode "<SwmPath>[base/src/lgapol01.cbl](base/src/lgapol01.cbl)</SwmPath>:151:151"
+%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+```
+
+This section logs error events for audit and integration by recording the current date and time, formatting the error message, and writing it to a message queue. It ensures error details are included up to a defined length and that all error events are consistently structured for downstream processing.
+
+| Rule ID | Category        | Rule Name                         | Description                                                                                                                                                           | Implementation Details                                                                                                                                                                           |
+| ------- | --------------- | --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| BR-001  | Data validation | Error detail truncation           | If additional error details are present and less than 91 characters, all details are included in the log entry; otherwise, only the first 90 characters are included. | Up to 90 characters of additional details are included. If more than 90 characters are present, only the first 90 are logged. The details are stored as a string in the error message structure. |
+| BR-002  | Calculation     | Timestamped error logging         | Each error event is logged with the current date and time included in the error message.                                                                              | The date is an 8-character string, the time is a 6-character string, both included in the error message structure.                                                                               |
+| BR-003  | Writing Output  | Error message queue write         | The main error message, including timestamp, is written to the message queue for logging and integration.                                                             | The error message includes date (8 chars), time (6 chars), and a 21-character detail field, all as strings. The message is written as a single structured entry.                                 |
+| BR-004  | Writing Output  | Comprehensive error event logging | All error events, regardless of detail length, are logged for audit purposes.                                                                                         | Every error event results in a log entry, ensuring no errors are missed in the audit trail.                                                                                                      |
+
 <SwmSnippet path="/base/src/lgapol01.cbl" line="119">
 
 ---
 
-<SwmToken path="base/src/lgapol01.cbl" pos="119:1:3" line-data="       P999-ERROR.">`P999-ERROR`</SwmToken> logs errors with timestamps, sends both the error details and up to 90 bytes of commarea data to LGSTSQ for queueing and monitoring.
+In <SwmToken path="base/src/lgapol01.cbl" pos="119:1:3" line-data="       P999-ERROR.">`P999-ERROR`</SwmToken>, the code grabs the current time and date using CICS commands, formats them, and puts them into the error message for logging.
 
 ```cobol
        P999-ERROR.
@@ -1643,6 +2358,19 @@ This section is responsible for validating incoming policy add requests and ensu
                      MMDDYYYY(W2-DATE1)
                      TIME(W2-DATE2)
            END-EXEC
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgapol01.cbl" line="128">
+
+---
+
+After formatting the error message, the code links to LGSTSQ to write it to the transactional data queue for logging and integration.
+
+```cobol
            MOVE W2-DATE1 TO W3-DATE
            MOVE W2-DATE2 TO W3-TIME
       * Write output message to TDQ
@@ -1650,7 +2378,19 @@ This section is responsible for validating incoming policy add requests and ensu
                      COMMAREA(W3-MESSAGE)
                      LENGTH(LENGTH OF W3-MESSAGE)
            END-EXEC.
-      * Write 90 bytes or as much as we have of commarea to TDQ
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgapol01.cbl" line="136">
+
+---
+
+Back in <SwmPath>[base/src/lgapol01.cbl](base/src/lgapol01.cbl)</SwmPath>, after returning from LGSTSQ, the code checks the message length and only copies up to 90 bytes into <SwmToken path="base/src/lgapol01.cbl" pos="138:12:14" line-data="               MOVE DFHCOMMAREA(1:EIBCALEN) TO CA-DATA">`CA-DATA`</SwmToken> before logging it again, so we don't overflow the buffer.
+
+```cobol
            IF EIBCALEN > 0 THEN
              IF EIBCALEN < 91 THEN
                MOVE DFHCOMMAREA(1:EIBCALEN) TO CA-DATA
@@ -1673,20 +2413,139 @@ This section is responsible for validating incoming policy add requests and ensu
 
 </SwmSnippet>
 
-## Processing Premium Calculations and Summary
+### Input Validation and Length Check
 
-This section governs the process of calculating insurance premiums and generating summary reports, ensuring that all necessary configuration values are present and that fallback mechanisms are in place for missing data.
+```mermaid
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+flowchart TD
+    node1["Initialize request (set CA-RETURN-CODE to '00', prepare commarea)"] --> node2{"Is commarea length (EIBCALEN) >= required (W4-REQ-LEN)?"}
+    click node1 openCode "base/src/lgapol01.cbl:89:94"
+    node2 -->|"Yes"| node3["Delegate to LGAPDB01 for main business processing"]
+    click node2 openCode "base/src/lgapol01.cbl:95:98"
+    node3 --> node5["Return"]
+    click node3 openCode "base/src/lgapol01.cbl:103:108"
+    click node5 openCode "base/src/lgapol01.cbl:108:108"
+    node2 -->|"No"| node4["Set CA-RETURN-CODE to '98' and return"]
+    click node4 openCode "base/src/lgapol01.cbl:95:98"
+classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
 
-| Category       | Rule Name                                | Description                                                                                                                             |
-| -------------- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| Business logic | Configuration-driven premium calculation | Premium calculations must use the risk scoring and premium limits as specified in the configuration file, unless defaults are required. |
-| Business logic | Premium summary reporting                | A summary report must be generated after all premium calculations are completed, reflecting the results and any use of default values.  |
+%% Swimm:
+%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+%% flowchart TD
+%%     node1["Initialize request (set <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> to '00', prepare commarea)"] --> node2{"Is commarea length (EIBCALEN) >= required (<SwmToken path="base/src/lgapol01.cbl" pos="92:11:15" line-data="           ADD W4-HDR-LEN TO W4-REQ-LEN">`W4-REQ-LEN`</SwmToken>)?"}
+%%     click node1 openCode "<SwmPath>[base/src/lgapol01.cbl](base/src/lgapol01.cbl)</SwmPath>:89:94"
+%%     node2 -->|"Yes"| node3["Delegate to <SwmToken path="base/src/lgapol01.cbl" pos="103:9:9" line-data="           EXEC CICS Link Program(LGAPDB01)">`LGAPDB01`</SwmToken> for main business processing"]
+%%     click node2 openCode "<SwmPath>[base/src/lgapol01.cbl](base/src/lgapol01.cbl)</SwmPath>:95:98"
+%%     node3 --> node5["Return"]
+%%     click node3 openCode "<SwmPath>[base/src/lgapol01.cbl](base/src/lgapol01.cbl)</SwmPath>:103:108"
+%%     click node5 openCode "<SwmPath>[base/src/lgapol01.cbl](base/src/lgapol01.cbl)</SwmPath>:108:108"
+%%     node2 -->|"No"| node4["Set <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> to '98' and return"]
+%%     click node4 openCode "<SwmPath>[base/src/lgapol01.cbl](base/src/lgapol01.cbl)</SwmPath>:95:98"
+%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+```
+
+This section ensures that the input commarea is of sufficient length before any business processing occurs. It sets the appropriate return code and determines whether to proceed with business logic or return an error.
+
+| Rule ID | Category                        | Rule Name                                 | Description                                                                                                                  | Implementation Details                                                                                                                                                                                                                                                                        |
+| ------- | ------------------------------- | ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Data validation                 | Commarea length validation                | If the commarea length is less than the required minimum, set the return code to '98' and return without further processing. | The error code '98' is a two-digit numeric code indicating a commarea length error. The required minimum length is calculated as the sum of a header length constant (+28) and a request-specific length.                                                                                     |
+| BR-002  | Writing Output                  | Default success code initialization       | Initialize the return code to '00' at the start of processing to indicate no error by default.                               | The return code is set to the string '00', which is a two-digit numeric code in the commarea structure.                                                                                                                                                                                       |
+| BR-003  | Invoking a Service or a Process | Delegate to business logic on valid input | If the commarea length is sufficient, delegate to the main business logic program for further processing.                    | Delegation is performed by linking to the main business logic program (<SwmToken path="base/src/lgapol01.cbl" pos="103:9:9" line-data="           EXEC CICS Link Program(LGAPDB01)">`LGAPDB01`</SwmToken>) with the commarea as input. The commarea length used for the link is 32,500 bytes. |
+
+<SwmSnippet path="/base/src/lgapol01.cbl" line="89">
+
+---
+
+Back in <SwmPath>[base/src/lgapol01.cbl](base/src/lgapol01.cbl)</SwmPath>, after error handling, the code checks if the commarea is long enough. If not, it sets an error code and returns, skipping further processing.
+
+```cobol
+           MOVE '00' TO CA-RETURN-CODE
+           SET W1-PTR TO ADDRESS OF DFHCOMMAREA.
+
+           ADD W4-HDR-LEN TO W4-REQ-LEN
+
+
+           IF EIBCALEN IS LESS THAN W4-REQ-LEN
+             MOVE '98' TO CA-RETURN-CODE
+             EXEC CICS RETURN END-EXEC
+           END-IF
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgapol01.cbl" line="103">
+
+---
+
+After finishing up in <SwmToken path="base/src/lgtestp3.cbl" pos="106:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGAPOL01&#39;)">`LGAPOL01`</SwmToken>, the code links to <SwmToken path="base/src/lgapol01.cbl" pos="103:9:9" line-data="           EXEC CICS Link Program(LGAPDB01)">`LGAPDB01`</SwmToken> to run the premium calculations and generate reports using the data we just validated and prepared.
+
+```cobol
+           EXEC CICS Link Program(LGAPDB01)
+                Commarea(DFHCOMMAREA)
+                LENGTH(32500)
+           END-EXEC.
+
+           EXEC CICS RETURN END-EXEC.
+```
+
+---
+
+</SwmSnippet>
+
+## Premium Calculation Initialization and File Setup
+
+```mermaid
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+flowchart TD
+    node1["Initialize environment (P002-INITIALIZE)"] --> node2["Load configuration (P003-LOAD-CONFIG)"]
+    click node1 openCode "base/src/LGAPDB01.cbl:91:91"
+    node2 --> node3["Open files (P005-OPEN-FILES)"]
+    click node2 openCode "base/src/LGAPDB01.cbl:92:92"
+    node3 --> node4["Process records (P006-PROCESS-RECORDS)"]
+    click node3 openCode "base/src/LGAPDB01.cbl:93:93"
+    node4 --> node5["Close files (P014-CLOSE-FILES)"]
+    click node4 openCode "base/src/LGAPDB01.cbl:94:94"
+    node5 --> node6["Generate summary (P015-GENERATE-SUMMARY)"]
+    click node5 openCode "base/src/LGAPDB01.cbl:95:95"
+    node6 --> node7["Display statistics (P016-DISPLAY-STATS)"]
+    click node6 openCode "base/src/LGAPDB01.cbl:96:96"
+    click node7 openCode "base/src/LGAPDB01.cbl:97:97"
+classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+
+%% Swimm:
+%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+%% flowchart TD
+%%     node1["Initialize environment (<SwmToken path="base/src/LGAPDB01.cbl" pos="91:3:5" line-data="           PERFORM P002-INITIALIZE">`P002-INITIALIZE`</SwmToken>)"] --> node2["Load configuration (<SwmToken path="base/src/LGAPDB01.cbl" pos="92:3:7" line-data="           PERFORM P003-LOAD-CONFIG">`P003-LOAD-CONFIG`</SwmToken>)"]
+%%     click node1 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:91:91"
+%%     node2 --> node3["Open files (<SwmToken path="base/src/LGAPDB01.cbl" pos="93:3:7" line-data="           PERFORM P005-OPEN-FILES">`P005-OPEN-FILES`</SwmToken>)"]
+%%     click node2 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:92:92"
+%%     node3 --> node4["Process records (<SwmToken path="base/src/LGAPDB01.cbl" pos="94:3:7" line-data="           PERFORM P006-PROCESS-RECORDS">`P006-PROCESS-RECORDS`</SwmToken>)"]
+%%     click node3 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:93:93"
+%%     node4 --> node5["Close files (<SwmToken path="base/src/LGAPDB01.cbl" pos="95:3:7" line-data="           PERFORM P014-CLOSE-FILES">`P014-CLOSE-FILES`</SwmToken>)"]
+%%     click node4 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:94:94"
+%%     node5 --> node6["Generate summary (<SwmToken path="base/src/LGAPDB01.cbl" pos="96:3:7" line-data="           PERFORM P015-GENERATE-SUMMARY">`P015-GENERATE-SUMMARY`</SwmToken>)"]
+%%     click node5 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:95:95"
+%%     node6 --> node7["Display statistics (<SwmToken path="base/src/LGAPDB01.cbl" pos="97:3:7" line-data="           PERFORM P016-DISPLAY-STATS">`P016-DISPLAY-STATS`</SwmToken>)"]
+%%     click node6 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:96:96"
+%%     click node7 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:97:97"
+%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+```
+
+This section ensures all prerequisites for premium calculation and reporting are in place. It initializes the environment, loads configuration, opens necessary files, and writes headers to the output file.
+
+| Rule ID | Category       | Rule Name                           | Description                                                                                                                                                                                | Implementation Details                                                                                                                                                    |
+| ------- | -------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Technical Step | Environment initialization          | The environment is initialized before any premium calculation or reporting logic is executed. This ensures all required runtime settings and resources are available for subsequent steps. | No specific constants or formats are referenced in this rule. The environment includes all runtime settings and resources required for premium calculation and reporting. |
+| BR-002  | Technical Step | Configuration loading               | Configuration data is loaded before any files are opened or records are processed. This ensures all business rules and parameters are available for premium calculation and reporting.     | No specific constants or formats are referenced in this rule. Configuration data includes all parameters required for premium calculation and reporting.                  |
+| BR-003  | Technical Step | File preparation and header writing | All required files (input, output, summary) are opened before any records are processed. Headers are written to the output file to label exported data for downstream use.                 | No specific constants or formats are referenced in this rule. Output file headers are written to ensure exported data is labeled for downstream use.                      |
 
 <SwmSnippet path="/base/src/LGAPDB01.cbl" line="90">
 
 ---
 
-We run all the main steps for premium calculation and reporting.
+In <SwmToken path="base/src/LGAPDB01.cbl" pos="90:1:1" line-data="       P001.">`P001`</SwmToken>, the code runs all the setup steps—initializing, loading config, opening files, and writing headers—so the premium calculation and reporting logic has everything ready before processing records.
 
 ```cobol
        P001.
@@ -1704,99 +2563,11 @@ We run all the main steps for premium calculation and reporting.
 
 </SwmSnippet>
 
-### Loading Configuration for Premium Calculation
-
-This section ensures that premium calculations use the correct configuration values by loading, validating, and converting them from a configuration file, or falling back to defaults if necessary.
-
-| Category        | Rule Name                 | Description                                                                                                                                                                                                                                                                                                                                                                                        |
-| --------------- | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Data validation | Numeric config validation | The values for <SwmToken path="base/src/LGAPDB01.cbl" pos="126:4:4" line-data="           MOVE &#39;MAX_RISK_SCORE&#39; TO CONFIG-KEY">`MAX_RISK_SCORE`</SwmToken> and <SwmToken path="base/src/LGAPDB01.cbl" pos="132:4:4" line-data="           MOVE &#39;MIN_PREMIUM&#39; TO CONFIG-KEY">`MIN_PREMIUM`</SwmToken> must be numeric to be used in premium calculations.                           |
-| Data validation | Config status validation  | Only configuration values with a status of <SwmToken path="base/src/LGAPDB01.cbl" pos="114:5:7" line-data="           IF NOT CONFIG-OK">`CONFIG-OK`</SwmToken> are considered valid for use in calculations.                                                                                                                                                                                       |
-| Business logic  | Config value conversion   | The configuration values for <SwmToken path="base/src/LGAPDB01.cbl" pos="126:4:4" line-data="           MOVE &#39;MAX_RISK_SCORE&#39; TO CONFIG-KEY">`MAX_RISK_SCORE`</SwmToken> and <SwmToken path="base/src/LGAPDB01.cbl" pos="132:4:4" line-data="           MOVE &#39;MIN_PREMIUM&#39; TO CONFIG-KEY">`MIN_PREMIUM`</SwmToken> must be converted to numeric format before use in calculations. |
-
-<SwmSnippet path="/base/src/LGAPDB01.cbl" line="112">
-
----
-
-<SwmToken path="base/src/LGAPDB01.cbl" pos="118:3:9" line-data="               PERFORM P004-READ-CONFIG-VALUES">`P004-READ-CONFIG-VALUES`</SwmToken> reads <SwmToken path="base/src/LGAPDB01.cbl" pos="126:4:4" line-data="           MOVE &#39;MAX_RISK_SCORE&#39; TO CONFIG-KEY">`MAX_RISK_SCORE`</SwmToken> and <SwmToken path="base/src/LGAPDB01.cbl" pos="132:4:4" line-data="           MOVE &#39;MIN_PREMIUM&#39; TO CONFIG-KEY">`MIN_PREMIUM`</SwmToken> from the config file, checks if they're numeric, and converts them for use in calculations.
-
-```cobol
-       P003-LOAD-CONFIG.
-           OPEN INPUT CONFIG-FILE
-           IF NOT CONFIG-OK
-               DISPLAY 'Warning: Config file not available - using defaults'
-               PERFORM P004-SET-DEFAULTS
-           ELSE
-               PERFORM P004-READ-CONFIG-VALUES
-               CLOSE CONFIG-FILE
-           END-IF.
-```
-
----
-
-</SwmSnippet>
-
-<SwmSnippet path="/base/src/LGAPDB01.cbl" line="125">
-
----
-
-<SwmToken path="base/src/LGAPDB01.cbl" pos="93:3:7" line-data="           PERFORM P005-OPEN-FILES">`P005-OPEN-FILES`</SwmToken> opens input, output, and summary files, then writes headers to the output file for property insurance export. Each step is handled by a dedicated subroutine.
-
-```cobol
-       P004-READ-CONFIG-VALUES.
-           MOVE 'MAX_RISK_SCORE' TO CONFIG-KEY
-           READ CONFIG-FILE
-           IF CONFIG-OK AND NUMERIC-CONFIG
-               MOVE FUNCTION NUMVAL(CONFIG-VALUE) TO WS-MAX-RISK-SCORE
-           END-IF
-           
-           MOVE 'MIN_PREMIUM' TO CONFIG-KEY
-           READ CONFIG-FILE
-           IF CONFIG-OK AND NUMERIC-CONFIG
-               MOVE FUNCTION NUMVAL(CONFIG-VALUE) TO WS-MIN-PREMIUM
-           END-IF.
-```
-
----
-
-</SwmSnippet>
-
-### Opening Files and Writing Headers
-
-```mermaid
-%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
-flowchart TD
-    node1["Start system preparation"] --> node2["Open input files"]
-    click node1 openCode "base/src/LGAPDB01.cbl:138:142"
-    node2 --> node3["Open output files"]
-    click node2 openCode "base/src/LGAPDB01.cbl:139:139"
-    node3 --> node4["Open summary files"]
-    click node3 openCode "base/src/LGAPDB01.cbl:140:140"
-    node4 --> node5["Write headers to all files"]
-    click node4 openCode "base/src/LGAPDB01.cbl:141:141"
-    click node5 openCode "base/src/LGAPDB01.cbl:142:142"
-classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
-
-%% Swimm:
-%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
-%% flowchart TD
-%%     node1["Start system preparation"] --> node2["Open input files"]
-%%     click node1 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:138:142"
-%%     node2 --> node3["Open output files"]
-%%     click node2 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:139:139"
-%%     node3 --> node4["Open summary files"]
-%%     click node3 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:140:140"
-%%     node4 --> node5["Write headers to all files"]
-%%     click node4 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:141:141"
-%%     click node5 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:142:142"
-%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
-```
-
 <SwmSnippet path="/base/src/LGAPDB01.cbl" line="138">
 
 ---
 
-<SwmToken path="base/src/LGAPDB01.cbl" pos="138:1:5" line-data="       P005-OPEN-FILES.">`P005-OPEN-FILES`</SwmToken> opens input, output, and summary files, then writes headers to the output file for property insurance export. Each step is handled by a dedicated subroutine.
+In <SwmToken path="base/src/LGAPDB01.cbl" pos="138:1:5" line-data="       P005-OPEN-FILES.">`P005-OPEN-FILES`</SwmToken>, the code opens the input, output, and summary files, then writes headers to the output file so exported data is labeled for downstream use.
 
 ```cobol
        P005-OPEN-FILES.
@@ -1810,82 +2581,94 @@ classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
 
 </SwmSnippet>
 
-## Processing and Validating Application Records
+## Application Record Processing Loop
 
 ```mermaid
 %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
 flowchart TD
-    node1["Read first input record"] --> node2{"INPUT-EOF = '10'?"}
-    click node1 openCode "base/src/LGAPDB01.cbl:179:179"
-    click node2 openCode "base/src/LGAPDB01.cbl:180:180"
-    node2 -->|"No"| node3["Increment record count"]
-    node2 -->|"Yes"| node11["All records processed"]
-    click node3 openCode "base/src/LGAPDB01.cbl:181:181"
-    click node11 openCode "base/src/LGAPDB01.cbl:189:189"
-    subgraph loop1["For each input record"]
-        node3 --> node4["Validate input record"]
-        click node4 openCode "base/src/LGAPDB01.cbl:182:182"
-        node4 --> node5{"Errors found? (WS-ERROR-COUNT = 0)"}
-        click node5 openCode "base/src/LGAPDB01.cbl:183:183"
-        node5 -->|"No (Valid)"| node6["Process valid record"]
-        click node6 openCode "base/src/LGAPDB01.cbl:184:184"
-        node5 -->|"Yes (Error)"| node7["Process error record"]
-        click node7 openCode "base/src/LGAPDB01.cbl:186:186"
-        node6 --> node8["Read next input record"]
-        node7 --> node8
-        click node8 openCode "base/src/LGAPDB01.cbl:188:188"
-        node8 --> node2
-    end
-
+    node1["Start: Read input record"]
+    click node1 openCode "base/src/LGAPDB01.cbl:179:180"
+    node1 --> node2{"INPUT-EOF?"}
+    click node2 openCode "base/src/LGAPDB01.cbl:180:189"
+    node2 -->|"No"| node3["Input Record Validation and Error Logging"]
+    
+    node3 --> node4{"Is record valid?"}
+    click node4 openCode "base/src/LGAPDB01.cbl:183:187"
+    node4 -->|"Yes"| node5["Routing Valid Records for Commercial and Non-Commercial Processing"]
+    
+    node4 -->|"No"| node6["Writing Error Records to Output"]
+    
+    node5 --> node1
+    node6 --> node1
+    node2 -->|"Yes"| node7["Update business statistics"]
+    click node7 openCode "base/src/LGAPDB01.cbl:365:370"
 classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+click node3 goToHeading "Input Record Validation and Error Logging"
+node3:::HeadingStyle
+click node5 goToHeading "Routing Valid Records for Commercial and Non-Commercial Processing"
+node5:::HeadingStyle
+click node6 goToHeading "Writing Error Records to Output"
+node6:::HeadingStyle
 
 %% Swimm:
 %% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
 %% flowchart TD
-%%     node1["Read first input record"] --> node2{"<SwmToken path="base/src/LGAPDB01.cbl" pos="180:5:7" line-data="           PERFORM UNTIL INPUT-EOF">`INPUT-EOF`</SwmToken> = '10'?"}
-%%     click node1 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:179:179"
-%%     click node2 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:180:180"
-%%     node2 -->|"No"| node3["Increment record count"]
-%%     node2 -->|"Yes"| node11["All records processed"]
-%%     click node3 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:181:181"
-%%     click node11 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:189:189"
-%%     subgraph loop1["For each input record"]
-%%         node3 --> node4["Validate input record"]
-%%         click node4 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:182:182"
-%%         node4 --> node5{"Errors found? (<SwmToken path="base/src/LGAPDB01.cbl" pos="183:3:7" line-data="               IF WS-ERROR-COUNT = ZERO">`WS-ERROR-COUNT`</SwmToken> = 0)"}
-%%         click node5 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:183:183"
-%%         node5 -->|"No (Valid)"| node6["Process valid record"]
-%%         click node6 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:184:184"
-%%         node5 -->|"Yes (Error)"| node7["Process error record"]
-%%         click node7 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:186:186"
-%%         node6 --> node8["Read next input record"]
-%%         node7 --> node8
-%%         click node8 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:188:188"
-%%         node8 --> node2
-%%     end
-%% 
+%%     node1["Start: Read input record"]
+%%     click node1 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:179:180"
+%%     node1 --> node2{"<SwmToken path="base/src/LGAPDB01.cbl" pos="180:5:7" line-data="           PERFORM UNTIL INPUT-EOF">`INPUT-EOF`</SwmToken>?"}
+%%     click node2 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:180:189"
+%%     node2 -->|"No"| node3["Input Record Validation and Error Logging"]
+%%     
+%%     node3 --> node4{"Is record valid?"}
+%%     click node4 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:183:187"
+%%     node4 -->|"Yes"| node5["Routing Valid Records for Commercial and Non-Commercial Processing"]
+%%     
+%%     node4 -->|"No"| node6["Writing Error Records to Output"]
+%%     
+%%     node5 --> node1
+%%     node6 --> node1
+%%     node2 -->|"Yes"| node7["Update business statistics"]
+%%     click node7 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:365:370"
 %% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+%% click node3 goToHeading "Input Record Validation and Error Logging"
+%% node3:::HeadingStyle
+%% click node5 goToHeading "Routing Valid Records for Commercial and Non-Commercial Processing"
+%% node5:::HeadingStyle
+%% click node6 goToHeading "Writing Error Records to Output"
+%% node6:::HeadingStyle
 ```
 
-This section ensures that only valid application records are processed for premium calculation by enforcing business validation rules and logging errors for any records that do not meet requirements.
+This section manages the main application record processing loop. It validates each input record, routes valid records for further processing, logs errors for invalid records, and updates business statistics at the end of input.
 
-| Category        | Rule Name                 | Description                                                                                                                                                                                         |
-| --------------- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Data validation | Allowed policy types      | Each input record must have a policy type that is one of the allowed values: 'C' (Commercial), 'P' (Personal), or 'F' (Farm). Any other value is considered invalid and must be logged as an error. |
-| Data validation | Customer number required  | Each input record must have a non-blank customer number. If the customer number is missing, the record is invalid and an error must be logged.                                                      |
-| Data validation | Minimum coverage required | At least one coverage limit (building, contents, or business interruption) must be greater than zero. If all are zero, the record is invalid and an error must be logged.                           |
-| Business logic  | Maximum coverage warning  | If the total coverage (building + contents + business interruption) exceeds 50,000,000, a warning must be logged but the record is still processed.                                                 |
-| Business logic  | Valid record processing   | Records that pass all validation rules are processed for premium calculation and counted as valid.                                                                                                  |
+| Rule ID | Category        | Rule Name                                 | Description                                                                                                                                                            | Implementation Details                                                                                                                   |
+| ------- | --------------- | ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Data validation | Input Record Validation and Error Logging | Each input record is validated for required fields and business constraints. If any validation fails, the record is marked as invalid and error information is logged. | Error log entries include an error code (6 characters), severity (1 character), field name (20 characters), and message (80 characters). |
+| BR-002  | Calculation     | Record Counting                           | Each input record is counted as it is processed, regardless of validity.                                                                                               | The record count is a numeric value with a maximum of 7 digits.                                                                          |
+| BR-003  | Decision Making | Routing Valid Records                     | Valid records are routed for further processing, which includes determining if the policy is commercial and updating success or error counters accordingly.            | Processing includes actuarial calculations and updating process or error counts.                                                         |
+| BR-004  | Writing Output  | End-of-Input Statistics Update            | When the end of input is reached, update business statistics to reflect the results of the processing run.                                                             | Business statistics include counts of processed, error, and rejected records.                                                            |
 
 <SwmSnippet path="/base/src/LGAPDB01.cbl" line="178">
 
 ---
 
-<SwmToken path="base/src/LGAPDB01.cbl" pos="178:1:5" line-data="       P006-PROCESS-RECORDS.">`P006-PROCESS-RECORDS`</SwmToken> reads each application, validates it, and sends valid ones for premium calculation while logging errors for anything invalid. This keeps the data clean for actuarial processing.
+In <SwmToken path="base/src/LGAPDB01.cbl" pos="178:1:5" line-data="       P006-PROCESS-RECORDS.">`P006-PROCESS-RECORDS`</SwmToken>, the code starts by reading the first input record, then enters the loop to process each application, validating and handling errors as needed.
 
 ```cobol
        P006-PROCESS-RECORDS.
            PERFORM P007-READ-INPUT
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/LGAPDB01.cbl" line="180">
+
+---
+
+The loop runs until <SwmToken path="base/src/LGAPDB01.cbl" pos="180:5:7" line-data="           PERFORM UNTIL INPUT-EOF">`INPUT-EOF`</SwmToken>, validating each record and either processing it or logging/writing an error result if it's invalid.
+
+```cobol
            PERFORM UNTIL INPUT-EOF
                ADD 1 TO WS-REC-CNT
                PERFORM P008-VALIDATE-INPUT-RECORD
@@ -1902,11 +2685,84 @@ This section ensures that only valid application records are processed for premi
 
 </SwmSnippet>
 
+### Input Record Validation and Error Logging
+
+```mermaid
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+flowchart TD
+    node1["Start input record validation"]
+    node1 --> node2{"Policy type valid? (C/P/F)"}
+    click node1 openCode "base/src/LGAPDB01.cbl:195:196"
+    click node2 openCode "base/src/LGAPDB01.cbl:198:204"
+    node2 -->|"No"| node3["Log error (F): Invalid Policy Type"]
+    click node3 openCode "base/src/LGAPDB01.cbl:201:204"
+    node2 -->|"Yes"| node4{"Customer number provided?"}
+    click node4 openCode "base/src/LGAPDB01.cbl:206:210"
+    node3 --> node4
+    node4 -->|"No"| node5["Log error (F): Customer Number Required"]
+    click node5 openCode "base/src/LGAPDB01.cbl:207:210"
+    node4 -->|"Yes"| node6{"At least one coverage limit provided?"}
+    click node6 openCode "base/src/LGAPDB01.cbl:212:217"
+    node5 --> node6
+    node6 -->|"No"| node7["Log error (F): At least one coverage limit required"]
+    click node7 openCode "base/src/LGAPDB01.cbl:214:217"
+    node6 -->|"Yes"| node8{"Total coverage > 50,000,000?"}
+    click node8 openCode "base/src/LGAPDB01.cbl:219:224"
+    node7 --> node8
+    node8 -->|"Yes"| node9["Log warning (W): Coverage exceeds maximum TIV"]
+    click node9 openCode "base/src/LGAPDB01.cbl:221:224"
+    node8 -->|"No"| node10["End of validation"]
+    node9 --> node10
+    node10["End of validation"]
+    click node10 openCode "base/src/LGAPDB01.cbl:224:224"
+classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+
+%% Swimm:
+%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+%% flowchart TD
+%%     node1["Start input record validation"]
+%%     node1 --> node2{"Policy type valid? (C/P/F)"}
+%%     click node1 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:195:196"
+%%     click node2 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:198:204"
+%%     node2 -->|"No"| node3["Log error (F): Invalid Policy Type"]
+%%     click node3 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:201:204"
+%%     node2 -->|"Yes"| node4{"Customer number provided?"}
+%%     click node4 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:206:210"
+%%     node3 --> node4
+%%     node4 -->|"No"| node5["Log error (F): Customer Number Required"]
+%%     click node5 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:207:210"
+%%     node4 -->|"Yes"| node6{"At least one coverage limit provided?"}
+%%     click node6 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:212:217"
+%%     node5 --> node6
+%%     node6 -->|"No"| node7["Log error (F): At least one coverage limit required"]
+%%     click node7 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:214:217"
+%%     node6 -->|"Yes"| node8{"Total coverage > 50,000,000?"}
+%%     click node8 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:219:224"
+%%     node7 --> node8
+%%     node8 -->|"Yes"| node9["Log warning (W): Coverage exceeds maximum TIV"]
+%%     click node9 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:221:224"
+%%     node8 -->|"No"| node10["End of validation"]
+%%     node9 --> node10
+%%     node10["End of validation"]
+%%     click node10 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:224:224"
+%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+```
+
+This section validates key fields in an insurance policy input record and logs errors or warnings for any business rule violations. The main product role is to ensure data integrity before further processing.
+
+| Rule ID | Category        | Rule Name                      | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Implementation Details                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| ------- | --------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Data validation | Policy type validation         | If the policy type is not commercial, personal, or farm, a fatal error is logged with code <SwmToken path="base/src/LGAPDB01.cbl" pos="202:2:2" line-data="                   &#39;POL001&#39; &#39;F&#39; &#39;IN-POLICY-TYPE&#39; ">`POL001`</SwmToken>, field <SwmToken path="base/src/LGAPDB01.cbl" pos="202:10:14" line-data="                   &#39;POL001&#39; &#39;F&#39; &#39;IN-POLICY-TYPE&#39; ">`IN-POLICY-TYPE`</SwmToken>, and message 'Invalid Policy Type'.                                                  | Allowed policy types are 'C', 'P', and 'F'. Error code is <SwmToken path="base/src/LGAPDB01.cbl" pos="202:2:2" line-data="                   &#39;POL001&#39; &#39;F&#39; &#39;IN-POLICY-TYPE&#39; ">`POL001`</SwmToken>, severity is 'F', field is <SwmToken path="base/src/LGAPDB01.cbl" pos="202:10:14" line-data="                   &#39;POL001&#39; &#39;F&#39; &#39;IN-POLICY-TYPE&#39; ">`IN-POLICY-TYPE`</SwmToken>, and message is 'Invalid Policy Type'.                             |
+| BR-002  | Data validation | Customer number required       | If the customer number is blank, a fatal error is logged with code <SwmToken path="base/src/LGAPDB01.cbl" pos="208:2:2" line-data="                   &#39;CUS001&#39; &#39;F&#39; &#39;IN-CUSTOMER-NUM&#39; ">`CUS001`</SwmToken>, field <SwmToken path="base/src/LGAPDB01.cbl" pos="206:3:7" line-data="           IF IN-CUSTOMER-NUM = SPACES">`IN-CUSTOMER-NUM`</SwmToken>, and message 'Customer Number Required'.                                                                                                        | Error code is <SwmToken path="base/src/LGAPDB01.cbl" pos="208:2:2" line-data="                   &#39;CUS001&#39; &#39;F&#39; &#39;IN-CUSTOMER-NUM&#39; ">`CUS001`</SwmToken>, severity is 'F', field is <SwmToken path="base/src/LGAPDB01.cbl" pos="206:3:7" line-data="           IF IN-CUSTOMER-NUM = SPACES">`IN-CUSTOMER-NUM`</SwmToken>, and message is 'Customer Number Required'.                                                                                                       |
+| BR-003  | Data validation | Coverage limit required        | If both building and contents coverage limits are zero, a fatal error is logged with code <SwmToken path="base/src/LGAPDB01.cbl" pos="215:2:2" line-data="                   &#39;COV001&#39; &#39;F&#39; &#39;COVERAGE-LIMITS&#39; ">`COV001`</SwmToken>, field <SwmToken path="base/src/LGAPDB01.cbl" pos="215:10:12" line-data="                   &#39;COV001&#39; &#39;F&#39; &#39;COVERAGE-LIMITS&#39; ">`COVERAGE-LIMITS`</SwmToken>, and message 'At least one coverage limit required'.                               | Error code is <SwmToken path="base/src/LGAPDB01.cbl" pos="215:2:2" line-data="                   &#39;COV001&#39; &#39;F&#39; &#39;COVERAGE-LIMITS&#39; ">`COV001`</SwmToken>, severity is 'F', field is <SwmToken path="base/src/LGAPDB01.cbl" pos="215:10:12" line-data="                   &#39;COV001&#39; &#39;F&#39; &#39;COVERAGE-LIMITS&#39; ">`COVERAGE-LIMITS`</SwmToken>, and message is 'At least one coverage limit required'.                                                     |
+| BR-004  | Data validation | Maximum total coverage warning | If the sum of building, contents, and business interruption coverage exceeds 50,000,000.00, a warning is logged with code <SwmToken path="base/src/LGAPDB01.cbl" pos="222:2:2" line-data="                   &#39;COV002&#39; &#39;W&#39; &#39;COVERAGE-LIMITS&#39; ">`COV002`</SwmToken>, field <SwmToken path="base/src/LGAPDB01.cbl" pos="215:10:12" line-data="                   &#39;COV001&#39; &#39;F&#39; &#39;COVERAGE-LIMITS&#39; ">`COVERAGE-LIMITS`</SwmToken>, and message 'Total coverage exceeds maximum TIV'. | Maximum allowed total insured value is 50,000,000.00. Error code is <SwmToken path="base/src/LGAPDB01.cbl" pos="222:2:2" line-data="                   &#39;COV002&#39; &#39;W&#39; &#39;COVERAGE-LIMITS&#39; ">`COV002`</SwmToken>, severity is 'W', field is <SwmToken path="base/src/LGAPDB01.cbl" pos="215:10:12" line-data="                   &#39;COV001&#39; &#39;F&#39; &#39;COVERAGE-LIMITS&#39; ">`COVERAGE-LIMITS`</SwmToken>, and message is 'Total coverage exceeds maximum TIV'. |
+| BR-005  | Writing Output  | Error logging limit and format | Each error or warning is logged with a code, severity, field, and message, and up to 20 errors can be recorded per input record.                                                                                                                                                                                                                                                                                                                                                                                               | A maximum of 20 errors or warnings can be logged per input record. Each log entry includes a code (string), severity (string), field (string), and message (string).                                                                                                                                                                                                                                                                                                                            |
+
 <SwmSnippet path="/base/src/LGAPDB01.cbl" line="195">
 
 ---
 
-<SwmToken path="base/src/LGAPDB01.cbl" pos="195:1:7" line-data="       P008-VALIDATE-INPUT-RECORD.">`P008-VALIDATE-INPUT-RECORD`</SwmToken> checks if the policy type is one of the allowed types ('C', 'P', 'F'), makes sure a customer number is present, requires at least one coverage limit to be non-zero, and flags if the total coverage exceeds 50 million. Errors are logged for each failed check, so only records that pass all these domain-specific rules get processed further.
+In <SwmToken path="base/src/LGAPDB01.cbl" pos="195:1:7" line-data="       P008-VALIDATE-INPUT-RECORD.">`P008-VALIDATE-INPUT-RECORD`</SwmToken>, the code checks the policy type and logs an error if it's not commercial, personal, or farm, then moves on to the next validation or error handling step.
 
 ```cobol
        P008-VALIDATE-INPUT-RECORD.
@@ -1919,20 +2775,76 @@ This section ensures that only valid application records are processed for premi
                    'POL001' 'F' 'IN-POLICY-TYPE' 
                    'Invalid Policy Type'
            END-IF
-           
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/LGAPDB01.cbl" line="226">
+
+---
+
+In <SwmToken path="base/src/LGAPDB01.cbl" pos="226:1:5" line-data="       P008A-LOG-ERROR.">`P008A-LOG-ERROR`</SwmToken>, the code increments the error count and stores error details in parallel arrays, up to 20 errors per record.
+
+```cobol
+       P008A-LOG-ERROR.
+           ADD 1 TO WS-ERROR-COUNT
+           SET ERR-IDX TO WS-ERROR-COUNT
+           MOVE WS-ERROR-CODE TO WS-ERROR-CODE (ERR-IDX)
+           MOVE WS-ERROR-SEVERITY TO WS-ERROR-SEVERITY (ERR-IDX)
+           MOVE WS-ERROR-FIELD TO WS-ERROR-FIELD (ERR-IDX)
+           MOVE WS-ERROR-MESSAGE TO WS-ERROR-MESSAGE (ERR-IDX).
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/LGAPDB01.cbl" line="206">
+
+---
+
+We just returned from the main record validation logic in <SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>. Here, the code checks if the customer number is blank and logs a fatal error (<SwmToken path="base/src/LGAPDB01.cbl" pos="208:2:2" line-data="                   &#39;CUS001&#39; &#39;F&#39; &#39;IN-CUSTOMER-NUM&#39; ">`CUS001`</SwmToken>) if so. This ensures that any record missing a customer number is flagged and won't be processed further.
+
+```cobol
            IF IN-CUSTOMER-NUM = SPACES
                PERFORM P008A-LOG-ERROR WITH 
                    'CUS001' 'F' 'IN-CUSTOMER-NUM' 
                    'Customer Number Required'
            END-IF
-           
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/LGAPDB01.cbl" line="212">
+
+---
+
+After checking for a missing customer number, the code now validates that at least one coverage limit is set. If both building and contents limits are zero, it logs a fatal error (<SwmToken path="base/src/LGAPDB01.cbl" pos="215:2:2" line-data="                   &#39;COV001&#39; &#39;F&#39; &#39;COVERAGE-LIMITS&#39; ">`COV001`</SwmToken>). This step prevents processing policies with no insured value and leads into the next validation for excessive coverage.
+
+```cobol
            IF IN-BUILDING-LIMIT = ZERO AND 
               IN-CONTENTS-LIMIT = ZERO
                PERFORM P008A-LOG-ERROR WITH 
                    'COV001' 'F' 'COVERAGE-LIMITS' 
                    'At least one coverage limit required'
            END-IF
-           
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/LGAPDB01.cbl" line="219">
+
+---
+
+After the previous fatal checks, the code now checks if the total coverage exceeds the configured maximum (<SwmToken path="base/src/LGAPDB01.cbl" pos="220:9:13" line-data="              IN-BI-LIMIT &gt; WS-MAX-TIV">`WS-MAX-TIV`</SwmToken>). If it does, it logs a warning (<SwmToken path="base/src/LGAPDB01.cbl" pos="222:2:2" line-data="                   &#39;COV002&#39; &#39;W&#39; &#39;COVERAGE-LIMITS&#39; ">`COV002`</SwmToken>) instead of stopping the record, so the record is flagged but still goes through the rest of the flow.
+
+```cobol
            IF IN-BUILDING-LIMIT + IN-CONTENTS-LIMIT + 
               IN-BI-LIMIT > WS-MAX-TIV
                PERFORM P008A-LOG-ERROR WITH 
@@ -1945,22 +2857,22 @@ This section ensures that only valid application records are processed for premi
 
 </SwmSnippet>
 
-## Routing Valid Records for Premium Calculation
+### Routing Valid Records for Commercial and Non-Commercial Processing
 
-This section is responsible for routing validated insurance policy records to the correct premium calculation logic based on whether the policy is commercial or non-commercial. It also maintains counters for successful and error outcomes.
+This section determines the processing path for valid records by evaluating the policy type. It ensures that commercial records are handled by the commercial process and all others by the non-commercial process, updating the relevant counters for reporting and tracking.
 
-| Category       | Rule Name                     | Description                                                                                                      |
-| -------------- | ----------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| Business logic | Commercial Policy Routing     | If the policy type is commercial ('C'), the record must be routed to the commercial premium calculation logic.   |
-| Business logic | Non-Commercial Policy Routing | If the policy type is not commercial, the record must be routed to the non-commercial premium calculation logic. |
-| Business logic | Processed Records Counter     | Each time a commercial policy record is successfully routed, increment the processed records counter by 1.       |
-| Business logic | Error Records Counter         | Each time a non-commercial policy record is routed, increment the error records counter by 1.                    |
+| Rule ID | Category        | Rule Name                     | Description                                                                                                                        | Implementation Details                                                                                                                                                                                    |
+| ------- | --------------- | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Calculation     | Processed count tracking      | The processed count starts at zero and is incremented by one for each commercial record processed in this section.                 | The processed count is a number starting at zero and incremented by one for each commercial record. The field size is 7 digits.                                                                           |
+| BR-002  | Calculation     | Error count tracking          | The error count starts at zero and is incremented by one for each non-commercial record processed in this section.                 | The error count is a number starting at zero and incremented by one for each non-commercial record. The field size is 6 digits.                                                                           |
+| BR-003  | Decision Making | Commercial policy routing     | If the policy type is commercial, the record is routed to commercial processing and the processed count is incremented by one.     | The commercial policy type is represented by the value 'C' in the policy type field. The processed count is incremented by one for each commercial record. No output format is specified in this section. |
+| BR-004  | Decision Making | Non-commercial policy routing | If the policy type is not commercial, the record is routed to non-commercial processing and the error count is incremented by one. | Non-commercial policy types include any value other than 'C'. The error count is incremented by one for each non-commercial record. No output format is specified in this section.                        |
 
 <SwmSnippet path="/base/src/LGAPDB01.cbl" line="234">
 
 ---
 
-<SwmToken path="base/src/LGAPDB01.cbl" pos="234:1:7" line-data="       P009-PROCESS-VALID-RECORD.">`P009-PROCESS-VALID-RECORD`</SwmToken> checks if the record is commercial and sends it to the commercial premium calculation logic, otherwise it routes it to non-commercial handling. It updates the success or error counters based on the outcome.
+<SwmToken path="base/src/LGAPDB01.cbl" pos="234:1:7" line-data="       P009-PROCESS-VALID-RECORD.">`P009-PROCESS-VALID-RECORD`</SwmToken> decides if the current record is commercial by checking <SwmToken path="base/src/LGAPDB01.cbl" pos="202:10:14" line-data="                   &#39;POL001&#39; &#39;F&#39; &#39;IN-POLICY-TYPE&#39; ">`IN-POLICY-TYPE`</SwmToken>. If it is, it routes to commercial processing and bumps the processed count; if not, it sends the record to non-commercial handling and increments the error count. This branching is what drives the next step in the flow.
 
 ```cobol
        P009-PROCESS-VALID-RECORD.
@@ -1977,1250 +2889,87 @@ This section is responsible for routing validated insurance policy records to th
 
 </SwmSnippet>
 
-## Running Commercial Premium Calculations
+### Processing Commercial Policy Records
+
+This section governs the business logic for processing commercial policy records, including underwriting status assignment and discount eligibility determination. It ensures that each policy is evaluated according to defined business criteria and outputs the results for further processing or decision-making.
+
+| Rule ID | Category        | Rule Name                           | Description                                                                        | Implementation Details                                                                                                                         |
+| ------- | --------------- | ----------------------------------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Calculation     | Discount Factor Initialization      | Initialize the discount factor to 1.00 for each policy processed.                  | The discount factor is a decimal number with two digits after the decimal point, initialized to 1.00.                                          |
+| BR-002  | Decision Making | Underwriting Approved Status        | Assign underwriting status as 'Approved' when the status code is 0.                | Status code 0 corresponds to 'Approved'. The output status is a number (0) and may be accompanied by a description string up to 20 characters. |
+| BR-003  | Decision Making | Multi-Policy Discount Eligibility   | Set multi-policy discount eligibility to 'Yes' when the eligibility flag is 'Y'.   | Eligibility flag 'Y' means eligible for multi-policy discount. The flag is a single character ('Y' or 'N').                                    |
+| BR-004  | Decision Making | Claims-Free Discount Eligibility    | Set claims-free discount eligibility to 'Yes' when the eligibility flag is 'Y'.    | Eligibility flag 'Y' means eligible for claims-free discount. The flag is a single character ('Y' or 'N').                                     |
+| BR-005  | Decision Making | Safety Program Discount Eligibility | Set safety program discount eligibility to 'Yes' when the eligibility flag is 'Y'. | Eligibility flag 'Y' means eligible for safety program discount. The flag is a single character ('Y' or 'N').                                  |
+
+See <SwmLink doc-title="Processing Commercial Policy Applications">[Processing Commercial Policy Applications](.swm%5Cprocessing-commercial-policy-applications.f5e4u6n8.sw.md)</SwmLink>
+
+### Updating Premium and Risk Statistics
 
 ```mermaid
 %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
 flowchart TD
-    node1["Calculating Property Risk Score"]
-    
-    node1 --> node2["Calculating Basic Premiums"]
-    
-    node2 --> node3{"WS-STAT = 0?"}
-    click node3 openCode "base/src/LGAPDB01.cbl:261:263"
-    node3 -->|"Yes"| node4["Running Enhanced Actuarial Calculations"]
-    
-    node3 -->|"No"| node5["Applying Underwriting Decision and Updating Stats"]
-    node4 --> node5
-    
-    node5 --> node6{"Underwriting decision"}
-    
-    node6 -->|"Risk score > Max"| node7["Applying Underwriting Decision and Updating Stats"]
-    node6 -->|"Premium < Min or Risk > 180"| node8["Applying Underwriting Decision and Updating Stats"]
-    node6 -->|"Otherwise"| node9["Applying Underwriting Decision and Updating Stats"]
-    node7 --> node10["Write output & update statistics"]
-    node8 --> node10
-    node9 --> node10
-    click node10 openCode "base/src/LGAPDB01.cbl:350:377"
-classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
-click node1 goToHeading "Calculating Property Risk Score"
-node1:::HeadingStyle
-click node2 goToHeading "Calculating Basic Premiums"
-node2:::HeadingStyle
-click node4 goToHeading "Running Enhanced Actuarial Calculations"
-node4:::HeadingStyle
-click node5 goToHeading "Applying Underwriting Decision and Updating Stats"
-node5:::HeadingStyle
-click node6 goToHeading "Applying Underwriting Decision and Updating Stats"
-node6:::HeadingStyle
-click node7 goToHeading "Applying Underwriting Decision and Updating Stats"
-node7:::HeadingStyle
-click node8 goToHeading "Applying Underwriting Decision and Updating Stats"
-node8:::HeadingStyle
-click node9 goToHeading "Applying Underwriting Decision and Updating Stats"
-node9:::HeadingStyle
-
-%% Swimm:
-%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
-%% flowchart TD
-%%     node1["Calculating Property Risk Score"]
-%%     
-%%     node1 --> node2["Calculating Basic Premiums"]
-%%     
-%%     node2 --> node3{"<SwmToken path="base/src/LGAPDB01.cbl" pos="261:3:5" line-data="           IF WS-STAT = 0">`WS-STAT`</SwmToken> = 0?"}
-%%     click node3 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:261:263"
-%%     node3 -->|"Yes"| node4["Running Enhanced Actuarial Calculations"]
-%%     
-%%     node3 -->|"No"| node5["Applying Underwriting Decision and Updating Stats"]
-%%     node4 --> node5
-%%     
-%%     node5 --> node6{"Underwriting decision"}
-%%     
-%%     node6 -->|"Risk score > Max"| node7["Applying Underwriting Decision and Updating Stats"]
-%%     node6 -->|"Premium < Min or Risk > 180"| node8["Applying Underwriting Decision and Updating Stats"]
-%%     node6 -->|"Otherwise"| node9["Applying Underwriting Decision and Updating Stats"]
-%%     node7 --> node10["Write output & update statistics"]
-%%     node8 --> node10
-%%     node9 --> node10
-%%     click node10 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:350:377"
-%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
-%% click node1 goToHeading "Calculating Property Risk Score"
-%% node1:::HeadingStyle
-%% click node2 goToHeading "Calculating Basic Premiums"
-%% node2:::HeadingStyle
-%% click node4 goToHeading "Running Enhanced Actuarial Calculations"
-%% node4:::HeadingStyle
-%% click node5 goToHeading "Applying Underwriting Decision and Updating Stats"
-%% node5:::HeadingStyle
-%% click node6 goToHeading "Applying Underwriting Decision and Updating Stats"
-%% node6:::HeadingStyle
-%% click node7 goToHeading "Applying Underwriting Decision and Updating Stats"
-%% node7:::HeadingStyle
-%% click node8 goToHeading "Applying Underwriting Decision and Updating Stats"
-%% node8:::HeadingStyle
-%% click node9 goToHeading "Applying Underwriting Decision and Updating Stats"
-%% node9:::HeadingStyle
-```
-
-This section is responsible for calculating risk scores and premiums for commercial insurance policies, applying advanced actuarial methods for approved cases, and ensuring all business rules are enforced before finalizing outputs and statistics.
-
-| Category        | Rule Name                                  | Description                                                                                                                                                                                                                           |
-| --------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Data validation | Underwriting thresholds enforcement        | Underwriting decisions must be applied based on risk score and premium thresholds: if risk score exceeds the maximum allowed, or premium is below minimum, or risk score is above 180, the policy is flagged for review or rejection. |
-| Business logic  | Mandatory risk scoring                     | A risk score must be calculated for every commercial insurance policy using property characteristics and customer history.                                                                                                            |
-| Business logic  | Basic premium calculation                  | Basic premium calculation must be performed for every policy, using the calculated risk score and applicable adjustment factors.                                                                                                      |
-| Business logic  | Conditional enhanced actuarial calculation | Enhanced actuarial calculations are only performed if the underwriting status (<SwmToken path="base/src/LGAPDB01.cbl" pos="261:3:5" line-data="           IF WS-STAT = 0">`WS-STAT`</SwmToken>) is 'approved' (value 0).              |
-| Business logic  | Mandatory output and statistics update     | All outputs, including risk scores, premiums, underwriting decisions, and statistics, must be written and updated for every processed policy.                                                                                         |
-
-<SwmSnippet path="/base/src/LGAPDB01.cbl" line="258">
-
----
-
-In <SwmToken path="base/src/LGAPDB01.cbl" pos="258:1:5" line-data="       P011-PROCESS-COMMERCIAL.">`P011-PROCESS-COMMERCIAL`</SwmToken>, we run risk scoring, basic premium calculation, and—if the case is approved (<SwmToken path="base/src/LGAPDB01.cbl" pos="261:3:5" line-data="           IF WS-STAT = 0">`WS-STAT`</SwmToken> = 0)—we call the enhanced actuarial calculation. After that, business rules are applied, output is written, and statistics are updated. The conditional logic around <SwmToken path="base/src/LGAPDB01.cbl" pos="261:3:5" line-data="           IF WS-STAT = 0">`WS-STAT`</SwmToken> is key for controlling which cases get the full treatment.
-
-```cobol
-       P011-PROCESS-COMMERCIAL.
-           PERFORM P011A-CALCULATE-RISK-SCORE
-           PERFORM P011B-BASIC-PREMIUM-CALC
-           IF WS-STAT = 0
-               PERFORM P011C-ENHANCED-ACTUARIAL-CALC
-           END-IF
-           PERFORM P011D-APPLY-BUSINESS-RULES
-           PERFORM P011E-WRITE-OUTPUT-RECORD
-           PERFORM P011F-UPDATE-STATISTICS.
-```
-
----
-
-</SwmSnippet>
-
-### Calculating Property Risk Score
-
-This section calculates the insurance risk score for a property based on its characteristics and the customer's insurance history. The score is used to determine the premium and eligibility for coverage.
-
-| Category        | Rule Name                   | Description                                                                                                                                                            |
-| --------------- | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Data validation | Mandatory input validation  | If any required property or customer data is missing, the risk score calculation must not proceed and an error must be raised.                                         |
-| Business logic  | Comprehensive risk input    | The risk score must be calculated using both property details (such as type, location, building and contents limits, flood and weather coverage) and customer history. |
-| Business logic  | Risk score as premium basis | The risk score must be used as the sole basis for all subsequent premium calculations for the property.                                                                |
-| Business logic  | Use latest data             | The risk score must be calculated using the latest available customer history and property data at the time of application.                                            |
-
-<SwmSnippet path="/base/src/LGAPDB01.cbl" line="268">
-
----
-
-<SwmToken path="base/src/LGAPDB01.cbl" pos="268:1:7" line-data="       P011A-CALCULATE-RISK-SCORE.">`P011A-CALCULATE-RISK-SCORE`</SwmToken> calls <SwmToken path="base/src/LGAPDB01.cbl" pos="269:4:4" line-data="           CALL &#39;LGAPDB02&#39; USING IN-PROPERTY-TYPE, IN-POSTCODE, ">`LGAPDB02`</SwmToken> to get the property's insurance risk score using property details and customer history. This score is used for all further premium calculations.
-
-```cobol
-       P011A-CALCULATE-RISK-SCORE.
-           CALL 'LGAPDB02' USING IN-PROPERTY-TYPE, IN-POSTCODE, 
-                                IN-LATITUDE, IN-LONGITUDE,
-                                IN-BUILDING-LIMIT, IN-CONTENTS-LIMIT,
-                                IN-FLOOD-COVERAGE, IN-WEATHER-COVERAGE,
-                                IN-CUSTOMER-HISTORY, WS-BASE-RISK-SCR.
-```
-
----
-
-</SwmSnippet>
-
-### Fetching Risk Factors and Computing Score
-
-```mermaid
-%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
-flowchart TD
-    node1["Start MAIN-LOGIC"] --> node2{"Fire risk factor in database?"}
-    click node1 openCode "base/src/LGAPDB02.cbl:39:42"
-    node2 -->|"Yes"| node3["Set fire risk factor from database"]
-    click node2 openCode "base/src/LGAPDB02.cbl:44:55"
-    node2 -->|"No"| node4["Set fire risk factor to 0.80"]
-    click node3 openCode "base/src/LGAPDB02.cbl:46:49"
-    click node4 openCode "base/src/LGAPDB02.cbl:54:55"
-    node3 --> node5{"Crime risk factor in database?"}
-    node4 --> node5
-    node5 -->|"Yes"| node6["Set crime risk factor from database"]
-    click node5 openCode "base/src/LGAPDB02.cbl:57:67"
-    node5 -->|"No"| node7["Set crime risk factor to 0.60"]
-    click node6 openCode "base/src/LGAPDB02.cbl:58:61"
-    click node7 openCode "base/src/LGAPDB02.cbl:66:67"
-    node6 --> node8["Calculate risk score"]
-    node7 --> node8
-    click node8 openCode "base/src/LGAPDB02.cbl:41:41"
-classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
-
-%% Swimm:
-%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
-%% flowchart TD
-%%     node1["Start <SwmToken path="base/src/LGAPDB02.cbl" pos="39:1:3" line-data="       MAIN-LOGIC.">`MAIN-LOGIC`</SwmToken>"] --> node2{"Fire risk factor in database?"}
-%%     click node1 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:39:42"
-%%     node2 -->|"Yes"| node3["Set fire risk factor from database"]
-%%     click node2 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:44:55"
-%%     node2 -->|"No"| node4["Set fire risk factor to <SwmToken path="base/src/LGAPDB02.cbl" pos="54:3:5" line-data="               MOVE 0.80 TO WS-FIRE-FACTOR">`0.80`</SwmToken>"]
-%%     click node3 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:46:49"
-%%     click node4 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:54:55"
-%%     node3 --> node5{"Crime risk factor in database?"}
-%%     node4 --> node5
-%%     node5 -->|"Yes"| node6["Set crime risk factor from database"]
-%%     click node5 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:57:67"
-%%     node5 -->|"No"| node7["Set crime risk factor to <SwmToken path="base/src/LGAPDB02.cbl" pos="66:3:5" line-data="               MOVE 0.60 TO WS-CRIME-FACTOR">`0.60`</SwmToken>"]
-%%     click node6 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:58:61"
-%%     click node7 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:66:67"
-%%     node6 --> node8["Calculate risk score"]
-%%     node7 --> node8
-%%     click node8 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:41:41"
-%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
-```
-
-This section ensures that risk factors for fire and crime are available for risk score calculation, using database values when present and default values when missing.
-
-| Category       | Rule Name                 | Description                                                                                                                                                                                                                                 |
-| -------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Business logic | Default fire risk factor  | If the fire risk factor is not found in the database, the system must use a default value of <SwmToken path="base/src/LGAPDB02.cbl" pos="54:3:5" line-data="               MOVE 0.80 TO WS-FIRE-FACTOR">`0.80`</SwmToken> for fire risk.    |
-| Business logic | Default crime risk factor | If the crime risk factor is not found in the database, the system must use a default value of <SwmToken path="base/src/LGAPDB02.cbl" pos="66:3:5" line-data="               MOVE 0.60 TO WS-CRIME-FACTOR">`0.60`</SwmToken> for crime risk. |
-| Business logic | Risk score calculation    | The risk score for a property must be calculated using the fire and crime risk factors, along with relevant property and customer data.                                                                                                     |
-
-<SwmSnippet path="/base/src/LGAPDB02.cbl" line="39">
-
----
-
-<SwmToken path="base/src/LGAPDB02.cbl" pos="39:1:3" line-data="       MAIN-LOGIC.">`MAIN-LOGIC`</SwmToken> in <SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath> fetches fire and crime risk factors from the database (or uses defaults if missing), then calculates the property's risk score using those factors and property/customer data.
-
-```cobol
-       MAIN-LOGIC.
-           PERFORM GET-RISK-FACTORS
-           PERFORM CALCULATE-RISK-SCORE
-           GOBACK.
-```
-
----
-
-</SwmSnippet>
-
-<SwmSnippet path="/base/src/LGAPDB02.cbl" line="44">
-
----
-
-<SwmToken path="base/src/LGAPDB02.cbl" pos="44:1:5" line-data="       GET-RISK-FACTORS.">`GET-RISK-FACTORS`</SwmToken> pulls fire and crime risk factors from the DB, but if they're missing, it uses hardcoded defaults (<SwmToken path="base/src/LGAPDB02.cbl" pos="54:3:5" line-data="               MOVE 0.80 TO WS-FIRE-FACTOR">`0.80`</SwmToken> for fire, <SwmToken path="base/src/LGAPDB02.cbl" pos="66:3:5" line-data="               MOVE 0.60 TO WS-CRIME-FACTOR">`0.60`</SwmToken> for crime). This fallback keeps the flow running even if the DB isn't complete.
-
-```cobol
-       GET-RISK-FACTORS.
-           EXEC SQL
-               SELECT FACTOR_VALUE INTO :WS-FIRE-FACTOR
-               FROM RISK_FACTORS
-               WHERE PERIL_TYPE = 'FIRE'
-           END-EXEC.
-           
-           IF SQLCODE = 0
-               CONTINUE
-           ELSE
-               MOVE 0.80 TO WS-FIRE-FACTOR
-           END-IF.
-           
-           EXEC SQL
-               SELECT FACTOR_VALUE INTO :WS-CRIME-FACTOR
-               FROM RISK_FACTORS
-               WHERE PERIL_TYPE = 'CRIME'
-           END-EXEC.
-           
-           IF SQLCODE = 0
-               CONTINUE
-           ELSE
-               MOVE 0.60 TO WS-CRIME-FACTOR
-           END-IF.
-```
-
----
-
-</SwmSnippet>
-
-### Scoring Risk Based on Property and Coverage
-
-```mermaid
-%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
-flowchart TD
-    node1["Start risk score calculation"]
-    click node1 openCode "base/src/LGAPDB02.cbl:69:70"
-    node1 --> node2{"Property type?"}
-    click node2 openCode "base/src/LGAPDB02.cbl:72:83"
-    node2 -->|"Warehouse"| node3["Add 50 to risk score"]
-    click node3 openCode "base/src/LGAPDB02.cbl:74:74"
-    node2 -->|"Factory"| node4["Add 75 to risk score"]
-    click node4 openCode "base/src/LGAPDB02.cbl:76:76"
-    node2 -->|"Office"| node5["Add 25 to risk score"]
-    click node5 openCode "base/src/LGAPDB02.cbl:78:78"
-    node2 -->|"Retail"| node6["Add 40 to risk score"]
-    click node6 openCode "base/src/LGAPDB02.cbl:80:80"
-    node2 -->|"Other"| node7["Add 30 to risk score"]
-    click node7 openCode "base/src/LGAPDB02.cbl:82:82"
-    node3 --> node8{"Postcode FL or CR?"}
-    node4 --> node8
-    node5 --> node8
-    node6 --> node8
-    node7 --> node8
-    click node8 openCode "base/src/LGAPDB02.cbl:85:88"
-    node8 -->|"Yes"| node9["Add 30 to risk score"]
-    click node9 openCode "base/src/LGAPDB02.cbl:87:87"
-    node8 -->|"No"| node10["Proceed to coverage check"]
-    node9 --> node11["Check coverage amounts"]
-    node10 --> node11
-    click node11 openCode "base/src/LGAPDB02.cbl:94:115"
-    node11 --> node12{"Max coverage > 500,000?"}
-    click node12 openCode "base/src/LGAPDB02.cbl:113:115"
-    node12 -->|"Yes (>500,000)"| node13["Add 15 to risk score"]
-    click node13 openCode "base/src/LGAPDB02.cbl:114:114"
-    node12 -->|"No (<=500,000)"| node14["Proceed"]
-    node13 --> node15["Assess location risk"]
-    node14 --> node15
-    click node15 openCode "base/src/LGAPDB02.cbl:91:91"
-    node15 --> node16["Evaluate customer history"]
-    click node16 openCode "base/src/LGAPDB02.cbl:92:92"
-
-classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
-
-%% Swimm:
-%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
-%% flowchart TD
-%%     node1["Start risk score calculation"]
-%%     click node1 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:69:70"
-%%     node1 --> node2{"Property type?"}
-%%     click node2 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:72:83"
-%%     node2 -->|"Warehouse"| node3["Add 50 to risk score"]
-%%     click node3 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:74:74"
-%%     node2 -->|"Factory"| node4["Add 75 to risk score"]
-%%     click node4 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:76:76"
-%%     node2 -->|"Office"| node5["Add 25 to risk score"]
-%%     click node5 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:78:78"
-%%     node2 -->|"Retail"| node6["Add 40 to risk score"]
-%%     click node6 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:80:80"
-%%     node2 -->|"Other"| node7["Add 30 to risk score"]
-%%     click node7 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:82:82"
-%%     node3 --> node8{"Postcode FL or CR?"}
-%%     node4 --> node8
-%%     node5 --> node8
-%%     node6 --> node8
-%%     node7 --> node8
-%%     click node8 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:85:88"
-%%     node8 -->|"Yes"| node9["Add 30 to risk score"]
-%%     click node9 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:87:87"
-%%     node8 -->|"No"| node10["Proceed to coverage check"]
-%%     node9 --> node11["Check coverage amounts"]
-%%     node10 --> node11
-%%     click node11 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:94:115"
-%%     node11 --> node12{"Max coverage > 500,000?"}
-%%     click node12 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:113:115"
-%%     node12 -->|"Yes (>500,000)"| node13["Add 15 to risk score"]
-%%     click node13 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:114:114"
-%%     node12 -->|"No (<=500,000)"| node14["Proceed"]
-%%     node13 --> node15["Assess location risk"]
-%%     node14 --> node15
-%%     click node15 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:91:91"
-%%     node15 --> node16["Evaluate customer history"]
-%%     click node16 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:92:92"
-%% 
-%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
-```
-
-This section determines the risk score for a property insurance application by applying business rules to property type, postcode, and coverage amounts. The score is used to assess the risk level for underwriting and pricing decisions.
-
-| Category       | Rule Name                     | Description                                                                                                    |
-| -------------- | ----------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| Business logic | Base risk score               | The risk score calculation starts with a base value of 100 for every property application.                     |
-| Business logic | Warehouse property risk       | Add 50 to the risk score if the property type is 'Warehouse'.                                                  |
-| Business logic | Factory property risk         | Add 75 to the risk score if the property type is 'Factory'.                                                    |
-| Business logic | Office property risk          | Add 25 to the risk score if the property type is 'Office'.                                                     |
-| Business logic | Retail property risk          | Add 40 to the risk score if the property type is 'Retail'.                                                     |
-| Business logic | Other property risk           | Add 30 to the risk score if the property type is not Warehouse, Factory, Office, or Retail.                    |
-| Business logic | High-risk postcode adjustment | Add 30 to the risk score if the property's postcode starts with 'FL' or 'CR'.                                  |
-| Business logic | High coverage risk            | Add 15 to the risk score if the highest coverage amount among fire, crime, flood, or weather exceeds $500,000. |
-
-<SwmSnippet path="/base/src/LGAPDB02.cbl" line="69">
-
----
-
-<SwmToken path="base/src/LGAPDB02.cbl" pos="69:1:5" line-data="       CALCULATE-RISK-SCORE.">`CALCULATE-RISK-SCORE`</SwmToken> starts with a base score, bumps it up based on property type and postcode, then calls out to check coverage amounts, location risk, and customer history. The weights and thresholds are all hardcoded, so the scoring is tightly bound to business rules.
-
-```cobol
-       CALCULATE-RISK-SCORE.
-           MOVE 100 TO LK-RISK-SCORE
-
-           EVALUATE LK-PROPERTY-TYPE
-             WHEN 'WAREHOUSE'
-               ADD 50 TO LK-RISK-SCORE
-             WHEN 'FACTORY' 
-               ADD 75 TO LK-RISK-SCORE
-             WHEN 'OFFICE'
-               ADD 25 TO LK-RISK-SCORE
-             WHEN 'RETAIL'
-               ADD 40 TO LK-RISK-SCORE
-             WHEN OTHER
-               ADD 30 TO LK-RISK-SCORE
-           END-EVALUATE
-
-           IF LK-POSTCODE(1:2) = 'FL' OR
-              LK-POSTCODE(1:2) = 'CR'
-             ADD 30 TO LK-RISK-SCORE
-           END-IF
-
-           PERFORM CHECK-COVERAGE-AMOUNTS
-           PERFORM ASSESS-LOCATION-RISK  
-           PERFORM EVALUATE-CUSTOMER-HISTORY.
-```
-
----
-
-</SwmSnippet>
-
-<SwmSnippet path="/base/src/LGAPDB02.cbl" line="94">
-
----
-
-<SwmToken path="base/src/LGAPDB02.cbl" pos="94:1:5" line-data="       CHECK-COVERAGE-AMOUNTS.">`CHECK-COVERAGE-AMOUNTS`</SwmToken> finds the highest coverage among fire, crime, flood, and weather, and if it's over $500K, adds 15 to the risk score. This is a hardcoded threshold for high-value properties.
-
-```cobol
-       CHECK-COVERAGE-AMOUNTS.
-           MOVE ZERO TO WS-MAX-COVERAGE
-           
-           IF LK-FIRE-COVERAGE > WS-MAX-COVERAGE
-               MOVE LK-FIRE-COVERAGE TO WS-MAX-COVERAGE
-           END-IF
-           
-           IF LK-CRIME-COVERAGE > WS-MAX-COVERAGE
-               MOVE LK-CRIME-COVERAGE TO WS-MAX-COVERAGE
-           END-IF
-           
-           IF LK-FLOOD-COVERAGE > WS-MAX-COVERAGE
-               MOVE LK-FLOOD-COVERAGE TO WS-MAX-COVERAGE
-           END-IF
-           
-           IF LK-WEATHER-COVERAGE > WS-MAX-COVERAGE
-               MOVE LK-WEATHER-COVERAGE TO WS-MAX-COVERAGE
-           END-IF
-           
-           IF WS-MAX-COVERAGE > WS-COVERAGE-500K
-               ADD 15 TO LK-RISK-SCORE
-           END-IF.
-```
-
----
-
-</SwmSnippet>
-
-### Calculating Basic Premiums
-
-This section calculates the basic insurance premiums for a property policy, establishing the initial premium amounts for each covered peril before any advanced actuarial adjustments or loadings are applied.
-
-| Category        | Rule Name                          | Description                                                                                                                                                                                                                                              |
-| --------------- | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Data validation | Discount factor initialization     | The discount factor must be initialized to <SwmToken path="base/src/LGAPDB03.cbl" pos="93:3:5" line-data="           MOVE 1.00 TO LK-DISC-FACT">`1.00`</SwmToken> and only adjusted by subsequent actuarial logic, not during basic premium calculation. |
-| Business logic  | Peril-specific premium calculation | The basic premium for each peril (fire, crime, flood, weather) must be calculated using the provided risk score and peril values, ensuring that each peril is assessed independently.                                                                    |
-| Business logic  | Total premium aggregation          | The total basic premium must be the sum of the individual peril premiums (fire, crime, flood, weather) before any discounts or loadings are applied.                                                                                                     |
-| Business logic  | Underwriting status assignment     | The underwriting status must be set to 'approved' (value 0) unless the risk score or peril values indicate a rejection or referral condition.                                                                                                            |
-
-<SwmSnippet path="/base/src/LGAPDB01.cbl" line="275">
-
----
-
-<SwmToken path="base/src/LGAPDB01.cbl" pos="275:1:7" line-data="       P011B-BASIC-PREMIUM-CALC.">`P011B-BASIC-PREMIUM-CALC`</SwmToken> calls <SwmToken path="base/src/LGAPDB01.cbl" pos="276:4:4" line-data="           CALL &#39;LGAPDB03&#39; USING WS-BASE-RISK-SCR, IN-FIRE-PERIL, ">`LGAPDB03`</SwmToken> to calculate the basic insurance premiums using the risk score and peril values. This sets up the initial premium before any advanced actuarial logic is applied.
-
-```cobol
-       P011B-BASIC-PREMIUM-CALC.
-           CALL 'LGAPDB03' USING WS-BASE-RISK-SCR, IN-FIRE-PERIL, 
-                                IN-CRIME-PERIL, IN-FLOOD-PERIL, 
-                                IN-WEATHER-PERIL, WS-STAT,
-                                WS-STAT-DESC, WS-REJ-RSN, WS-FR-PREM,
-                                WS-CR-PREM, WS-FL-PREM, WS-WE-PREM,
-                                WS-TOT-PREM, WS-DISC-FACT.
-```
-
----
-
-</SwmSnippet>
-
-### Calculating Premiums and Underwriting Verdict
-
-```mermaid
-%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
-flowchart TD
-    node1["Get risk factors for each peril (from DB or default: fire=0.80, crime=0.60)"] --> node2{"Risk score?"}
-    click node1 openCode "base/src/LGAPDB03.cbl:48:71"
-    node2 -->|"#gt; 200"| node3["Set status: REJECTED (High Risk)"]
-    click node2 openCode "base/src/LGAPDB03.cbl:74:90"
-    node2 -->|"151-200"| node4["Set status: PENDING (Medium Risk)"]
-    node2 -->|"#lt;= 150"| node5["Set status: APPROVED (Low Risk)"]
-    node3 --> node6{"All perils present? (fire, crime, flood, weather > 0)"}
+    node1["Add current premium and risk score to totals"]
+    click node1 openCode "base/src/LGAPDB01.cbl:366:367"
+    node1 --> node2{"Underwriting decision?"}
+    click node2 openCode "base/src/LGAPDB01.cbl:369:373"
+    node2 -->|"0 (Approved)"| node3["Increment approved applications counter"]
+    click node3 openCode "base/src/LGAPDB01.cbl:370:370"
+    node2 -->|"1 (Pending)"| node4["Increment pending applications counter"]
+    click node4 openCode "base/src/LGAPDB01.cbl:371:371"
+    node2 -->|"2 (Rejected)"| node5["Increment rejected applications counter"]
+    click node5 openCode "base/src/LGAPDB01.cbl:372:372"
+    node3 --> node6{"Is base risk score > 200?"}
     node4 --> node6
     node5 --> node6
-    click node3 openCode "base/src/LGAPDB03.cbl:74:79"
-    click node4 openCode "base/src/LGAPDB03.cbl:80:85"
-    click node5 openCode "base/src/LGAPDB03.cbl:86:89"
-    node6 -->|"Yes"| node7["Apply 10% discount (factor 0.90)"]
-    node6 -->|"No"| node8["No discount (factor 1.00)"]
-    click node6 openCode "base/src/LGAPDB03.cbl:95:100"
-    node7 --> node9["Calculate premiums for each peril and total"]
-    node8 --> node9
-    click node7 openCode "base/src/LGAPDB03.cbl:99:100"
-    click node8 openCode "base/src/LGAPDB03.cbl:93:94"
-    click node9 openCode "base/src/LGAPDB03.cbl:102:120"
-    node9["Output: verdict and premiums"]
+    click node6 openCode "base/src/LGAPDB01.cbl:375:377"
+    node6 -->|"Yes"| node7["Increment high risk applications counter"]
+    click node7 openCode "base/src/LGAPDB01.cbl:376:376"
+    node6 -->|"No"| node8["No further action"]
+    click node8 openCode "base/src/LGAPDB01.cbl:377:377"
+
 classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
 
 %% Swimm:
 %% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
 %% flowchart TD
-%%     node1["Get risk factors for each peril (from DB or default: fire=<SwmToken path="base/src/LGAPDB02.cbl" pos="54:3:5" line-data="               MOVE 0.80 TO WS-FIRE-FACTOR">`0.80`</SwmToken>, crime=<SwmToken path="base/src/LGAPDB02.cbl" pos="66:3:5" line-data="               MOVE 0.60 TO WS-CRIME-FACTOR">`0.60`</SwmToken>)"] --> node2{"Risk score?"}
-%%     click node1 openCode "<SwmPath>[base/src/LGAPDB03.cbl](base/src/LGAPDB03.cbl)</SwmPath>:48:71"
-%%     node2 -->|"#gt; 200"| node3["Set status: REJECTED (High Risk)"]
-%%     click node2 openCode "<SwmPath>[base/src/LGAPDB03.cbl](base/src/LGAPDB03.cbl)</SwmPath>:74:90"
-%%     node2 -->|"151-200"| node4["Set status: PENDING (Medium Risk)"]
-%%     node2 -->|"#lt;= 150"| node5["Set status: APPROVED (Low Risk)"]
-%%     node3 --> node6{"All perils present? (fire, crime, flood, weather > 0)"}
+%%     node1["Add current premium and risk score to totals"]
+%%     click node1 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:366:367"
+%%     node1 --> node2{"Underwriting decision?"}
+%%     click node2 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:369:373"
+%%     node2 -->|"0 (Approved)"| node3["Increment approved applications counter"]
+%%     click node3 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:370:370"
+%%     node2 -->|"1 (Pending)"| node4["Increment pending applications counter"]
+%%     click node4 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:371:371"
+%%     node2 -->|"2 (Rejected)"| node5["Increment rejected applications counter"]
+%%     click node5 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:372:372"
+%%     node3 --> node6{"Is base risk score > 200?"}
 %%     node4 --> node6
 %%     node5 --> node6
-%%     click node3 openCode "<SwmPath>[base/src/LGAPDB03.cbl](base/src/LGAPDB03.cbl)</SwmPath>:74:79"
-%%     click node4 openCode "<SwmPath>[base/src/LGAPDB03.cbl](base/src/LGAPDB03.cbl)</SwmPath>:80:85"
-%%     click node5 openCode "<SwmPath>[base/src/LGAPDB03.cbl](base/src/LGAPDB03.cbl)</SwmPath>:86:89"
-%%     node6 -->|"Yes"| node7["Apply 10% discount (factor <SwmToken path="base/src/LGAPDB03.cbl" pos="99:3:5" line-data="             MOVE 0.90 TO LK-DISC-FACT">`0.90`</SwmToken>)"]
-%%     node6 -->|"No"| node8["No discount (factor <SwmToken path="base/src/LGAPDB03.cbl" pos="93:3:5" line-data="           MOVE 1.00 TO LK-DISC-FACT">`1.00`</SwmToken>)"]
-%%     click node6 openCode "<SwmPath>[base/src/LGAPDB03.cbl](base/src/LGAPDB03.cbl)</SwmPath>:95:100"
-%%     node7 --> node9["Calculate premiums for each peril and total"]
-%%     node8 --> node9
-%%     click node7 openCode "<SwmPath>[base/src/LGAPDB03.cbl](base/src/LGAPDB03.cbl)</SwmPath>:99:100"
-%%     click node8 openCode "<SwmPath>[base/src/LGAPDB03.cbl](base/src/LGAPDB03.cbl)</SwmPath>:93:94"
-%%     click node9 openCode "<SwmPath>[base/src/LGAPDB03.cbl](base/src/LGAPDB03.cbl)</SwmPath>:102:120"
-%%     node9["Output: verdict and premiums"]
-%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
-```
-
-This section determines the insurance policy's status and pricing by evaluating risk factors, assigning an underwriting verdict, and calculating premiums for each peril. It ensures consistent application of business rules for risk assessment and premium calculation.
-
-| Category       | Rule Name                     | Description                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| -------------- | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Business logic | High risk rejection threshold | If the risk score is above 200, the policy status is set to REJECTED and flagged for manual review due to high risk.                                                                                                                                                                                                                                                                                                               |
-| Business logic | Medium risk pending threshold | If the risk score is between 151 and 200, the policy status is set to PENDING and flagged for further review due to medium risk.                                                                                                                                                                                                                                                                                                   |
-| Business logic | Low risk approval threshold   | If the risk score is 150 or below, the policy status is set to APPROVED.                                                                                                                                                                                                                                                                                                                                                           |
-| Business logic | All perils discount           | If all perils (fire, crime, flood, weather) are present (each peril value > 0), apply a 10% discount to the premium (discount factor <SwmToken path="base/src/LGAPDB03.cbl" pos="99:3:5" line-data="             MOVE 0.90 TO LK-DISC-FACT">`0.90`</SwmToken>). Otherwise, no discount is applied (factor <SwmToken path="base/src/LGAPDB03.cbl" pos="93:3:5" line-data="           MOVE 1.00 TO LK-DISC-FACT">`1.00`</SwmToken>). |
-
-<SwmSnippet path="/base/src/LGAPDB03.cbl" line="42">
-
----
-
-<SwmToken path="base/src/LGAPDB03.cbl" pos="42:1:3" line-data="       MAIN-LOGIC.">`MAIN-LOGIC`</SwmToken> in <SwmPath>[base/src/LGAPDB03.cbl](base/src/LGAPDB03.cbl)</SwmPath> fetches risk factors, decides the underwriting verdict based on risk score, and calculates premiums for each peril. This sets up the policy's pricing and status.
-
-```cobol
-       MAIN-LOGIC.
-           PERFORM GET-RISK-FACTORS
-           PERFORM CALCULATE-VERDICT
-           PERFORM CALCULATE-PREMIUMS
-           GOBACK.
-```
-
----
-
-</SwmSnippet>
-
-<SwmSnippet path="/base/src/LGAPDB03.cbl" line="48">
-
----
-
-<SwmToken path="base/src/LGAPDB03.cbl" pos="48:1:5" line-data="       GET-RISK-FACTORS.">`GET-RISK-FACTORS`</SwmToken> pulls fire and crime risk factors from the DB, but if they're missing, it uses hardcoded defaults (<SwmToken path="base/src/LGAPDB03.cbl" pos="58:3:5" line-data="               MOVE 0.80 TO WS-FIRE-FACTOR">`0.80`</SwmToken> for fire, <SwmToken path="base/src/LGAPDB03.cbl" pos="70:3:5" line-data="               MOVE 0.60 TO WS-CRIME-FACTOR">`0.60`</SwmToken> for crime). This fallback keeps the premium calculation running.
-
-```cobol
-       GET-RISK-FACTORS.
-           EXEC SQL
-               SELECT FACTOR_VALUE INTO :WS-FIRE-FACTOR
-               FROM RISK_FACTORS
-               WHERE PERIL_TYPE = 'FIRE'
-           END-EXEC.
-           
-           IF SQLCODE = 0
-               CONTINUE
-           ELSE
-               MOVE 0.80 TO WS-FIRE-FACTOR
-           END-IF.
-           
-           EXEC SQL
-               SELECT FACTOR_VALUE INTO :WS-CRIME-FACTOR
-               FROM RISK_FACTORS
-               WHERE PERIL_TYPE = 'CRIME'
-           END-EXEC.
-           
-           IF SQLCODE = 0
-               CONTINUE
-           ELSE
-               MOVE 0.60 TO WS-CRIME-FACTOR
-           END-IF.
-```
-
----
-
-</SwmSnippet>
-
-<SwmSnippet path="/base/src/LGAPDB03.cbl" line="73">
-
----
-
-<SwmToken path="base/src/LGAPDB03.cbl" pos="73:1:3" line-data="       CALCULATE-VERDICT.">`CALCULATE-VERDICT`</SwmToken> sets the policy status based on risk score: above 200 is rejected, 151-200 is pending, 150 or below is approved. These thresholds are hardcoded business rules.
-
-```cobol
-       CALCULATE-VERDICT.
-           IF LK-RISK-SCORE > 200
-             MOVE 2 TO LK-STAT
-             MOVE 'REJECTED' TO LK-STAT-DESC
-             MOVE 'High Risk Score - Manual Review Required' 
-               TO LK-REJ-RSN
-           ELSE
-             IF LK-RISK-SCORE > 150
-               MOVE 1 TO LK-STAT
-               MOVE 'PENDING' TO LK-STAT-DESC
-               MOVE 'Medium Risk - Pending Review'
-                 TO LK-REJ-RSN
-             ELSE
-               MOVE 0 TO LK-STAT
-               MOVE 'APPROVED' TO LK-STAT-DESC
-               MOVE SPACES TO LK-REJ-RSN
-             END-IF
-           END-IF.
-```
-
----
-
-</SwmSnippet>
-
-<SwmSnippet path="/base/src/LGAPDB03.cbl" line="92">
-
----
-
-<SwmToken path="base/src/LGAPDB03.cbl" pos="92:1:3" line-data="       CALCULATE-PREMIUMS.">`CALCULATE-PREMIUMS`</SwmToken> sets a discount if all perils are present, then calculates each peril's premium using risk score and peril factors, and sums them for the total premium.
-
-```cobol
-       CALCULATE-PREMIUMS.
-           MOVE 1.00 TO LK-DISC-FACT
-           
-           IF LK-FIRE-PERIL > 0 AND
-              LK-CRIME-PERIL > 0 AND
-              LK-FLOOD-PERIL > 0 AND
-              LK-WEATHER-PERIL > 0
-             MOVE 0.90 TO LK-DISC-FACT
-           END-IF
-
-           COMPUTE LK-FIRE-PREMIUM =
-             ((LK-RISK-SCORE * WS-FIRE-FACTOR) * LK-FIRE-PERIL *
-               LK-DISC-FACT)
-           
-           COMPUTE LK-CRIME-PREMIUM =
-             ((LK-RISK-SCORE * WS-CRIME-FACTOR) * LK-CRIME-PERIL *
-               LK-DISC-FACT)
-           
-           COMPUTE LK-FLOOD-PREMIUM =
-             ((LK-RISK-SCORE * WS-FLOOD-FACTOR) * LK-FLOOD-PERIL *
-               LK-DISC-FACT)
-           
-           COMPUTE LK-WEATHER-PREMIUM =
-             ((LK-RISK-SCORE * WS-WEATHER-FACTOR) * LK-WEATHER-PERIL *
-               LK-DISC-FACT)
-
-           COMPUTE LK-TOTAL-PREMIUM = 
-             LK-FIRE-PREMIUM + LK-CRIME-PREMIUM + 
-             LK-FLOOD-PREMIUM + LK-WEATHER-PREMIUM. 
-```
-
----
-
-</SwmSnippet>
-
-### Running Enhanced Actuarial Calculations
-
-```mermaid
-%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
-flowchart TD
-    node1["Prepare input and coverage data"] --> node2{"Is total premium > $500?"}
-    click node1 openCode "base/src/LGAPDB01.cbl:284:310"
-    node2 -->|"Yes"| node3["Run advanced actuarial calculation (LGAPDB04)"]
-    click node2 openCode "base/src/LGAPDB01.cbl:312:312"
-    node2 -->|"No"| node6["No change to premium"]
-    click node6 openCode "base/src/LGAPDB01.cbl:325:325"
-    node3 --> node4{"Is enhanced premium > current premium?"}
-    click node3 openCode "base/src/LGAPDB01.cbl:313:315"
-    click node4 openCode "base/src/LGAPDB01.cbl:317:317"
-    node4 -->|"Yes"| node5["Update premium, experience modifier, and components with enhanced values"]
-    click node5 openCode "base/src/LGAPDB01.cbl:318:324"
-    node4 -->|"No"| node6
-    node5 --> node6
-classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
-
-%% Swimm:
-%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
-%% flowchart TD
-%%     node1["Prepare input and coverage data"] --> node2{"Is total premium > $500?"}
-%%     click node1 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:284:310"
-%%     node2 -->|"Yes"| node3["Run advanced actuarial calculation (<SwmToken path="base/src/LGAPDB01.cbl" pos="313:4:4" line-data="               CALL &#39;LGAPDB04&#39; USING LK-INPUT-DATA, LK-COVERAGE-DATA, ">`LGAPDB04`</SwmToken>)"]
-%%     click node2 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:312:312"
-%%     node2 -->|"No"| node6["No change to premium"]
-%%     click node6 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:325:325"
-%%     node3 --> node4{"Is enhanced premium > current premium?"}
-%%     click node3 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:313:315"
-%%     click node4 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:317:317"
-%%     node4 -->|"Yes"| node5["Update premium, experience modifier, and components with enhanced values"]
-%%     click node5 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:318:324"
-%%     node4 -->|"No"| node6
-%%     node5 --> node6
-%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
-```
-
-This section determines whether advanced actuarial calculations should be performed for a policy, and updates premium and related values only if the enhanced calculation results in a higher premium.
-
-| Category        | Rule Name                   | Description                                                                                                                                                                                     |
-| --------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Data validation | Minimum premium threshold   | Advanced actuarial calculations are only performed if the total premium is greater than $500.                                                                                                   |
-| Data validation | Complete data requirement   | Input and coverage data must be fully prepared and populated before any actuarial calculations are performed.                                                                                   |
-| Business logic  | Enhanced premium update     | If the enhanced actuarial calculation produces a total premium greater than the current premium, the premium, experience modifier, and premium components are updated with the enhanced values. |
-| Business logic  | No change for lower premium | If the enhanced actuarial calculation does not produce a higher premium, no changes are made to the premium or related values.                                                                  |
-
-<SwmSnippet path="/base/src/LGAPDB01.cbl" line="283">
-
----
-
-<SwmToken path="base/src/LGAPDB01.cbl" pos="283:1:7" line-data="       P011C-ENHANCED-ACTUARIAL-CALC.">`P011C-ENHANCED-ACTUARIAL-CALC`</SwmToken> sets up detailed input and coverage data, then calls <SwmToken path="base/src/LGAPDB01.cbl" pos="313:4:4" line-data="               CALL &#39;LGAPDB04&#39; USING LK-INPUT-DATA, LK-COVERAGE-DATA, ">`LGAPDB04`</SwmToken> for advanced premium calculations. If the enhanced premium is higher, it updates the results.
-
-```cobol
-       P011C-ENHANCED-ACTUARIAL-CALC.
-      *    Prepare input structure for actuarial calculation
-           MOVE IN-CUSTOMER-NUM TO LK-CUSTOMER-NUM
-           MOVE WS-BASE-RISK-SCR TO LK-RISK-SCORE
-           MOVE IN-PROPERTY-TYPE TO LK-PROPERTY-TYPE
-           MOVE IN-TERRITORY-CODE TO LK-TERRITORY
-           MOVE IN-CONSTRUCTION-TYPE TO LK-CONSTRUCTION-TYPE
-           MOVE IN-OCCUPANCY-CODE TO LK-OCCUPANCY-CODE
-           MOVE IN-SPRINKLER-IND TO LK-PROTECTION-CLASS
-           MOVE IN-YEAR-BUILT TO LK-YEAR-BUILT
-           MOVE IN-SQUARE-FOOTAGE TO LK-SQUARE-FOOTAGE
-           MOVE IN-YEARS-IN-BUSINESS TO LK-YEARS-IN-BUSINESS
-           MOVE IN-CLAIMS-COUNT-3YR TO LK-CLAIMS-COUNT-5YR
-           MOVE IN-CLAIMS-AMOUNT-3YR TO LK-CLAIMS-AMOUNT-5YR
-           
-      *    Set coverage data
-           MOVE IN-BUILDING-LIMIT TO LK-BUILDING-LIMIT
-           MOVE IN-CONTENTS-LIMIT TO LK-CONTENTS-LIMIT
-           MOVE IN-BI-LIMIT TO LK-BI-LIMIT
-           MOVE IN-FIRE-DEDUCTIBLE TO LK-FIRE-DEDUCTIBLE
-           MOVE IN-WIND-DEDUCTIBLE TO LK-WIND-DEDUCTIBLE
-           MOVE IN-FLOOD-DEDUCTIBLE TO LK-FLOOD-DEDUCTIBLE
-           MOVE IN-OTHER-DEDUCTIBLE TO LK-OTHER-DEDUCTIBLE
-           MOVE IN-FIRE-PERIL TO LK-FIRE-PERIL
-           MOVE IN-CRIME-PERIL TO LK-CRIME-PERIL
-           MOVE IN-FLOOD-PERIL TO LK-FLOOD-PERIL
-           MOVE IN-WEATHER-PERIL TO LK-WEATHER-PERIL
-           
-      *    Call advanced actuarial calculation program (only for approved cases)
-           IF WS-TOT-PREM > WS-MIN-PREMIUM
-               CALL 'LGAPDB04' USING LK-INPUT-DATA, LK-COVERAGE-DATA, 
-                                    LK-OUTPUT-RESULTS
-               
-      *        Update with enhanced calculations if successful
-               IF LK-TOTAL-PREMIUM > WS-TOT-PREM
-                   MOVE LK-FIRE-PREMIUM TO WS-FR-PREM
-                   MOVE LK-CRIME-PREMIUM TO WS-CR-PREM
-                   MOVE LK-FLOOD-PREMIUM TO WS-FL-PREM
-                   MOVE LK-WEATHER-PREMIUM TO WS-WE-PREM
-                   MOVE LK-TOTAL-PREMIUM TO WS-TOT-PREM
-                   MOVE LK-EXPERIENCE-MOD TO WS-EXPERIENCE-MOD
-               END-IF
-           END-IF.
-```
-
----
-
-</SwmSnippet>
-
-### Advanced Premium Calculation and Finalization
-
-```mermaid
-%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
-flowchart TD
-    node1["Initialize exposures and base values (risk score, limits)"] --> node2["Load base rates"]
-    click node1 openCode "base/src/LGAPDB04.cbl:152:174"
-    node2["Load base rates"] --> node3["Calculate exposures"]
-    click node2 openCode "base/src/LGAPDB04.cbl:139:139"
-    node3["Calculate exposures"] --> node4["Calculate experience modifier (years in business, claims history)"]
-    click node3 openCode "base/src/LGAPDB04.cbl:140:140"
-    node4["Calculate experience modifier (years in business, claims history)"] --> node5["Calculate schedule modifier (building year, protection class, occupancy, exposure density)"]
-    click node4 openCode "base/src/LGAPDB04.cbl:234:258"
-    node5["Calculate schedule modifier (building year, protection class, occupancy, exposure density)"] --> node6["Calculate base premium for each covered peril (fire, crime, flood, weather)"]
-    click node5 openCode "base/src/LGAPDB04.cbl:260:316"
-    node6["Calculate base premium for each covered peril (fire, crime, flood, weather)"] --> node7["Add catastrophe, expense, and profit loads"]
-    click node6 openCode "base/src/LGAPDB04.cbl:318:367"
-    node7["Add catastrophe, expense, and profit loads"] --> node8["Apply discounts"]
-    click node7 openCode "base/src/LGAPDB04.cbl:145:147"
-    node8["Apply discounts"] --> node9["Calculate taxes (6.75%)"]
-    click node8 openCode "base/src/LGAPDB04.cbl:147:148"
-    node9["Calculate taxes (6.75%)"] --> node10{"Is final rate factor > 0.05?"}
-    click node9 openCode "base/src/LGAPDB04.cbl:456:462"
-    node10 -->|"Yes"| node11["Limit rate factor to 0.05 and recalculate premium"]
-    click node10 openCode "base/src/LGAPDB04.cbl:470:477"
-    node10 -->|"No"| node12["Finalize premium"]
-    click node12 openCode "base/src/LGAPDB04.cbl:464:477"
-    node11 --> node12
-    click node11 openCode "base/src/LGAPDB04.cbl:473:477"
-
-classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
-
-%% Swimm:
-%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
-%% flowchart TD
-%%     node1["Initialize exposures and base values (risk score, limits)"] --> node2["Load base rates"]
-%%     click node1 openCode "<SwmPath>[base/src/LGAPDB04.cbl](base/src/LGAPDB04.cbl)</SwmPath>:152:174"
-%%     node2["Load base rates"] --> node3["Calculate exposures"]
-%%     click node2 openCode "<SwmPath>[base/src/LGAPDB04.cbl](base/src/LGAPDB04.cbl)</SwmPath>:139:139"
-%%     node3["Calculate exposures"] --> node4["Calculate experience modifier (years in business, claims history)"]
-%%     click node3 openCode "<SwmPath>[base/src/LGAPDB04.cbl](base/src/LGAPDB04.cbl)</SwmPath>:140:140"
-%%     node4["Calculate experience modifier (years in business, claims history)"] --> node5["Calculate schedule modifier (building year, protection class, occupancy, exposure density)"]
-%%     click node4 openCode "<SwmPath>[base/src/LGAPDB04.cbl](base/src/LGAPDB04.cbl)</SwmPath>:234:258"
-%%     node5["Calculate schedule modifier (building year, protection class, occupancy, exposure density)"] --> node6["Calculate base premium for each covered peril (fire, crime, flood, weather)"]
-%%     click node5 openCode "<SwmPath>[base/src/LGAPDB04.cbl](base/src/LGAPDB04.cbl)</SwmPath>:260:316"
-%%     node6["Calculate base premium for each covered peril (fire, crime, flood, weather)"] --> node7["Add catastrophe, expense, and profit loads"]
-%%     click node6 openCode "<SwmPath>[base/src/LGAPDB04.cbl](base/src/LGAPDB04.cbl)</SwmPath>:318:367"
-%%     node7["Add catastrophe, expense, and profit loads"] --> node8["Apply discounts"]
-%%     click node7 openCode "<SwmPath>[base/src/LGAPDB04.cbl](base/src/LGAPDB04.cbl)</SwmPath>:145:147"
-%%     node8["Apply discounts"] --> node9["Calculate taxes (6.75%)"]
-%%     click node8 openCode "<SwmPath>[base/src/LGAPDB04.cbl](base/src/LGAPDB04.cbl)</SwmPath>:147:148"
-%%     node9["Calculate taxes (6.75%)"] --> node10{"Is final rate factor > 0.05?"}
-%%     click node9 openCode "<SwmPath>[base/src/LGAPDB04.cbl](base/src/LGAPDB04.cbl)</SwmPath>:456:462"
-%%     node10 -->|"Yes"| node11["Limit rate factor to 0.05 and recalculate premium"]
-%%     click node10 openCode "<SwmPath>[base/src/LGAPDB04.cbl](base/src/LGAPDB04.cbl)</SwmPath>:470:477"
-%%     node10 -->|"No"| node12["Finalize premium"]
-%%     click node12 openCode "<SwmPath>[base/src/LGAPDB04.cbl](base/src/LGAPDB04.cbl)</SwmPath>:464:477"
-%%     node11 --> node12
-%%     click node11 openCode "<SwmPath>[base/src/LGAPDB04.cbl](base/src/LGAPDB04.cbl)</SwmPath>:473:477"
+%%     click node6 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:375:377"
+%%     node6 -->|"Yes"| node7["Increment high risk applications counter"]
+%%     click node7 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:376:376"
+%%     node6 -->|"No"| node8["No further action"]
+%%     click node8 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:377:377"
 %% 
 %% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
 ```
 
-This section calculates the advanced insurance premium for a commercial property policy, applying actuarial modifiers, peril-specific rules, and regulatory caps to ensure a fair and compliant final premium.
+This section aggregates premium and risk statistics for reporting and analytics. It classifies applications by underwriting decision and flags high-risk cases based on a defined threshold.
 
-| Category        | Rule Name                 | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| --------------- | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Data validation | Rate Factor Cap           | The final rate factor is calculated as total premium divided by total insured value. If the rate factor exceeds 0.05, it is capped at 0.05 and the premium is recalculated.                                                                                                                                                                                                                                                                                                  |
-| Business logic  | Experience Modifier       | The experience modifier is set based on years in business and claims history. If the insured has 5+ years in business and no claims in 5 years, the modifier is 0.85. If there are claims, the modifier increases with claims amount but is capped at 2.00 and floored at <SwmToken path="base/src/LGAPDB04.cbl" pos="244:9:11" line-data="                        WS-CREDIBILITY-FACTOR * 0.50)">`0.50`</SwmToken>. If less than 5 years in business, the modifier is 1.10. |
-| Business logic  | Schedule Modifier         | The schedule modifier adjusts for building age, protection class, occupancy code, and exposure density. Each factor uses specific constants, and the total modifier is capped at +<SwmToken path="base/src/LGAPDB04.cbl" pos="308:12:14" line-data="           IF WS-SCHEDULE-MOD &gt; +0.400">`0.400`</SwmToken> and floored at <SwmToken path="base/src/LGAPDB04.cbl" pos="312:11:14" line-data="           IF WS-SCHEDULE-MOD &lt; -0.200">`-0.200`</SwmToken>.           |
-| Business logic  | Peril Premium Calculation | Premiums for fire, crime, flood, and weather perils are calculated separately. Crime exposure is multiplied by <SwmToken path="base/src/LGAPDB02.cbl" pos="54:3:5" line-data="               MOVE 0.80 TO WS-FIRE-FACTOR">`0.80`</SwmToken>, and flood premium is multiplied by <SwmToken path="base/src/LGAPDB04.cbl" pos="352:9:11" line-data="                   WS-TREND-FACTOR * 1.25">`1.25`</SwmToken> as business rules.                                             |
-| Business logic  | Premium Tax Calculation   | The tax amount is calculated by summing all premium components, subtracting discounts, and multiplying by a fixed tax rate of 6.75%.                                                                                                                                                                                                                                                                                                                                         |
-
-<SwmSnippet path="/base/src/LGAPDB04.cbl" line="138">
-
----
-
-<SwmToken path="base/src/LGAPDB04.cbl" pos="138:1:3" line-data="       P100-MAIN.">`P100-MAIN`</SwmToken> in <SwmPath>[base/src/LGAPDB04.cbl](base/src/LGAPDB04.cbl)</SwmPath> runs all the advanced actuarial steps: exposures, modifiers, base premium, catastrophe load, expense/profit, discounts, taxes, and final premium/rate factor. Each step builds on the previous to get the final premium.
-
-```cobol
-       P100-MAIN.
-           PERFORM P200-INIT
-           PERFORM P300-RATES
-           PERFORM P350-EXPOSURE
-           PERFORM P400-EXP-MOD
-           PERFORM P500-SCHED-MOD
-           PERFORM P600-BASE-PREM
-           PERFORM P700-CAT-LOAD
-           PERFORM P800-EXPENSE
-           PERFORM P900-DISC
-           PERFORM P950-TAXES
-           PERFORM P999-FINAL
-           GOBACK.
-```
-
----
-
-</SwmSnippet>
-
-<SwmSnippet path="/base/src/LGAPDB04.cbl" line="152">
-
----
-
-<SwmToken path="base/src/LGAPDB04.cbl" pos="152:1:3" line-data="       P200-INIT.">`P200-INIT`</SwmToken> calculates exposures for building, contents, and BI using risk score, sums them for total insured value, and divides by square footage for exposure density (or uses <SwmToken path="base/src/LGAPDB04.cbl" pos="173:3:5" line-data="               MOVE 100.00 TO WS-EXPOSURE-DENSITY">`100.00`</SwmToken> if missing).
-
-```cobol
-       P200-INIT.
-           INITIALIZE WS-CALCULATION-AREAS
-           INITIALIZE WS-BASE-RATE-TABLE
-           
-           COMPUTE WS-BUILDING-EXPOSURE = 
-               LK-BUILDING-LIMIT * (1 + (LK-RISK-SCORE - 100) / 1000)
-               
-           COMPUTE WS-CONTENTS-EXPOSURE = 
-               LK-CONTENTS-LIMIT * (1 + (LK-RISK-SCORE - 100) / 1000)
-               
-           COMPUTE WS-BI-EXPOSURE = 
-               LK-BI-LIMIT * (1 + (LK-RISK-SCORE - 100) / 1000)
-               
-           COMPUTE WS-TOTAL-INSURED-VAL = 
-               WS-BUILDING-EXPOSURE + WS-CONTENTS-EXPOSURE + 
-               WS-BI-EXPOSURE
-               
-           IF LK-SQUARE-FOOTAGE > ZERO
-               COMPUTE WS-EXPOSURE-DENSITY = 
-                   WS-TOTAL-INSURED-VAL / LK-SQUARE-FOOTAGE
-           ELSE
-               MOVE 100.00 TO WS-EXPOSURE-DENSITY
-           END-IF.
-```
-
----
-
-</SwmSnippet>
-
-<SwmSnippet path="/base/src/LGAPDB04.cbl" line="234">
-
----
-
-<SwmToken path="base/src/LGAPDB04.cbl" pos="234:1:5" line-data="       P400-EXP-MOD.">`P400-EXP-MOD`</SwmToken> sets the experience modifier based on years in business and claims history, using hardcoded constants to reward claims-free records and cap penalties for high claims.
-
-```cobol
-       P400-EXP-MOD.
-           MOVE 1.0000 TO WS-EXPERIENCE-MOD
-           
-           IF LK-YEARS-IN-BUSINESS >= 5
-               IF LK-CLAIMS-COUNT-5YR = ZERO
-                   MOVE 0.8500 TO WS-EXPERIENCE-MOD
-               ELSE
-                   COMPUTE WS-EXPERIENCE-MOD = 
-                       1.0000 + 
-                       ((LK-CLAIMS-AMOUNT-5YR / WS-TOTAL-INSURED-VAL) * 
-                        WS-CREDIBILITY-FACTOR * 0.50)
-                   
-                   IF WS-EXPERIENCE-MOD > 2.0000
-                       MOVE 2.0000 TO WS-EXPERIENCE-MOD
-                   END-IF
-                   
-                   IF WS-EXPERIENCE-MOD < 0.5000
-                       MOVE 0.5000 TO WS-EXPERIENCE-MOD
-                   END-IF
-               END-IF
-           ELSE
-               MOVE 1.1000 TO WS-EXPERIENCE-MOD
-           END-IF
-           
-           MOVE WS-EXPERIENCE-MOD TO LK-EXPERIENCE-MOD.
-```
-
----
-
-</SwmSnippet>
-
-<SwmSnippet path="/base/src/LGAPDB04.cbl" line="260">
-
----
-
-<SwmToken path="base/src/LGAPDB04.cbl" pos="260:1:5" line-data="       P500-SCHED-MOD.">`P500-SCHED-MOD`</SwmToken> calculates the schedule modifier by adjusting for building age, protection class, occupancy code, and exposure density, using hardcoded constants and capping the result.
-
-```cobol
-       P500-SCHED-MOD.
-           MOVE +0.000 TO WS-SCHEDULE-MOD
-           
-      *    Building age factor
-           EVALUATE TRUE
-               WHEN LK-YEAR-BUILT >= 2010
-                   SUBTRACT 0.050 FROM WS-SCHEDULE-MOD
-               WHEN LK-YEAR-BUILT >= 1990
-                   CONTINUE
-               WHEN LK-YEAR-BUILT >= 1970
-                   ADD 0.100 TO WS-SCHEDULE-MOD
-               WHEN OTHER
-                   ADD 0.200 TO WS-SCHEDULE-MOD
-           END-EVALUATE
-           
-      *    Protection class factor
-           EVALUATE LK-PROTECTION-CLASS
-               WHEN '01' THRU '03'
-                   SUBTRACT 0.100 FROM WS-SCHEDULE-MOD
-               WHEN '04' THRU '06'
-                   SUBTRACT 0.050 FROM WS-SCHEDULE-MOD
-               WHEN '07' THRU '09'
-                   CONTINUE
-               WHEN OTHER
-                   ADD 0.150 TO WS-SCHEDULE-MOD
-           END-EVALUATE
-           
-      *    Occupancy hazard factor
-           EVALUATE LK-OCCUPANCY-CODE
-               WHEN 'OFF01' THRU 'OFF05'
-                   SUBTRACT 0.025 FROM WS-SCHEDULE-MOD
-               WHEN 'MFG01' THRU 'MFG10'
-                   ADD 0.075 TO WS-SCHEDULE-MOD
-               WHEN 'WHS01' THRU 'WHS05'
-                   ADD 0.125 TO WS-SCHEDULE-MOD
-               WHEN OTHER
-                   CONTINUE
-           END-EVALUATE
-           
-      *    Exposure density factor
-           IF WS-EXPOSURE-DENSITY > 500.00
-               ADD 0.100 TO WS-SCHEDULE-MOD
-           ELSE
-               IF WS-EXPOSURE-DENSITY < 50.00
-                   SUBTRACT 0.050 FROM WS-SCHEDULE-MOD
-               END-IF
-           END-IF
-           
-           IF WS-SCHEDULE-MOD > +0.400
-               MOVE +0.400 TO WS-SCHEDULE-MOD
-           END-IF
-           
-           IF WS-SCHEDULE-MOD < -0.200
-               MOVE -0.200 TO WS-SCHEDULE-MOD
-           END-IF
-           
-           MOVE WS-SCHEDULE-MOD TO LK-SCHEDULE-MOD.
-```
-
----
-
-</SwmSnippet>
-
-<SwmSnippet path="/base/src/LGAPDB04.cbl" line="318">
-
----
-
-<SwmToken path="base/src/LGAPDB04.cbl" pos="318:1:5" line-data="       P600-BASE-PREM.">`P600-BASE-PREM`</SwmToken> calculates premiums for fire, crime, flood, and weather perils, using exposures, rate tables, modifiers, and trend factors. Crime and flood get extra multipliers (<SwmToken path="base/src/LGAPDB04.cbl" pos="336:10:12" line-data="                   (WS-CONTENTS-EXPOSURE * 0.80) *">`0.80`</SwmToken>, <SwmToken path="base/src/LGAPDB04.cbl" pos="352:9:11" line-data="                   WS-TREND-FACTOR * 1.25">`1.25`</SwmToken>) as business rules.
-
-```cobol
-       P600-BASE-PREM.
-           MOVE ZERO TO LK-BASE-AMOUNT
-           
-      * FIRE PREMIUM
-           IF LK-FIRE-PERIL > ZERO
-               COMPUTE LK-FIRE-PREMIUM = 
-                   (WS-BUILDING-EXPOSURE + WS-CONTENTS-EXPOSURE) *
-                   WS-BASE-RATE (1, 1, 1, 1) * 
-                   WS-EXPERIENCE-MOD *
-                   (1 + WS-SCHEDULE-MOD) *
-                   WS-TREND-FACTOR
-                   
-               ADD LK-FIRE-PREMIUM TO LK-BASE-AMOUNT
-           END-IF
-           
-      * CRIME PREMIUM
-           IF LK-CRIME-PERIL > ZERO
-               COMPUTE LK-CRIME-PREMIUM = 
-                   (WS-CONTENTS-EXPOSURE * 0.80) *
-                   WS-BASE-RATE (2, 1, 1, 1) * 
-                   WS-EXPERIENCE-MOD *
-                   (1 + WS-SCHEDULE-MOD) *
-                   WS-TREND-FACTOR
-                   
-               ADD LK-CRIME-PREMIUM TO LK-BASE-AMOUNT
-           END-IF
-           
-      * FLOOD PREMIUM
-           IF LK-FLOOD-PERIL > ZERO
-               COMPUTE LK-FLOOD-PREMIUM = 
-                   WS-BUILDING-EXPOSURE *
-                   WS-BASE-RATE (3, 1, 1, 1) * 
-                   WS-EXPERIENCE-MOD *
-                   (1 + WS-SCHEDULE-MOD) *
-                   WS-TREND-FACTOR * 1.25
-                   
-               ADD LK-FLOOD-PREMIUM TO LK-BASE-AMOUNT
-           END-IF
-           
-      * WEATHER PREMIUM
-           IF LK-WEATHER-PERIL > ZERO
-               COMPUTE LK-WEATHER-PREMIUM = 
-                   (WS-BUILDING-EXPOSURE + WS-CONTENTS-EXPOSURE) *
-                   WS-BASE-RATE (4, 1, 1, 1) * 
-                   WS-EXPERIENCE-MOD *
-                   (1 + WS-SCHEDULE-MOD) *
-                   WS-TREND-FACTOR
-                   
-               ADD LK-WEATHER-PREMIUM TO LK-BASE-AMOUNT
-           END-IF.
-```
-
----
-
-</SwmSnippet>
-
-<SwmSnippet path="/base/src/LGAPDB04.cbl" line="456">
-
----
-
-<SwmToken path="base/src/LGAPDB04.cbl" pos="456:1:3" line-data="       P950-TAXES.">`P950-TAXES`</SwmToken> calculates the tax amount by summing all premium components, subtracting discounts, and multiplying by a fixed tax rate (<SwmToken path="base/src/LGAPDB04.cbl" pos="460:10:12" line-data="                LK-DISCOUNT-AMT) * 0.0675">`0.0675`</SwmToken>).
-
-```cobol
-       P950-TAXES.
-           COMPUTE WS-TAX-AMOUNT = 
-               (LK-BASE-AMOUNT + LK-CAT-LOAD-AMT + 
-                LK-EXPENSE-LOAD-AMT + LK-PROFIT-LOAD-AMT - 
-                LK-DISCOUNT-AMT) * 0.0675
-                
-           MOVE WS-TAX-AMOUNT TO LK-TAX-AMT.
-```
-
----
-
-</SwmSnippet>
-
-<SwmSnippet path="/base/src/LGAPDB04.cbl" line="464">
-
----
-
-<SwmToken path="base/src/LGAPDB04.cbl" pos="464:1:3" line-data="       P999-FINAL.">`P999-FINAL`</SwmToken> sums all premium components, subtracts discounts, adds tax, then divides by total insured value for the rate factor. If the rate is over 0.05, it gets capped and the premium is recalculated.
-
-```cobol
-       P999-FINAL.
-           COMPUTE LK-TOTAL-PREMIUM = 
-               LK-BASE-AMOUNT + LK-CAT-LOAD-AMT + 
-               LK-EXPENSE-LOAD-AMT + LK-PROFIT-LOAD-AMT -
-               LK-DISCOUNT-AMT + LK-TAX-AMT
-               
-           COMPUTE LK-FINAL-RATE-FACTOR = 
-               LK-TOTAL-PREMIUM / WS-TOTAL-INSURED-VAL
-               
-           IF LK-FINAL-RATE-FACTOR > 0.050000
-               MOVE 0.050000 TO LK-FINAL-RATE-FACTOR
-               COMPUTE LK-TOTAL-PREMIUM = 
-                   WS-TOTAL-INSURED-VAL * LK-FINAL-RATE-FACTOR
-           END-IF.
-```
-
----
-
-</SwmSnippet>
-
-### Applying Underwriting Decision and Updating Stats
-
-```mermaid
-%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
-flowchart TD
-    node1["Calculate risk score"] --> node2["Calculate basic premium"]
-    click node1 openCode "base/src/LGAPDB01.cbl:259:259"
-    click node2 openCode "base/src/LGAPDB01.cbl:260:260"
-    node2 --> node3{"Is application already rejected or pending? (WS-STAT != 0)"}
-    click node3 openCode "base/src/LGAPDB01.cbl:261:263"
-    node3 -->|"No"| node4["Enhanced actuarial calculation"]
-    click node4 openCode "base/src/LGAPDB01.cbl:262:262"
-    node3 -->|"Yes"| node5["Apply business rules"]
-    node4 --> node5
-    click node5 openCode "base/src/LGAPDB01.cbl:264:264"
-    node5 --> node6{"Risk score > Max allowed?"}
-    click node6 openCode "base/src/LGAPDB01.cbl:330:334"
-    node6 -->|"Yes"| node7["Set status: Rejected"]
-    click node7 openCode "base/src/LGAPDB01.cbl:331:334"
-    node6 -->|"No"| node8{"Premium < Minimum?"}
-    click node8 openCode "base/src/LGAPDB01.cbl:335:339"
-    node8 -->|"Yes"| node9["Set status: Pending"]
-    click node9 openCode "base/src/LGAPDB01.cbl:336:339"
-    node8 -->|"No"| node10{"Risk score > 180?"}
-    click node10 openCode "base/src/LGAPDB01.cbl:340:344"
-    node10 -->|"Yes"| node11["Set status: Pending"]
-    click node11 openCode "base/src/LGAPDB01.cbl:341:344"
-    node10 -->|"No"| node12["Set status: Approved"]
-    click node12 openCode "base/src/LGAPDB01.cbl:346:348"
-    node7 --> node13["Write output & update statistics"]
-    node9 --> node13
-    node11 --> node13
-    node12 --> node13
-    click node13 openCode "base/src/LGAPDB01.cbl:265:377"
-
-classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
-
-%% Swimm:
-%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
-%% flowchart TD
-%%     node1["Calculate risk score"] --> node2["Calculate basic premium"]
-%%     click node1 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:259:259"
-%%     click node2 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:260:260"
-%%     node2 --> node3{"Is application already rejected or pending? (<SwmToken path="base/src/LGAPDB01.cbl" pos="261:3:5" line-data="           IF WS-STAT = 0">`WS-STAT`</SwmToken> != 0)"}
-%%     click node3 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:261:263"
-%%     node3 -->|"No"| node4["Enhanced actuarial calculation"]
-%%     click node4 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:262:262"
-%%     node3 -->|"Yes"| node5["Apply business rules"]
-%%     node4 --> node5
-%%     click node5 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:264:264"
-%%     node5 --> node6{"Risk score > Max allowed?"}
-%%     click node6 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:330:334"
-%%     node6 -->|"Yes"| node7["Set status: Rejected"]
-%%     click node7 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:331:334"
-%%     node6 -->|"No"| node8{"Premium < Minimum?"}
-%%     click node8 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:335:339"
-%%     node8 -->|"Yes"| node9["Set status: Pending"]
-%%     click node9 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:336:339"
-%%     node8 -->|"No"| node10{"Risk score > 180?"}
-%%     click node10 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:340:344"
-%%     node10 -->|"Yes"| node11["Set status: Pending"]
-%%     click node11 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:341:344"
-%%     node10 -->|"No"| node12["Set status: Approved"]
-%%     click node12 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:346:348"
-%%     node7 --> node13["Write output & update statistics"]
-%%     node9 --> node13
-%%     node11 --> node13
-%%     node12 --> node13
-%%     click node13 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:265:377"
-%% 
-%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
-```
-
-<SwmSnippet path="/base/src/LGAPDB01.cbl" line="327">
-
----
-
-<SwmToken path="base/src/LGAPDB01.cbl" pos="327:1:7" line-data="       P011D-APPLY-BUSINESS-RULES.">`P011D-APPLY-BUSINESS-RULES`</SwmToken> sets the underwriting decision using fixed thresholds for risk score and premium, assigning status codes and reasons for each outcome.
-
-```cobol
-       P011D-APPLY-BUSINESS-RULES.
-      *    Determine underwriting decision based on enhanced criteria
-           EVALUATE TRUE
-               WHEN WS-BASE-RISK-SCR > WS-MAX-RISK-SCORE
-                   MOVE 2 TO WS-STAT
-                   MOVE 'REJECTED' TO WS-STAT-DESC
-                   MOVE 'Risk score exceeds maximum acceptable level' 
-                        TO WS-REJ-RSN
-               WHEN WS-TOT-PREM < WS-MIN-PREMIUM
-                   MOVE 1 TO WS-STAT
-                   MOVE 'PENDING' TO WS-STAT-DESC
-                   MOVE 'Premium below minimum - requires review'
-                        TO WS-REJ-RSN
-               WHEN WS-BASE-RISK-SCR > 180
-                   MOVE 1 TO WS-STAT
-                   MOVE 'PENDING' TO WS-STAT-DESC
-                   MOVE 'High risk - underwriter review required'
-                        TO WS-REJ-RSN
-               WHEN OTHER
-                   MOVE 0 TO WS-STAT
-                   MOVE 'APPROVED' TO WS-STAT-DESC
-                   MOVE SPACES TO WS-REJ-RSN
-           END-EVALUATE.
-```
-
----
-
-</SwmSnippet>
-
-<SwmSnippet path="/base/src/LGAPDB01.cbl" line="258">
-
----
-
-After advanced calculations, <SwmToken path="base/src/LGAPDB01.cbl" pos="258:1:5" line-data="       P011-PROCESS-COMMERCIAL.">`P011-PROCESS-COMMERCIAL`</SwmToken> finalizes the decision, writes output, and updates stats for all cases.
-
-```cobol
-       P011-PROCESS-COMMERCIAL.
-           PERFORM P011A-CALCULATE-RISK-SCORE
-           PERFORM P011B-BASIC-PREMIUM-CALC
-           IF WS-STAT = 0
-               PERFORM P011C-ENHANCED-ACTUARIAL-CALC
-           END-IF
-           PERFORM P011D-APPLY-BUSINESS-RULES
-           PERFORM P011E-WRITE-OUTPUT-RECORD
-           PERFORM P011F-UPDATE-STATISTICS.
-```
-
----
-
-</SwmSnippet>
+| Rule ID | Category    | Rule Name                       | Description                                                                                             | Implementation Details                                                                                                                                        |
+| ------- | ----------- | ------------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Calculation | Aggregate premium total         | The current premium amount is added to the running total of all premiums processed in this session.     | The premium total is a numeric value with up to 12 digits and 2 decimal places. The format is a number with two decimal digits.                               |
+| BR-002  | Calculation | Aggregate risk score total      | The current base risk score is added to the running total of all risk scores processed in this session. | The risk score total is a numeric value with up to 3 digits. The format is a number with no decimal digits.                                                   |
+| BR-003  | Calculation | Approved applications counting  | The approved applications counter is incremented when the underwriting decision code is 0 (approved).   | The approved applications counter is a numeric value with up to 6 digits. The format is a number with no decimal digits.                                      |
+| BR-004  | Calculation | Pending applications counting   | The pending applications counter is incremented when the underwriting decision code is 1 (pending).     | The pending applications counter is a numeric value with up to 6 digits. The format is a number with no decimal digits.                                       |
+| BR-005  | Calculation | Rejected applications counting  | The rejected applications counter is incremented when the underwriting decision code is 2 (rejected).   | The rejected applications counter is a numeric value with up to 6 digits. The format is a number with no decimal digits.                                      |
+| BR-006  | Calculation | High-risk applications counting | The high-risk applications counter is incremented when the base risk score is greater than 200.         | The high-risk applications counter is a numeric value with up to 6 digits. The format is a number with no decimal digits. The threshold for high risk is 200. |
 
 <SwmSnippet path="/base/src/LGAPDB01.cbl" line="365">
 
 ---
 
-<SwmToken path="base/src/LGAPDB01.cbl" pos="365:1:5" line-data="       P011F-UPDATE-STATISTICS.">`P011F-UPDATE-STATISTICS`</SwmToken> updates totals for premium, risk score, and counts for approved, pending, rejected, and high-risk policies using fixed thresholds and status codes.
+In <SwmToken path="base/src/LGAPDB01.cbl" pos="365:1:5" line-data="       P011F-UPDATE-STATISTICS.">`P011F-UPDATE-STATISTICS`</SwmToken>, the code adds up the premium and risk score totals, then uses an EVALUATE on <SwmToken path="base/src/LGAPDB01.cbl" pos="369:3:5" line-data="           EVALUATE WS-STAT">`WS-STAT`</SwmToken> to increment approved, pending, or rejected counters. It assumes <SwmToken path="base/src/LGAPDB01.cbl" pos="369:3:5" line-data="           EVALUATE WS-STAT">`WS-STAT`</SwmToken> only takes values 0, 1, or 2—anything else is ignored, which could be risky if new statuses are added.
 
 ```cobol
        P011F-UPDATE-STATISTICS.
@@ -3232,7 +2981,19 @@ After advanced calculations, <SwmToken path="base/src/LGAPDB01.cbl" pos="258:1:5
                WHEN 1 ADD 1 TO WS-PENDING-CNT
                WHEN 2 ADD 1 TO WS-REJECTED-CNT
            END-EVALUATE
-           
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/LGAPDB01.cbl" line="375">
+
+---
+
+After updating the main stats, the code checks if the base risk score is over 200. If so, it increments the high-risk counter. The 200 threshold is hardcoded and not explained, so changing it would directly affect how many records get flagged as high risk.
+
+```cobol
            IF WS-BASE-RISK-SCR > 200
                ADD 1 TO WS-HIGH-RISK-CNT
            END-IF.
@@ -3242,58 +3003,95 @@ After advanced calculations, <SwmToken path="base/src/LGAPDB01.cbl" pos="258:1:5
 
 </SwmSnippet>
 
-## Handling Add Policy Errors and User Feedback
+### Writing Error Records to Output
+
+This section ensures that error records are clearly flagged, all financial fields are zeroed, and error tracking is updated. It standardizes the output for error cases to support downstream processing and reporting.
+
+| Rule ID | Category       | Rule Name                       | Description                                                                                | Implementation Details                                                                                                                                                                                        |
+| ------- | -------------- | ------------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Calculation    | Zero Premiums and Risk on Error | All premium and risk-related output fields are set to zero for error records.              | All premium and risk fields are set to the numeric value zero. This includes risk score, fire premium, crime premium, flood premium, weather premium, and total premium.                                      |
+| BR-002  | Calculation    | Error Status Flagging           | The status field in the output record is set to 'ERROR' for error records.                 | The status field is set to the string value 'ERROR'.                                                                                                                                                          |
+| BR-003  | Calculation    | Reject Reason Population        | The reject reason in the output record is set to the first character of the error message. | The reject reason field is set to a single character string, taken from the first character of the error message.                                                                                             |
+| BR-004  | Calculation    | Error Count Tracking            | The error count is incremented each time an error record is processed.                     | The error count is incremented by one for each error record processed.                                                                                                                                        |
+| BR-005  | Writing Output | Write Error Record to Output    | The output record is written after all error fields are set and flagged.                   | The output record is written after all fields are set. The format of the output record is not specified in this section, but it includes customer, property, premium, risk, status, and reject reason fields. |
+
+<SwmSnippet path="/base/src/LGAPDB01.cbl" line="243">
+
+---
+
+<SwmToken path="base/src/LGAPDB01.cbl" pos="243:1:7" line-data="       P010-PROCESS-ERROR-RECORD.">`P010-PROCESS-ERROR-RECORD`</SwmToken> sets all premium and risk fields to zero, marks the status as 'ERROR', and copies the first character of the error message to the reject reason. It then writes the record to the output and bumps the error count, making sure error records are clearly flagged and tracked.
+
+```cobol
+       P010-PROCESS-ERROR-RECORD.
+           MOVE IN-CUSTOMER-NUM TO OUT-CUSTOMER-NUM
+           MOVE IN-PROPERTY-TYPE TO OUT-PROPERTY-TYPE
+           MOVE IN-POSTCODE TO OUT-POSTCODE
+           MOVE ZERO TO OUT-RISK-SCORE
+           MOVE ZERO TO OUT-FIRE-PREMIUM
+           MOVE ZERO TO OUT-CRIME-PREMIUM
+           MOVE ZERO TO OUT-FLOOD-PREMIUM
+           MOVE ZERO TO OUT-WEATHER-PREMIUM
+           MOVE ZERO TO OUT-TOTAL-PREMIUM
+           MOVE 'ERROR' TO OUT-STATUS
+           MOVE WS-ERROR-MESSAGE (1) TO OUT-REJECT-REASON
+           WRITE OUTPUT-RECORD
+           ADD 1 TO WS-ERR-CNT.
+```
+
+---
+
+</SwmSnippet>
+
+## Handling Add Policy Errors and Success in the Menu Flow
 
 ```mermaid
 %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
 flowchart TD
-    node1["Attempt to add new house policy"] --> node2{"Was add operation successful?"}
+    node1["Attempt to add house policy"] --> node2{"Was there an error?"}
     click node1 openCode "base/src/lgtestp3.cbl:110:113"
-    node2 -->|"No"| node3["Show confirmation: 'New House Policy Inserted' to user"]
-    click node2 openCode "base/src/lgtestp3.cbl:110:113"
-    node3 --> node7["End"]
+    node2 -->|"No"| node3["Show success message: 'New House Policy Inserted' and send confirmation"]
     click node3 openCode "base/src/lgtestp3.cbl:114:122"
-    node2 -->|"Yes"| node4["Rollback changes"]
-    click node4 openCode "base/src/lgtestp3.cbl:111:111"
-    node4 --> node5{"Reason for failure?"}
-    node5 -->|"Customer does not exist"| node6["Show error: 'Customer does not exist' to user"]
-    click node5 openCode "base/src/lgtestp3.cbl:268:271"
-    click node6 openCode "base/src/lgtestp3.cbl:270:271"
-    node5 -->|"Other error"| node8["Show error: 'Error Adding House Policy' to user"]
-    click node8 openCode "base/src/lgtestp3.cbl:273:274"
-    node6 --> node7
-    node8 --> node7
-    node7["End"]
+    node2 -->|"Yes"| node7["Rollback changes"]
+    click node7 openCode "base/src/lgtestp3.cbl:111:111"
+    node7 --> node4{"Customer does not exist?"}
+    click node4 openCode "base/src/lgtestp3.cbl:268:275"
+    node4 -->|"Yes"| node5["Show error: 'Customer does not exist'"]
+    click node5 openCode "base/src/lgtestp3.cbl:270:271"
+    node4 -->|"No"| node6["Show error: 'Error Adding House Policy'"]
+    click node6 openCode "base/src/lgtestp3.cbl:273:274"
 classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
 
 %% Swimm:
 %% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
 %% flowchart TD
-%%     node1["Attempt to add new house policy"] --> node2{"Was add operation successful?"}
+%%     node1["Attempt to add house policy"] --> node2{"Was there an error?"}
 %%     click node1 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:110:113"
-%%     node2 -->|"No"| node3["Show confirmation: 'New House Policy Inserted' to user"]
-%%     click node2 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:110:113"
-%%     node3 --> node7["End"]
+%%     node2 -->|"No"| node3["Show success message: 'New House Policy Inserted' and send confirmation"]
 %%     click node3 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:114:122"
-%%     node2 -->|"Yes"| node4["Rollback changes"]
-%%     click node4 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:111:111"
-%%     node4 --> node5{"Reason for failure?"}
-%%     node5 -->|"Customer does not exist"| node6["Show error: 'Customer does not exist' to user"]
-%%     click node5 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:268:271"
-%%     click node6 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:270:271"
-%%     node5 -->|"Other error"| node8["Show error: 'Error Adding House Policy' to user"]
-%%     click node8 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:273:274"
-%%     node6 --> node7
-%%     node8 --> node7
-%%     node7["End"]
+%%     node2 -->|"Yes"| node7["Rollback changes"]
+%%     click node7 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:111:111"
+%%     node7 --> node4{"Customer does not exist?"}
+%%     click node4 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:268:275"
+%%     node4 -->|"Yes"| node5["Show error: 'Customer does not exist'"]
+%%     click node5 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:270:271"
+%%     node4 -->|"No"| node6["Show error: 'Error Adding House Policy'"]
+%%     click node6 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:273:274"
 %% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
 ```
+
+This section governs how the system responds to the outcome of an attempt to add a house policy, ensuring the user receives clear feedback and the system state remains consistent.
+
+| Rule ID | Category        | Rule Name                              | Description                                                                                                                                                                                                         | Implementation Details                                                                                                                                                                                                                                                                                                                                          |
+| ------- | --------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Decision Making | Rollback and show error on add failure | If the add house policy operation returns an error, roll back the transaction and show an error message to the user.                                                                                                | A rollback is performed to undo any changes. The user is shown an error message based on the specific error code (see next rule).                                                                                                                                                                                                                               |
+| BR-002  | Writing Output  | Show success after add                 | If the add house policy operation completes without error, display a success message to the user, update the UI with the new customer and policy numbers, clear the option input, and send the updated menu screen. | The success message is 'New House Policy Inserted'. The customer and policy numbers are shown as 10-digit numbers. The option input is cleared (set to blank). The menu screen is sent using the <SwmToken path="base/src/lgtestp3.cbl" pos="45:11:11" line-data="           EXEC CICS SEND MAP (&#39;SSMAPP3&#39;)">`SSMAPP3`</SwmToken> map and SSMAP mapset. |
+| BR-003  | Writing Output  | Error message mapping for add failure  | If the error code is 70 after a failed add operation, display the message 'Customer does not exist' to the user. For any other error code, display 'Error Adding House Policy'.                                     | If the error code is 70, the message is 'Customer does not exist'. For all other error codes, the message is 'Error Adding House Policy'. Messages are shown in the output field.                                                                                                                                                                               |
 
 <SwmSnippet path="/base/src/lgtestp3.cbl" line="110">
 
 ---
 
-We just returned from <SwmPath>[base/src/lgapol01.cbl](base/src/lgapol01.cbl)</SwmPath> in <SwmToken path="base/src/lgtestp3.cbl" pos="33:5:7" line-data="              GO TO A-GAIN.">`A-GAIN`</SwmToken>. If the add policy failed (<SwmToken path="base/src/lgtestp3.cbl" pos="110:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> > 0), we roll back the transaction and jump to <SwmToken path="base/src/lgtestp3.cbl" pos="112:5:7" line-data="                   GO TO NO-ADD">`NO-ADD`</SwmToken> to handle the error and show feedback to the user.
+Back in <SwmToken path="base/src/lgtestp3.cbl" pos="33:5:7" line-data="              GO TO A-GAIN.">`A-GAIN`</SwmToken>, after returning from <SwmPath>[base/src/lgapol01.cbl](base/src/lgapol01.cbl)</SwmPath>, the code checks if <SwmToken path="base/src/lgtestp3.cbl" pos="110:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> is set. If there's an error, it rolls back the transaction and jumps to <SwmToken path="base/src/lgtestp3.cbl" pos="112:5:7" line-data="                   GO TO NO-ADD">`NO-ADD`</SwmToken> to show a user-friendly error message. This keeps the flow clear and gives the user feedback on what went wrong.
 
 ```cobol
                  IF CA-RETURN-CODE > 0
@@ -3310,7 +3108,7 @@ We just returned from <SwmPath>[base/src/lgapol01.cbl](base/src/lgapol01.cbl)</S
 
 ---
 
-<SwmToken path="base/src/lgtestp3.cbl" pos="267:1:3" line-data="       NO-ADD.">`NO-ADD`</SwmToken> checks the error code and sets a specific message for missing customers or a generic error for other failures, then jumps to <SwmToken path="base/src/lgtestp3.cbl" pos="271:5:7" line-data="               Go To ERROR-OUT">`ERROR-OUT`</SwmToken> to display it and reset session data.
+In <SwmToken path="base/src/lgtestp3.cbl" pos="267:1:3" line-data="       NO-ADD.">`NO-ADD`</SwmToken>, the code checks <SwmToken path="base/src/lgtestp3.cbl" pos="268:3:7" line-data="           Evaluate CA-RETURN-CODE">`CA-RETURN-CODE`</SwmToken>. If it's 70, it sets a 'Customer does not exist' message; otherwise, it sets a generic add error. Then it jumps to <SwmToken path="base/src/lgtestp3.cbl" pos="271:5:7" line-data="               Go To ERROR-OUT">`ERROR-OUT`</SwmToken> to display the message and reset the session state.
 
 ```cobol
        NO-ADD.
@@ -3332,7 +3130,7 @@ We just returned from <SwmPath>[base/src/lgapol01.cbl](base/src/lgapol01.cbl)</S
 
 ---
 
-After returning from <SwmToken path="base/src/lgtestp3.cbl" pos="112:5:7" line-data="                   GO TO NO-ADD">`NO-ADD`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="33:5:7" line-data="              GO TO A-GAIN.">`A-GAIN`</SwmToken> updates the session with customer and policy numbers, clears the option, and sends a success message to the user's screen, prepping for the next action.
+After returning from <SwmToken path="base/src/lgtestp3.cbl" pos="112:5:7" line-data="                   GO TO NO-ADD">`NO-ADD`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="33:5:7" line-data="              GO TO A-GAIN.">`A-GAIN`</SwmToken> moves the customer and policy numbers to the output fields, clears the option input, sets a success message, and sends the updated menu screen. This keeps the UI in sync with the latest operation result.
 
 ```cobol
                  Move CA-CUSTOMER-NUM To ENP3CNOI
@@ -3354,7 +3152,7 @@ After returning from <SwmToken path="base/src/lgtestp3.cbl" pos="112:5:7" line-d
 
 ---
 
-After prepping the request fields for deletion, we call <SwmToken path="base/src/lgtestp3.cbl" pos="129:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGDPOL01&#39;)">`LGDPOL01`</SwmToken> to handle the actual policy removal. This program checks the request and passes it to the <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> deletion logic, so it's the entry point for deleting a policy.
+When the user selects option '3', the code sets up the commarea for a house policy delete by filling in the request ID and keys, then calls <SwmToken path="base/src/lgtestp3.cbl" pos="129:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGDPOL01&#39;)">`LGDPOL01`</SwmToken>. This hands off the actual delete logic to the backend handler.
 
 ```cobol
              WHEN '3'
@@ -3371,80 +3169,19 @@ After prepping the request fields for deletion, we call <SwmToken path="base/src
 
 </SwmSnippet>
 
-## Validating and Routing Policy Deletion Requests
+## Validating and Routing Policy Delete Requests
 
-```mermaid
-%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
-flowchart TD
-    node1["Start: Receive request"] --> node2{"Commarea received?"}
-    click node1 openCode "base/src/lgdpol01.cbl:78:84"
-    node2 -->|"No"| node3["Record error, set CA-RETURN-CODE='99', abend"]
-    click node2 openCode "base/src/lgdpol01.cbl:95:99"
-    click node3 openCode "base/src/lgdpol01.cbl:96:98"
-    node2 -->|"Yes"| node4{"Commarea large enough?"}
-    click node4 openCode "base/src/lgdpol01.cbl:107:110"
-    node4 -->|"No"| node5["Return (CA-RETURN-CODE='98')"]
-    click node5 openCode "base/src/lgdpol01.cbl:108:109"
-    node4 -->|"Yes"| node6["Upper-case request ID"]
-    click node6 openCode "base/src/lgdpol01.cbl:117:117"
-    node6 --> node7{"Request ID supported?"}
-    click node7 openCode "base/src/lgdpol01.cbl:119:122"
-    node7 -->|"No"| node8["Return (CA-RETURN-CODE='99')"]
-    click node8 openCode "base/src/lgdpol01.cbl:124:124"
-    node7 -->|"Yes"| node9["Delete policy"]
-    click node9 openCode "base/src/lgdpol01.cbl:126:126"
-    node9 --> node10{"CA-RETURN-CODE > 0?"}
-    click node10 openCode "base/src/lgdpol01.cbl:127:129"
-    node10 -->|"Yes"| node11["Return (CA-RETURN-CODE>0)"]
-    click node11 openCode "base/src/lgdpol01.cbl:128:128"
-    node10 -->|"No"| node12["Return (CA-RETURN-CODE='00')"]
-    click node12 openCode "base/src/lgdpol01.cbl:133:133"
-classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+This section validates the presence of the commarea for policy delete requests and handles the error scenario where the commarea is missing. It ensures that no processing occurs without the required input data.
 
-%% Swimm:
-%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
-%% flowchart TD
-%%     node1["Start: Receive request"] --> node2{"Commarea received?"}
-%%     click node1 openCode "<SwmPath>[base/src/lgdpol01.cbl](base/src/lgdpol01.cbl)</SwmPath>:78:84"
-%%     node2 -->|"No"| node3["Record error, set <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken>='99', abend"]
-%%     click node2 openCode "<SwmPath>[base/src/lgdpol01.cbl](base/src/lgdpol01.cbl)</SwmPath>:95:99"
-%%     click node3 openCode "<SwmPath>[base/src/lgdpol01.cbl](base/src/lgdpol01.cbl)</SwmPath>:96:98"
-%%     node2 -->|"Yes"| node4{"Commarea large enough?"}
-%%     click node4 openCode "<SwmPath>[base/src/lgdpol01.cbl](base/src/lgdpol01.cbl)</SwmPath>:107:110"
-%%     node4 -->|"No"| node5["Return (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken>='98')"]
-%%     click node5 openCode "<SwmPath>[base/src/lgdpol01.cbl](base/src/lgdpol01.cbl)</SwmPath>:108:109"
-%%     node4 -->|"Yes"| node6["Upper-case request ID"]
-%%     click node6 openCode "<SwmPath>[base/src/lgdpol01.cbl](base/src/lgdpol01.cbl)</SwmPath>:117:117"
-%%     node6 --> node7{"Request ID supported?"}
-%%     click node7 openCode "<SwmPath>[base/src/lgdpol01.cbl](base/src/lgdpol01.cbl)</SwmPath>:119:122"
-%%     node7 -->|"No"| node8["Return (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken>='99')"]
-%%     click node8 openCode "<SwmPath>[base/src/lgdpol01.cbl](base/src/lgdpol01.cbl)</SwmPath>:124:124"
-%%     node7 -->|"Yes"| node9["Delete policy"]
-%%     click node9 openCode "<SwmPath>[base/src/lgdpol01.cbl](base/src/lgdpol01.cbl)</SwmPath>:126:126"
-%%     node9 --> node10{"<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> > 0?"}
-%%     click node10 openCode "<SwmPath>[base/src/lgdpol01.cbl](base/src/lgdpol01.cbl)</SwmPath>:127:129"
-%%     node10 -->|"Yes"| node11["Return (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken>>0)"]
-%%     click node11 openCode "<SwmPath>[base/src/lgdpol01.cbl](base/src/lgdpol01.cbl)</SwmPath>:128:128"
-%%     node10 -->|"No"| node12["Return (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken>='00')"]
-%%     click node12 openCode "<SwmPath>[base/src/lgdpol01.cbl](base/src/lgdpol01.cbl)</SwmPath>:133:133"
-%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
-```
-
-This section is responsible for validating incoming policy deletion requests, ensuring only supported and well-formed requests are processed, and routing them for deletion or error handling as appropriate.
-
-| Category        | Rule Name                          | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| --------------- | ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Data validation | Missing commarea error             | If no commarea is received with the request, the system must record an error, set the return code to '99', and terminate the process with an abend.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| Data validation | Minimum commarea length validation | If the commarea received is smaller than the minimum required length (28 bytes), the system must return an error with code '98' and not process the request further.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| Business logic  | Request ID normalization           | The request ID in the commarea must be converted to upper-case before validation to ensure consistent matching against supported types.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| Business logic  | Supported request ID enforcement   | Only requests with a supported request ID (<SwmToken path="base/src/lgdpol01.cbl" pos="119:18:18" line-data="           IF ( CA-REQUEST-ID NOT EQUAL TO &#39;01DEND&#39; AND">`01DEND`</SwmToken>, <SwmToken path="base/src/lgdpol01.cbl" pos="120:14:14" line-data="                CA-REQUEST-ID NOT EQUAL TO &#39;01DMOT&#39; AND">`01DMOT`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="126:4:4" line-data="                 Move &#39;01DHOU&#39;   To CA-REQUEST-ID">`01DHOU`</SwmToken>, <SwmToken path="base/src/lgdpol01.cbl" pos="122:14:14" line-data="                CA-REQUEST-ID NOT EQUAL TO &#39;01DCOM&#39; )">`01DCOM`</SwmToken>) are eligible for policy deletion. Unsupported request IDs must result in a return code of '99'. |
-| Business logic  | Successful deletion confirmation   | A successful policy deletion must result in a return code of '00' to the caller, confirming the operation was completed without errors.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| Rule ID | Category        | Rule Name                  | Description                                                                                                                                                           | Implementation Details                                                                                                                                                                                                                            |
+| ------- | --------------- | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Data validation | Missing commarea hard stop | If the commarea is not present (length is zero), log an error message and terminate the transaction with an abend code. No further processing occurs for the request. | The error message logged is ' NO COMMAREA RECEIVED'. The abend code used is 'LGCA'. The error message is sent to the message queue system for integration and audit. No further processing is performed for the request if this condition is met. |
 
 <SwmSnippet path="/base/src/lgdpol01.cbl" line="78">
 
 ---
 
-MAINLINE in <SwmPath>[base/src/lgdpol01.cbl](base/src/lgdpol01.cbl)</SwmPath> validates the incoming delete request by checking the commarea length and request ID. If the request ID matches one of the supported types (<SwmToken path="base/src/lgdpol01.cbl" pos="119:18:18" line-data="           IF ( CA-REQUEST-ID NOT EQUAL TO &#39;01DEND&#39; AND">`01DEND`</SwmToken>, <SwmToken path="base/src/lgdpol01.cbl" pos="120:14:14" line-data="                CA-REQUEST-ID NOT EQUAL TO &#39;01DMOT&#39; AND">`01DMOT`</SwmToken>, <SwmToken path="base/src/lgdpol01.cbl" pos="121:14:14" line-data="                CA-REQUEST-ID NOT EQUAL TO &#39;01DHOU&#39; AND">`01DHOU`</SwmToken>, <SwmToken path="base/src/lgdpol01.cbl" pos="122:14:14" line-data="                CA-REQUEST-ID NOT EQUAL TO &#39;01DCOM&#39; )">`01DCOM`</SwmToken>), it calls the deletion routine. Otherwise, it sets an error code and returns. This keeps the deletion logic tight and only allows recognized policy types to be deleted. Error handling and logging are built in for any failures or malformed requests.
+In MAINLINE, the code initializes working storage and sets up transaction context from EIB fields. This is the setup before any commarea or request validation happens.
 
 ```cobol
        MAINLINE SECTION.
@@ -3458,19 +3195,215 @@ MAINLINE in <SwmPath>[base/src/lgdpol01.cbl](base/src/lgdpol01.cbl)</SwmPath> va
            MOVE EIBTRNID TO WS-TRANSID.
            MOVE EIBTRMID TO WS-TERMID.
            MOVE EIBTASKN TO WS-TASKNUM.
-      *----------------------------------------------------------------*
+```
 
-      *----------------------------------------------------------------*
-      * Check commarea and obtain required details                     *
-      *----------------------------------------------------------------*
-      * If NO commarea received issue an ABEND
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgdpol01.cbl" line="95">
+
+---
+
+The code checks if EIBCALEN is zero. If so, it logs an error and abends, since no commarea means there's nothing to process. This is a hard stop for missing input.
+
+```cobol
            IF EIBCALEN IS EQUAL TO ZERO
                MOVE ' NO COMMAREA RECEIVED' TO EM-VARIABLE
                PERFORM WRITE-ERROR-MESSAGE
                EXEC CICS ABEND ABCODE('LGCA') NODUMP END-EXEC
            END-IF
+```
 
-      * initialize commarea return code to zero
+---
+
+</SwmSnippet>
+
+### Logging Delete Request Errors with Timestamps
+
+```mermaid
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+flowchart TD
+    node1["Capture current date and time for error"] --> node2["Record error message in queue"]
+    click node1 openCode "base/src/lgdpol01.cbl:157:162"
+    click node2 openCode "base/src/lgdpol01.cbl:163:169"
+    node2 --> node3{"Is there additional context data? (EIBCALEN > 0)"}
+    click node3 openCode "base/src/lgdpol01.cbl:171:185"
+    node3 -->|"No"| node6["Error recorded"]
+    click node6 openCode "base/src/lgdpol01.cbl:186:186"
+    node3 -->|"Yes"| node4{"Is context data small enough? (EIBCALEN < 91)"}
+    click node4 openCode "base/src/lgdpol01.cbl:172:185"
+    node4 -->|"Yes"| node5["Record all context data in queue"]
+    click node5 openCode "base/src/lgdpol01.cbl:173:177"
+    node4 -->|"No"| node7["Record partial context data in queue"]
+    click node7 openCode "base/src/lgdpol01.cbl:179:183"
+    node5 --> node6
+    node7 --> node6
+classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+
+%% Swimm:
+%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+%% flowchart TD
+%%     node1["Capture current date and time for error"] --> node2["Record error message in queue"]
+%%     click node1 openCode "<SwmPath>[base/src/lgdpol01.cbl](base/src/lgdpol01.cbl)</SwmPath>:157:162"
+%%     click node2 openCode "<SwmPath>[base/src/lgdpol01.cbl](base/src/lgdpol01.cbl)</SwmPath>:163:169"
+%%     node2 --> node3{"Is there additional context data? (EIBCALEN > 0)"}
+%%     click node3 openCode "<SwmPath>[base/src/lgdpol01.cbl](base/src/lgdpol01.cbl)</SwmPath>:171:185"
+%%     node3 -->|"No"| node6["Error recorded"]
+%%     click node6 openCode "<SwmPath>[base/src/lgdpol01.cbl](base/src/lgdpol01.cbl)</SwmPath>:186:186"
+%%     node3 -->|"Yes"| node4{"Is context data small enough? (EIBCALEN < 91)"}
+%%     click node4 openCode "<SwmPath>[base/src/lgdpol01.cbl](base/src/lgdpol01.cbl)</SwmPath>:172:185"
+%%     node4 -->|"Yes"| node5["Record all context data in queue"]
+%%     click node5 openCode "<SwmPath>[base/src/lgdpol01.cbl](base/src/lgdpol01.cbl)</SwmPath>:173:177"
+%%     node4 -->|"No"| node7["Record partial context data in queue"]
+%%     click node7 openCode "<SwmPath>[base/src/lgdpol01.cbl](base/src/lgdpol01.cbl)</SwmPath>:179:183"
+%%     node5 --> node6
+%%     node7 --> node6
+%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+```
+
+This section logs delete request errors by capturing the current date and time, formatting them, and sending a structured error message to a logging queue. If additional context data is available, it is included in the log message, subject to a maximum length constraint.
+
+| Rule ID | Category        | Rule Name                     | Description                                                                                                         | Implementation Details                                                                                                                                                                   |
+| ------- | --------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Calculation     | Timestamp error log entry     | The error log entry includes the current date and time at the moment the error is recorded.                         | The date is formatted as an 8-character string (MMDDYYYY), and the time as a 6-character string (HHMMSS).                                                                                |
+| BR-002  | Decision Making | Include commarea context data | If additional context data is present, up to 90 bytes of it are included in the log entry, prefixed by 'COMMAREA='. | The context data is included as a string of up to 90 characters, prefixed with 'COMMAREA=' (9 chars). If the context data is longer than 90 bytes, only the first 90 bytes are included. |
+| BR-003  | Writing Output  | Send error message to queue   | The error message is sent to the logging queue after being formatted with the date and time.                        | The error message includes the date (8 chars), a space (1 char), time (6 chars), a program identifier (9 chars), and a variable field (21 chars).                                        |
+
+<SwmSnippet path="/base/src/lgdpol01.cbl" line="154">
+
+---
+
+In <SwmToken path="base/src/lgdpol01.cbl" pos="154:1:5" line-data="       WRITE-ERROR-MESSAGE.">`WRITE-ERROR-MESSAGE`</SwmToken>, the code gets the current time and date, formats them, and puts them in the error message. This is prep work before sending the error to the logging queue.
+
+```cobol
+       WRITE-ERROR-MESSAGE.
+      * Save SQLCODE in message
+      * Obtain and format current time and date
+           EXEC CICS ASKTIME ABSTIME(WS-ABSTIME)
+           END-EXEC
+           EXEC CICS FORMATTIME ABSTIME(Ws-ABSTIME)
+                     MMDDYYYY(WS-DATE)
+                     TIME(WS-TIME)
+           END-EXEC
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgdpol01.cbl" line="163">
+
+---
+
+After formatting the error message, the code calls LGSTSQ to actually write the error to the transactional queue. This hands off the logging to the queue handler.
+
+```cobol
+           MOVE WS-DATE TO EM-DATE
+           MOVE WS-TIME TO EM-TIME
+      * Write output message to TDQ
+           EXEC CICS LINK PROGRAM('LGSTSQ')
+                     COMMAREA(ERROR-MSG)
+                     LENGTH(LENGTH OF ERROR-MSG)
+           END-EXEC.
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgdpol01.cbl" line="171">
+
+---
+
+After returning from LGSTSQ, <SwmToken path="base/src/lgipol01.cbl" pos="81:3:7" line-data="               PERFORM WRITE-ERROR-MESSAGE">`WRITE-ERROR-MESSAGE`</SwmToken> in <SwmPath>[base/src/lgdpol01.cbl](base/src/lgdpol01.cbl)</SwmPath> checks EIBCALEN and writes up to 90 bytes of the commarea to the queue. This is a hard limit—anything longer gets truncated. The code assumes EIBCALEN is valid and meaningful.
+
+```cobol
+           IF EIBCALEN > 0 THEN
+             IF EIBCALEN < 91 THEN
+               MOVE DFHCOMMAREA(1:EIBCALEN) TO CA-DATA
+               EXEC CICS LINK PROGRAM('LGSTSQ')
+                         COMMAREA(CA-ERROR-MSG)
+                         LENGTH(LENGTH OF CA-ERROR-MSG)
+               END-EXEC
+             ELSE
+               MOVE DFHCOMMAREA(1:90) TO CA-DATA
+               EXEC CICS LINK PROGRAM('LGSTSQ')
+                         COMMAREA(CA-ERROR-MSG)
+                         LENGTH(LENGTH OF CA-ERROR-MSG)
+               END-EXEC
+             END-IF
+           END-IF.
+           EXIT.
+```
+
+---
+
+</SwmSnippet>
+
+### Checking Commarea and Request ID for Delete Operations
+
+```mermaid
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+flowchart TD
+    node1["Start MAINLINE processing"] --> node2{"Is commarea large enough?"}
+    click node1 openCode "base/src/lgdpol01.cbl:102:106"
+    node2 -->|"No (CA-RETURN-CODE = 98, Too small)"| node3["Return to caller (end)"]
+    click node2 openCode "base/src/lgdpol01.cbl:107:110"
+    node2 -->|"Yes"| node4["Normalize request ID to uppercase"]
+    click node3 openCode "base/src/lgdpol01.cbl:133:133"
+    node4 --> node5{"Is request type supported?
+(01DEND, 01DMOT, 01DHOU, 01DCOM)?"}
+    click node4 openCode "base/src/lgdpol01.cbl:117:117"
+    node5 -->|"No (CA-RETURN-CODE = 99, Not supported)"| node3
+    click node5 openCode "base/src/lgdpol01.cbl:119:124"
+    node5 -->|"Yes"| node6["Process policy deletion"]
+    click node6 openCode "base/src/lgdpol01.cbl:126:127"
+    node6 --> node7{"Did deletion fail?"}
+    click node7 openCode "base/src/lgdpol01.cbl:127:129"
+    node7 -->|"Yes (CA-RETURN-CODE > 0, Failure)"| node3
+    node7 -->|"No (CA-RETURN-CODE = 00, Success)"| node3
+classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+
+%% Swimm:
+%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+%% flowchart TD
+%%     node1["Start MAINLINE processing"] --> node2{"Is commarea large enough?"}
+%%     click node1 openCode "<SwmPath>[base/src/lgdpol01.cbl](base/src/lgdpol01.cbl)</SwmPath>:102:106"
+%%     node2 -->|"No (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = 98, Too small)"| node3["Return to caller (end)"]
+%%     click node2 openCode "<SwmPath>[base/src/lgdpol01.cbl](base/src/lgdpol01.cbl)</SwmPath>:107:110"
+%%     node2 -->|"Yes"| node4["Normalize request ID to uppercase"]
+%%     click node3 openCode "<SwmPath>[base/src/lgdpol01.cbl](base/src/lgdpol01.cbl)</SwmPath>:133:133"
+%%     node4 --> node5{"Is request type supported?
+%% (<SwmToken path="base/src/lgdpol01.cbl" pos="119:18:18" line-data="           IF ( CA-REQUEST-ID NOT EQUAL TO &#39;01DEND&#39; AND">`01DEND`</SwmToken>, <SwmToken path="base/src/lgdpol01.cbl" pos="120:14:14" line-data="                CA-REQUEST-ID NOT EQUAL TO &#39;01DMOT&#39; AND">`01DMOT`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="126:4:4" line-data="                 Move &#39;01DHOU&#39;   To CA-REQUEST-ID">`01DHOU`</SwmToken>, <SwmToken path="base/src/lgdpol01.cbl" pos="122:14:14" line-data="                CA-REQUEST-ID NOT EQUAL TO &#39;01DCOM&#39; )">`01DCOM`</SwmToken>)?"}
+%%     click node4 openCode "<SwmPath>[base/src/lgdpol01.cbl](base/src/lgdpol01.cbl)</SwmPath>:117:117"
+%%     node5 -->|"No (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = 99, Not supported)"| node3
+%%     click node5 openCode "<SwmPath>[base/src/lgdpol01.cbl](base/src/lgdpol01.cbl)</SwmPath>:119:124"
+%%     node5 -->|"Yes"| node6["Process policy deletion"]
+%%     click node6 openCode "<SwmPath>[base/src/lgdpol01.cbl](base/src/lgdpol01.cbl)</SwmPath>:126:127"
+%%     node6 --> node7{"Did deletion fail?"}
+%%     click node7 openCode "<SwmPath>[base/src/lgdpol01.cbl](base/src/lgdpol01.cbl)</SwmPath>:127:129"
+%%     node7 -->|"Yes (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> > 0, Failure)"| node3
+%%     node7 -->|"No (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = 00, Success)"| node3
+%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+```
+
+This section validates the input commarea for delete operations, ensures the request type is supported, and triggers the deletion process if all checks pass. It sets specific error codes for invalid input or unsupported operations.
+
+| Rule ID | Category        | Rule Name                        | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Implementation Details                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| ------- | --------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Data validation | Minimum commarea length required | If the commarea length is less than 28 bytes, set the return code to '98' and return to the caller without further processing.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | The minimum required commarea length is 28 bytes. The return code for this error is '98'.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| BR-002  | Data validation | Supported delete request types   | If the request ID is not one of <SwmToken path="base/src/lgdpol01.cbl" pos="119:18:18" line-data="           IF ( CA-REQUEST-ID NOT EQUAL TO &#39;01DEND&#39; AND">`01DEND`</SwmToken>, <SwmToken path="base/src/lgdpol01.cbl" pos="120:14:14" line-data="                CA-REQUEST-ID NOT EQUAL TO &#39;01DMOT&#39; AND">`01DMOT`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="126:4:4" line-data="                 Move &#39;01DHOU&#39;   To CA-REQUEST-ID">`01DHOU`</SwmToken>, or <SwmToken path="base/src/lgdpol01.cbl" pos="122:14:14" line-data="                CA-REQUEST-ID NOT EQUAL TO &#39;01DCOM&#39; )">`01DCOM`</SwmToken>, set the return code to '99' and return to the caller. | Supported request IDs are <SwmToken path="base/src/lgdpol01.cbl" pos="119:18:18" line-data="           IF ( CA-REQUEST-ID NOT EQUAL TO &#39;01DEND&#39; AND">`01DEND`</SwmToken>, <SwmToken path="base/src/lgdpol01.cbl" pos="120:14:14" line-data="                CA-REQUEST-ID NOT EQUAL TO &#39;01DMOT&#39; AND">`01DMOT`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="126:4:4" line-data="                 Move &#39;01DHOU&#39;   To CA-REQUEST-ID">`01DHOU`</SwmToken>, and <SwmToken path="base/src/lgdpol01.cbl" pos="122:14:14" line-data="                CA-REQUEST-ID NOT EQUAL TO &#39;01DCOM&#39; )">`01DCOM`</SwmToken>. The return code for unsupported request types is '99'. |
+| BR-003  | Decision Making | Deletion failure handling        | If the deletion process fails (return code greater than '00'), return to the caller without further processing.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | Any non-zero return code after deletion indicates failure and triggers an immediate return to the caller.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| BR-004  | Technical Step  | Request ID normalization         | The request ID is normalized to uppercase before validation or processing.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | The request ID is converted to uppercase using a string function before any validation or processing.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+
+<SwmSnippet path="/base/src/lgdpol01.cbl" line="102">
+
+---
+
+After error handling, MAINLINE in <SwmPath>[base/src/lgdpol01.cbl](base/src/lgdpol01.cbl)</SwmPath> resets the return code, saves the commarea length, and sets up the commarea pointer. It then checks if the commarea is big enough to contain the required header. If not, it sets an error code and returns.
+
+```cobol
            MOVE '00' TO CA-RETURN-CODE
            MOVE EIBCALEN TO WS-CALEN.
            SET WS-ADDR-DFHCOMMAREA TO ADDRESS OF DFHCOMMAREA.
@@ -3480,12 +3413,19 @@ MAINLINE in <SwmPath>[base/src/lgdpol01.cbl](base/src/lgdpol01.cbl)</SwmPath> va
              MOVE '98' TO CA-RETURN-CODE
              EXEC CICS RETURN END-EXEC
            END-IF
+```
 
-      *----------------------------------------------------------------*
-      * Check request-id in commarea and if recognised ...             *
-      * Call routine to delete row from policy table                   *
-      *----------------------------------------------------------------*
-      * Upper case value passed in Request Id field                    *
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgdpol01.cbl" line="117">
+
+---
+
+MAINLINE now uppercases the request ID and checks if it's one of the allowed delete types. If not, it sets a '99' error code. If it matches, it calls <SwmToken path="base/src/lgdpol01.cbl" pos="126:3:9" line-data="               PERFORM DELETE-POLICY-DB2-INFO">`DELETE-POLICY-DB2-INFO`</SwmToken> to actually do the delete, then returns to the caller.
+
+```cobol
            MOVE FUNCTION UPPER-CASE(CA-REQUEST-ID) TO CA-REQUEST-ID
 
            IF ( CA-REQUEST-ID NOT EQUAL TO '01DEND' AND
@@ -3509,15 +3449,189 @@ MAINLINE in <SwmPath>[base/src/lgdpol01.cbl](base/src/lgdpol01.cbl)</SwmPath> va
 
 </SwmSnippet>
 
-<SwmSnippet path="/base/src/lgdpol01.cbl" line="154">
+## Delegating Policy Deletion to the Database Handler
+
+This section delegates the deletion of a policy record to a dedicated database handler, ensuring separation of concerns and encapsulation of database logic.
+
+| Rule ID | Category                        | Rule Name                        | Description                                                                                                                 | Implementation Details                                                                                                                    |
+| ------- | ------------------------------- | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Invoking a Service or a Process | Delegate policy deletion         | Delegation of policy deletion to a dedicated database handler is required for all policy delete operations in this context. | The communication area is passed as a block of up to 32,500 bytes. The format of the communication area is not specified in this section. |
+| BR-002  | Invoking a Service or a Process | Send full policy data to handler | The communication area containing policy information is sent in its entirety to the database handler for processing.        | The communication area is sent as a block of up to 32,500 bytes. The internal structure of this area is not defined in this section.      |
+
+<SwmSnippet path="/base/src/lgdpol01.cbl" line="139">
 
 ---
 
-<SwmToken path="base/src/lgdpol01.cbl" pos="154:1:5" line-data="       WRITE-ERROR-MESSAGE.">`WRITE-ERROR-MESSAGE`</SwmToken> logs error details and sends both the formatted error message and up to 90 bytes of commarea data to LGSTSQ for queueing. This gives downstream systems enough info to track what went wrong and with which data.
+<SwmToken path="base/src/lgdpol01.cbl" pos="139:1:7" line-data="       DELETE-POLICY-DB2-INFO.">`DELETE-POLICY-DB2-INFO`</SwmToken> just calls <SwmToken path="base/src/lgdpol01.cbl" pos="141:9:9" line-data="           EXEC CICS LINK PROGRAM(LGDPDB01)">`LGDPDB01`</SwmToken>, passing the commarea for the actual database delete. This offloads the <SwmToken path="base/src/lgdpol01.cbl" pos="139:5:5" line-data="       DELETE-POLICY-DB2-INFO.">`DB2`</SwmToken> logic to a dedicated handler, keeping the main program clean.
+
+```cobol
+       DELETE-POLICY-DB2-INFO.
+
+           EXEC CICS LINK PROGRAM(LGDPDB01)
+                Commarea(DFHCOMMAREA)
+                LENGTH(32500)
+           END-EXEC.
+
+           EXIT.
+```
+
+---
+
+</SwmSnippet>
+
+## Validating and Executing Policy Deletion in <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken>
+
+```mermaid
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+flowchart TD
+    node1["Start: Validate incoming request"] --> node2{"Is request present and valid?"}
+    click node1 openCode "base/src/lgdpdb01.cbl:111:125"
+    node2 -->|"No (EIBCALEN=0 or too short)"| node3["Logging DB2 Delete Errors with Timestamps"]
+    click node2 openCode "base/src/lgdpdb01.cbl:131:146"
+    
+    node2 -->|"Yes"| node4{"Is request type supported?"}
+    node4 -->|"No"| node3
+    node4 -->|"Yes"| node5["Process policy deletion request"]
+    click node4 openCode "base/src/lgdpdb01.cbl:160:172"
+    click node5 openCode "base/src/lgdpdb01.cbl:167:171"
+
+classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+click node3 goToHeading "Logging DB2 Delete Errors with Timestamps"
+node3:::HeadingStyle
+
+%% Swimm:
+%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+%% flowchart TD
+%%     node1["Start: Validate incoming request"] --> node2{"Is request present and valid?"}
+%%     click node1 openCode "<SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath>:111:125"
+%%     node2 -->|"No (EIBCALEN=0 or too short)"| node3["Logging <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> Delete Errors with Timestamps"]
+%%     click node2 openCode "<SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath>:131:146"
+%%     
+%%     node2 -->|"Yes"| node4{"Is request type supported?"}
+%%     node4 -->|"No"| node3
+%%     node4 -->|"Yes"| node5["Process policy deletion request"]
+%%     click node4 openCode "<SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath>:160:172"
+%%     click node5 openCode "<SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath>:167:171"
+%% 
+%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+%% click node3 goToHeading "Logging <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> Delete Errors with Timestamps"
+%% node3:::HeadingStyle
+```
+
+This section validates the presence of the input request for policy deletion and ensures that missing or invalid requests are logged and halted before any <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> operation is attempted.
+
+| Rule ID | Category        | Rule Name                          | Description                                                                                                                                                                                                 | Implementation Details                                                                                                                                                                                                                                                                                                                                                          |
+| ------- | --------------- | ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Data validation | Commarea required for processing   | If the incoming request data (commarea) is not present (length is zero), an error message is logged and the process is abended. No further processing occurs for this request.                              | The error message includes the text ' NO COMMAREA RECEIVED' and is written with the current date and time. The process is abended with code 'LGCA'. The commarea is required for all policy deletion requests.                                                                                                                                                                  |
+| BR-002  | Writing Output  | Error logging for missing commarea | When a missing commarea is detected, an error message is written to the integration queue system, including the current date, time, and a descriptive message for business operations to track the failure. | The error message includes the current date (8 characters), time (6 characters), the text ' NO COMMAREA RECEIVED', and is formatted according to the <SwmToken path="base/src/lgipdb01.cbl" pos="1011:3:5" line-data="                     COMMAREA(ERROR-MSG)">`ERROR-MSG`</SwmToken> structure. The message is sent to the integration queue system for operational tracking. |
+
+<SwmSnippet path="/base/src/lgdpdb01.cbl" line="111">
+
+---
+
+In MAINLINE, the code initializes working storage and <SwmToken path="base/src/lgdpdb01.cbl" pos="124:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> host variables, then gets ready to validate the commarea and process the delete request. This is the setup before any actual deletion or error handling.
+
+```cobol
+       MAINLINE SECTION.
+
+      *----------------------------------------------------------------*
+      * Common code                                                    *
+      *----------------------------------------------------------------*
+      * initialize working storage variables
+           INITIALIZE WS-HEADER.
+      * set up general variable
+           MOVE EIBTRNID TO WS-TRANSID.
+           MOVE EIBTRMID TO WS-TERMID.
+           MOVE EIBTASKN TO WS-TASKNUM.
+      *----------------------------------------------------------------*
+
+      * initialize DB2 host variables
+           INITIALIZE DB2-IN-INTEGERS.
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgdpdb01.cbl" line="131">
+
+---
+
+The code checks if EIBCALEN is zero. If so, it logs an error and abends, since no commarea means there's nothing to process. This is a hard stop for missing input.
+
+```cobol
+           IF EIBCALEN IS EQUAL TO ZERO
+               MOVE ' NO COMMAREA RECEIVED' TO EM-VARIABLE
+               PERFORM WRITE-ERROR-MESSAGE
+               EXEC CICS ABEND ABCODE('LGCA') NODUMP END-EXEC
+           END-IF
+```
+
+---
+
+</SwmSnippet>
+
+### Logging <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> Delete Errors with Timestamps
+
+```mermaid
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+flowchart TD
+    node1["Capture error details: SQLCODE, date, time"] --> node2["Write error message to queue"]
+    click node1 openCode "base/src/lgdpdb01.cbl:214:223"
+    click node2 openCode "base/src/lgdpdb01.cbl:224:228"
+    node2 --> node3{"Is there transaction data? (EIBCALEN > 0)"}
+    click node3 openCode "base/src/lgdpdb01.cbl:230:244"
+    node3 -->|"No"| node7["End"]
+    node3 -->|"Yes"| node4{"Is transaction data < 91?"}
+    click node4 openCode "base/src/lgdpdb01.cbl:231:241"
+    node4 -->|"Yes"| node5["Write transaction data (full) to queue"]
+    click node5 openCode "base/src/lgdpdb01.cbl:232:236"
+    node4 -->|"No"| node6["Write transaction data (truncated) to queue"]
+    click node6 openCode "base/src/lgdpdb01.cbl:238:242"
+    node5 --> node7
+    node6 --> node7
+    click node7 openCode "base/src/lgdpdb01.cbl:245:245"
+classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+
+%% Swimm:
+%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+%% flowchart TD
+%%     node1["Capture error details: SQLCODE, date, time"] --> node2["Write error message to queue"]
+%%     click node1 openCode "<SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath>:214:223"
+%%     click node2 openCode "<SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath>:224:228"
+%%     node2 --> node3{"Is there transaction data? (EIBCALEN > 0)"}
+%%     click node3 openCode "<SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath>:230:244"
+%%     node3 -->|"No"| node7["End"]
+%%     node3 -->|"Yes"| node4{"Is transaction data < 91?"}
+%%     click node4 openCode "<SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath>:231:241"
+%%     node4 -->|"Yes"| node5["Write transaction data (full) to queue"]
+%%     click node5 openCode "<SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath>:232:236"
+%%     node4 -->|"No"| node6["Write transaction data (truncated) to queue"]
+%%     click node6 openCode "<SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath>:238:242"
+%%     node5 --> node7
+%%     node6 --> node7
+%%     click node7 openCode "<SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath>:245:245"
+%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+```
+
+This section logs <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> delete errors by capturing error details, formatting them with timestamps, and writing both the error message and relevant transaction data to a queue for further processing or auditing.
+
+| Rule ID | Category        | Rule Name                                | Description                                                                                                                                                                                                                                                                                              | Implementation Details                                                                                                                                                                                                                                                                                                                                  |
+| ------- | --------------- | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Calculation     | Error message composition                | When a <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> delete error occurs, the error message written to the queue includes the SQLCODE, the current date (8 characters, MMDDYYYY), and the current time (6 characters, HHMMSS). | The error message includes: SQLCODE (numeric, 5 digits), date (string, 8 characters, MMDDYYYY), and time (string, 6 characters, HHMMSS). These are included in the output message sent to the queue.                                                                                                                                                    |
+| BR-002  | Decision Making | Transaction data logging with truncation | If transaction data is present (transaction data length > 0), it is written to the queue as a separate message. If the transaction data length is less than 91 bytes, the entire transaction data is written; otherwise, only the first 90 bytes are written (truncated).                                | Transaction data is written as a separate message to the queue. If the data length is less than 91 bytes, the full data is included; if 91 bytes or more, only the first 90 bytes are included. The transaction data message is prefixed with 'COMMAREA=' (9 characters), followed by up to 90 bytes of transaction data (string, up to 90 characters). |
+| BR-003  | Writing Output  | Write error message to queue             | The formatted error message is written to the logging queue as a single message after composition.                                                                                                                                                                                                       | The error message is sent as a single message to the logging queue. The message includes all fields as described in the error message structure.                                                                                                                                                                                                        |
+
+<SwmSnippet path="/base/src/lgdpdb01.cbl" line="212">
+
+---
+
+In <SwmToken path="base/src/lgdpdb01.cbl" pos="212:1:5" line-data="       WRITE-ERROR-MESSAGE.">`WRITE-ERROR-MESSAGE`</SwmToken>, the code saves the SQLCODE, gets the current time and date, and formats them for the error message. This is the prep before sending the error to the logging queue.
 
 ```cobol
        WRITE-ERROR-MESSAGE.
       * Save SQLCODE in message
+           MOVE SQLCODE TO EM-SQLRC
       * Obtain and format current time and date
            EXEC CICS ASKTIME ABSTIME(WS-ABSTIME)
            END-EXEC
@@ -3525,6 +3639,19 @@ MAINLINE in <SwmPath>[base/src/lgdpol01.cbl](base/src/lgdpol01.cbl)</SwmPath> va
                      MMDDYYYY(WS-DATE)
                      TIME(WS-TIME)
            END-EXEC
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgdpdb01.cbl" line="222">
+
+---
+
+After formatting the error message, the code calls LGSTSQ to write the error to the transactional queue. This hands off the logging to the queue handler.
+
+```cobol
            MOVE WS-DATE TO EM-DATE
            MOVE WS-TIME TO EM-TIME
       * Write output message to TDQ
@@ -3532,7 +3659,19 @@ MAINLINE in <SwmPath>[base/src/lgdpol01.cbl](base/src/lgdpol01.cbl)</SwmPath> va
                      COMMAREA(ERROR-MSG)
                      LENGTH(LENGTH OF ERROR-MSG)
            END-EXEC.
-      * Write 90 bytes or as much as we have of commarea to TDQ
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgdpdb01.cbl" line="230">
+
+---
+
+After returning from LGSTSQ, <SwmToken path="base/src/lgipol01.cbl" pos="81:3:7" line-data="               PERFORM WRITE-ERROR-MESSAGE">`WRITE-ERROR-MESSAGE`</SwmToken> in <SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath> checks EIBCALEN and writes up to 90 bytes of the commarea to the queue. This is a hard limit—anything longer gets truncated. The code assumes EIBCALEN is valid and meaningful.
+
+```cobol
            IF EIBCALEN > 0 THEN
              IF EIBCALEN < 91 THEN
                MOVE DFHCOMMAREA(1:EIBCALEN) TO CA-DATA
@@ -3555,126 +3694,69 @@ MAINLINE in <SwmPath>[base/src/lgdpol01.cbl](base/src/lgdpol01.cbl)</SwmPath> va
 
 </SwmSnippet>
 
-## Delegating Policy Deletion to Database Handler
-
-This section ensures that policy deletion requests are routed to the appropriate database handler, maintaining separation of concerns and centralizing database logic in a specialized module.
-
-| Category       | Rule Name                           | Description                                                                                                                      |
-| -------------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| Business logic | Forward Deletion Request            | All policy deletion requests must be forwarded to the database handler module without modification.                              |
-| Business logic | Centralized Deletion Responsibility | The database handler module is solely responsible for executing the deletion and handling any database-specific logic or errors. |
-
-<SwmSnippet path="/base/src/lgdpol01.cbl" line="139">
-
----
-
-<SwmToken path="base/src/lgdpol01.cbl" pos="139:1:7" line-data="       DELETE-POLICY-DB2-INFO.">`DELETE-POLICY-DB2-INFO`</SwmToken> just passes the deletion request to <SwmToken path="base/src/lgdpol01.cbl" pos="141:9:9" line-data="           EXEC CICS LINK PROGRAM(LGDPDB01)">`LGDPDB01`</SwmToken> using EXEC CICS LINK. This keeps the <SwmToken path="base/src/lgdpol01.cbl" pos="139:5:5" line-data="       DELETE-POLICY-DB2-INFO.">`DB2`</SwmToken> logic out of the main handler and lets the specialized module do the actual work.
-
-```cobol
-       DELETE-POLICY-DB2-INFO.
-
-           EXEC CICS LINK PROGRAM(LGDPDB01)
-                Commarea(DFHCOMMAREA)
-                LENGTH(32500)
-           END-EXEC.
-
-           EXIT.
-```
-
----
-
-</SwmSnippet>
-
-## Validating and Executing Policy Deletion in <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken>
+### Checking Commarea and Request ID for <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> Deletion
 
 ```mermaid
 %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
 flowchart TD
-    node1["Start MAINLINE processing"] --> node2{"Commarea received? (EIBCALEN=0)"}
-    click node1 openCode "base/src/lgdpdb01.cbl:111:175"
-    node2 -->|"No"| node3["Log error (WRITE-ERROR-MESSAGE), set CA-RETURN-CODE=99, ABEND"]
-    click node2 openCode "base/src/lgdpdb01.cbl:131:135"
-    click node3 openCode "base/src/lgdpdb01.cbl:132:134"
-    node2 -->|"Yes"| node4{"Commarea large enough? (EIBCALEN >= +28)"}
-    click node4 openCode "base/src/lgdpdb01.cbl:143:146"
-    node4 -->|"No"| node5["Set CA-RETURN-CODE=98, Return"]
-    click node5 openCode "base/src/lgdpdb01.cbl:144:145"
-    node4 -->|"Yes"| node6{"Request type recognized? (CA-REQUEST-ID in [01DEND,01DHOU,01DCOM,01DMOT])"}
-    click node6 openCode "base/src/lgdpdb01.cbl:160:172"
-    node6 -->|"No"| node7["Set CA-RETURN-CODE=99, Return"]
-    click node7 openCode "base/src/lgdpdb01.cbl:165:165"
-    node6 -->|"Yes"| node8["Delete policy (DELETE-POLICY-DB2-INFO), call downstream service (LGDPVS01)"]
-    click node8 openCode "base/src/lgdpdb01.cbl:167:171"
-    node8 --> node9["Return to caller (CA-RETURN-CODE=00 or error)"]
-    click node9 openCode "base/src/lgdpdb01.cbl:175:175"
+    node1["Start MAINLINE processing (set CA-RETURN-CODE to 00)"] --> node2{"Is commarea large enough? (EIBCALEN >= 28)"}
+    click node1 openCode "base/src/lgdpdb01.cbl:138:139"
+    node2 -->|"Yes"| node3["Prepare customer/policy data and error message fields"]
+    click node2 openCode "base/src/lgdpdb01.cbl:142:146"
+    node2 -->|"No"| node4["Set CA-RETURN-CODE to 98 (commarea too small), return"]
+    click node4 openCode "base/src/lgdpdb01.cbl:144:145"
+    node3 --> node5{"Is request type supported? (01DEND, 01DHOU, 01DCOM, 01DMOT)"}
+    click node3 openCode "base/src/lgdpdb01.cbl:149:153"
+    node5 -->|"Yes"| node6["Process request: delete policy info, link to LGDPVS01"]
+    click node5 openCode "base/src/lgdpdb01.cbl:160:172"
+    node5 -->|"No"| node7["Set CA-RETURN-CODE to 99 (unsupported request)"]
+    click node7 openCode "base/src/lgdpdb01.cbl:165:166"
+    node6 --> node8["Return to caller (CA-RETURN-CODE 00)"]
+    click node6 openCode "base/src/lgdpdb01.cbl:175:175"
+    node7 --> node8
+    node4 --> node8
+    click node8 openCode "base/src/lgdpdb01.cbl:175:175"
 classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
 
 %% Swimm:
 %% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
 %% flowchart TD
-%%     node1["Start MAINLINE processing"] --> node2{"Commarea received? (EIBCALEN=0)"}
-%%     click node1 openCode "<SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath>:111:175"
-%%     node2 -->|"No"| node3["Log error (<SwmToken path="base/src/lgipol01.cbl" pos="81:3:7" line-data="               PERFORM WRITE-ERROR-MESSAGE">`WRITE-ERROR-MESSAGE`</SwmToken>), set <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken>=99, ABEND"]
-%%     click node2 openCode "<SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath>:131:135"
-%%     click node3 openCode "<SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath>:132:134"
-%%     node2 -->|"Yes"| node4{"Commarea large enough? (EIBCALEN >= +28)"}
-%%     click node4 openCode "<SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath>:143:146"
-%%     node4 -->|"No"| node5["Set <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken>=98, Return"]
-%%     click node5 openCode "<SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath>:144:145"
-%%     node4 -->|"Yes"| node6{"Request type recognized? (<SwmToken path="base/src/lgtestp3.cbl" pos="67:9:13" line-data="                 Move &#39;01IHOU&#39;   To CA-REQUEST-ID">`CA-REQUEST-ID`</SwmToken> in [<SwmToken path="base/src/lgdpol01.cbl" pos="119:18:18" line-data="           IF ( CA-REQUEST-ID NOT EQUAL TO &#39;01DEND&#39; AND">`01DEND`</SwmToken>,<SwmToken path="base/src/lgtestp3.cbl" pos="126:4:4" line-data="                 Move &#39;01DHOU&#39;   To CA-REQUEST-ID">`01DHOU`</SwmToken>,<SwmToken path="base/src/lgdpol01.cbl" pos="122:14:14" line-data="                CA-REQUEST-ID NOT EQUAL TO &#39;01DCOM&#39; )">`01DCOM`</SwmToken>,<SwmToken path="base/src/lgdpol01.cbl" pos="120:14:14" line-data="                CA-REQUEST-ID NOT EQUAL TO &#39;01DMOT&#39; AND">`01DMOT`</SwmToken>])"}
-%%     click node6 openCode "<SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath>:160:172"
-%%     node6 -->|"No"| node7["Set <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken>=99, Return"]
-%%     click node7 openCode "<SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath>:165:165"
-%%     node6 -->|"Yes"| node8["Delete policy (<SwmToken path="base/src/lgdpol01.cbl" pos="126:3:9" line-data="               PERFORM DELETE-POLICY-DB2-INFO">`DELETE-POLICY-DB2-INFO`</SwmToken>), call downstream service (<SwmToken path="base/src/lgdpdb01.cbl" pos="168:9:9" line-data="               EXEC CICS LINK PROGRAM(LGDPVS01)">`LGDPVS01`</SwmToken>)"]
-%%     click node8 openCode "<SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath>:167:171"
-%%     node8 --> node9["Return to caller (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken>=00 or error)"]
-%%     click node9 openCode "<SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath>:175:175"
+%%     node1["Start MAINLINE processing (set <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> to 00)"] --> node2{"Is commarea large enough? (EIBCALEN >= 28)"}
+%%     click node1 openCode "<SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath>:138:139"
+%%     node2 -->|"Yes"| node3["Prepare customer/policy data and error message fields"]
+%%     click node2 openCode "<SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath>:142:146"
+%%     node2 -->|"No"| node4["Set <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> to 98 (commarea too small), return"]
+%%     click node4 openCode "<SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath>:144:145"
+%%     node3 --> node5{"Is request type supported? (<SwmToken path="base/src/lgdpol01.cbl" pos="119:18:18" line-data="           IF ( CA-REQUEST-ID NOT EQUAL TO &#39;01DEND&#39; AND">`01DEND`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="126:4:4" line-data="                 Move &#39;01DHOU&#39;   To CA-REQUEST-ID">`01DHOU`</SwmToken>, <SwmToken path="base/src/lgdpol01.cbl" pos="122:14:14" line-data="                CA-REQUEST-ID NOT EQUAL TO &#39;01DCOM&#39; )">`01DCOM`</SwmToken>, <SwmToken path="base/src/lgdpol01.cbl" pos="120:14:14" line-data="                CA-REQUEST-ID NOT EQUAL TO &#39;01DMOT&#39; AND">`01DMOT`</SwmToken>)"}
+%%     click node3 openCode "<SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath>:149:153"
+%%     node5 -->|"Yes"| node6["Process request: delete policy info, link to <SwmToken path="base/src/lgdpdb01.cbl" pos="168:9:9" line-data="               EXEC CICS LINK PROGRAM(LGDPVS01)">`LGDPVS01`</SwmToken>"]
+%%     click node5 openCode "<SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath>:160:172"
+%%     node5 -->|"No"| node7["Set <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> to 99 (unsupported request)"]
+%%     click node7 openCode "<SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath>:165:166"
+%%     node6 --> node8["Return to caller (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> 00)"]
+%%     click node6 openCode "<SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath>:175:175"
+%%     node7 --> node8
+%%     node4 --> node8
+%%     click node8 openCode "<SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath>:175:175"
 %% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
 ```
 
-This section governs the validation and execution of policy deletion requests in the <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> database. It ensures only valid, well-formed requests are processed, and provides robust error handling and logging for any failures.
+This section validates the commarea and request type before allowing a <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> policy deletion. It ensures only supported requests with sufficient input data are processed, and sets explicit return codes for error scenarios.
 
-| Category        | Rule Name                   | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| --------------- | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Data validation | Missing commarea error      | If no commarea is received with the request, the process must log an error message, set the return code to 99, and terminate the operation with an abend.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| Data validation | Minimum commarea length     | If the commarea received is less than 28 bytes in length, the process must set the return code to 98 and terminate the operation without attempting deletion.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| Data validation | Recognized request ID       | Only requests with a recognized request ID (one of: <SwmToken path="base/src/lgdpol01.cbl" pos="119:18:18" line-data="           IF ( CA-REQUEST-ID NOT EQUAL TO &#39;01DEND&#39; AND">`01DEND`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="126:4:4" line-data="                 Move &#39;01DHOU&#39;   To CA-REQUEST-ID">`01DHOU`</SwmToken>, <SwmToken path="base/src/lgdpol01.cbl" pos="122:14:14" line-data="                CA-REQUEST-ID NOT EQUAL TO &#39;01DCOM&#39; )">`01DCOM`</SwmToken>, <SwmToken path="base/src/lgdpol01.cbl" pos="120:14:14" line-data="                CA-REQUEST-ID NOT EQUAL TO &#39;01DMOT&#39; AND">`01DMOT`</SwmToken>) are eligible for policy deletion. Any other request ID must result in a return code of 99 and no deletion attempt. |
-| Business logic  | Successful deletion outcome | If the policy record is successfully deleted or was not present (SQL code 0 or 100), the process must return a success code (00) to the caller.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Rule ID | Category        | Rule Name                          | Description                                                                                                                                                                                                                                                                   | Implementation Details                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| ------- | --------------- | ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Reading Input   | Customer and policy number mapping | The customer and policy numbers from the commarea are copied to the <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> input fields and error message structure for use in deletion and error reporting. | Customer and policy numbers are 10-digit numbers. They are mapped to <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> integer fields and error message fields for logging and <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> operations.                                                                                                                                                                                                                                                                                                          |
+| BR-002  | Data validation | Minimum commarea length            | If the commarea length is less than 28 bytes, set the return code to 98 and stop further processing.                                                                                                                                                                          | The minimum required commarea length is 28 bytes. The return code for this error is '98'.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| BR-003  | Data validation | Supported request types            | If the request ID is not one of the supported delete types, set the return code to 99.                                                                                                                                                                                        | Supported request IDs are <SwmToken path="base/src/lgdpol01.cbl" pos="119:18:18" line-data="           IF ( CA-REQUEST-ID NOT EQUAL TO &#39;01DEND&#39; AND">`01DEND`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="126:4:4" line-data="                 Move &#39;01DHOU&#39;   To CA-REQUEST-ID">`01DHOU`</SwmToken>, <SwmToken path="base/src/lgdpol01.cbl" pos="122:14:14" line-data="                CA-REQUEST-ID NOT EQUAL TO &#39;01DCOM&#39; )">`01DCOM`</SwmToken>, <SwmToken path="base/src/lgdpol01.cbl" pos="120:14:14" line-data="                CA-REQUEST-ID NOT EQUAL TO &#39;01DMOT&#39; AND">`01DMOT`</SwmToken>. The return code for unsupported requests is '99'. |
+| BR-004  | Decision Making | Successful deletion processing     | If the commarea is valid and the request type is supported, process the deletion and set the return code to 00 upon successful completion.                                                                                                                                    | The return code for successful processing is '00'.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 
-<SwmSnippet path="/base/src/lgdpdb01.cbl" line="111">
+<SwmSnippet path="/base/src/lgdpdb01.cbl" line="138">
 
 ---
 
-MAINLINE in <SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath> checks the request, converts IDs to <SwmToken path="base/src/lgdpdb01.cbl" pos="124:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> format, and if the request is valid, calls <SwmToken path="base/src/lgdpdb01.cbl" pos="168:9:9" line-data="               EXEC CICS LINK PROGRAM(LGDPVS01)">`LGDPVS01`</SwmToken> to do the actual <SwmToken path="base/src/lgdpdb01.cbl" pos="124:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> deletion. Error handling and logging are built in for any failures or malformed requests.
+After error handling, MAINLINE in <SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath> resets the return code, saves the commarea length, and sets up the commarea pointer. It then checks if the commarea is big enough to contain the required header. If not, it sets an error code and returns.
 
 ```cobol
-       MAINLINE SECTION.
-
-      *----------------------------------------------------------------*
-      * Common code                                                    *
-      *----------------------------------------------------------------*
-      * initialize working storage variables
-           INITIALIZE WS-HEADER.
-      * set up general variable
-           MOVE EIBTRNID TO WS-TRANSID.
-           MOVE EIBTRMID TO WS-TERMID.
-           MOVE EIBTASKN TO WS-TASKNUM.
-      *----------------------------------------------------------------*
-
-      * initialize DB2 host variables
-           INITIALIZE DB2-IN-INTEGERS.
-
-      *----------------------------------------------------------------*
-      * Check commarea and obtain required details                     *
-      *----------------------------------------------------------------*
-      * If NO commarea received issue an ABEND
-           IF EIBCALEN IS EQUAL TO ZERO
-               MOVE ' NO COMMAREA RECEIVED' TO EM-VARIABLE
-               PERFORM WRITE-ERROR-MESSAGE
-               EXEC CICS ABEND ABCODE('LGCA') NODUMP END-EXEC
-           END-IF
-
-      * initialize commarea return code to zero
            MOVE '00' TO CA-RETURN-CODE
            MOVE EIBCALEN TO WS-CALEN.
            SET WS-ADDR-DFHCOMMAREA TO ADDRESS OF DFHCOMMAREA.
@@ -3684,19 +3766,37 @@ MAINLINE in <SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath> ch
              MOVE '98' TO CA-RETURN-CODE
              EXEC CICS RETURN END-EXEC
            END-IF
+```
 
-      * Convert commarea customer & policy nums to DB2 integer format
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgdpdb01.cbl" line="149">
+
+---
+
+After checking commarea length, the code moves the customer and policy numbers from the commarea to <SwmToken path="base/src/lgdpdb01.cbl" pos="149:11:11" line-data="           MOVE CA-CUSTOMER-NUM TO DB2-CUSTOMERNUM-INT">`DB2`</SwmToken> integer variables. This is needed for the <SwmToken path="base/src/lgdpdb01.cbl" pos="149:11:11" line-data="           MOVE CA-CUSTOMER-NUM TO DB2-CUSTOMERNUM-INT">`DB2`</SwmToken> SQL delete operation, and also saves them in the error message structure for logging if something fails.
+
+```cobol
            MOVE CA-CUSTOMER-NUM TO DB2-CUSTOMERNUM-INT
            MOVE CA-POLICY-NUM   TO DB2-POLICYNUM-INT
       * and save in error msg field incase required
            MOVE CA-CUSTOMER-NUM TO EM-CUSNUM
            MOVE CA-POLICY-NUM   TO EM-POLNUM
+```
 
-      *----------------------------------------------------------------*
-      * Check request-id in commarea and if recognised ...             *
-      * Call routine to delete row from policy table                   *
-      *----------------------------------------------------------------*
+---
 
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgdpdb01.cbl" line="160">
+
+---
+
+MAINLINE now checks if the request ID is one of the allowed delete types. If not, it sets a '99' error code. If it matches, it calls <SwmToken path="base/src/lgdpdb01.cbl" pos="167:3:9" line-data="               PERFORM DELETE-POLICY-DB2-INFO">`DELETE-POLICY-DB2-INFO`</SwmToken> and then links to <SwmToken path="base/src/lgdpdb01.cbl" pos="168:9:9" line-data="               EXEC CICS LINK PROGRAM(LGDPVS01)">`LGDPVS01`</SwmToken> for further cleanup, before returning to the caller.
+
+```cobol
            IF ( CA-REQUEST-ID NOT EQUAL TO '01DEND' AND
                 CA-REQUEST-ID NOT EQUAL TO '01DHOU' AND
                 CA-REQUEST-ID NOT EQUAL TO '01DCOM' AND
@@ -3719,58 +3819,21 @@ MAINLINE in <SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath> ch
 
 </SwmSnippet>
 
-<SwmSnippet path="/base/src/lgdpdb01.cbl" line="212">
+## Deleting the Policy Record in <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken>
 
----
+This section is responsible for deleting a policy record from the database using the provided customer and policy numbers. It also manages error handling if the deletion fails.
 
-<SwmToken path="base/src/lgdpdb01.cbl" pos="212:1:5" line-data="       WRITE-ERROR-MESSAGE.">`WRITE-ERROR-MESSAGE`</SwmToken> logs error details and sends both the formatted error message and up to 90 bytes of commarea data to LGSTSQ for queueing. This gives downstream systems enough info to track what went wrong and with which data.
-
-```cobol
-       WRITE-ERROR-MESSAGE.
-      * Save SQLCODE in message
-           MOVE SQLCODE TO EM-SQLRC
-      * Obtain and format current time and date
-           EXEC CICS ASKTIME ABSTIME(WS-ABSTIME)
-           END-EXEC
-           EXEC CICS FORMATTIME ABSTIME(Ws-ABSTIME)
-                     MMDDYYYY(WS-DATE)
-                     TIME(WS-TIME)
-           END-EXEC
-           MOVE WS-DATE TO EM-DATE
-           MOVE WS-TIME TO EM-TIME
-      * Write output message to TDQ
-           EXEC CICS LINK PROGRAM('LGSTSQ')
-                     COMMAREA(ERROR-MSG)
-                     LENGTH(LENGTH OF ERROR-MSG)
-           END-EXEC.
-      * Write 90 bytes or as much as we have of commarea to TDQ
-           IF EIBCALEN > 0 THEN
-             IF EIBCALEN < 91 THEN
-               MOVE DFHCOMMAREA(1:EIBCALEN) TO CA-DATA
-               EXEC CICS LINK PROGRAM('LGSTSQ')
-                         COMMAREA(CA-ERROR-MSG)
-                         LENGTH(LENGTH OF CA-ERROR-MSG)
-               END-EXEC
-             ELSE
-               MOVE DFHCOMMAREA(1:90) TO CA-DATA
-               EXEC CICS LINK PROGRAM('LGSTSQ')
-                         COMMAREA(CA-ERROR-MSG)
-                         LENGTH(LENGTH OF CA-ERROR-MSG)
-               END-EXEC
-             END-IF
-           END-IF.
-           EXIT.
-```
-
----
-
-</SwmSnippet>
+| Rule ID | Category                        | Rule Name                        | Description                                                                                                                           | Implementation Details                                                                                                                                                                            |
+| ------- | ------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Reading Input                   | Assume validated input           | The section expects that the customer and policy numbers provided as input are valid and does not perform validation itself.          | No validation or error handling for input values is performed in this section. Inputs are assumed to be correct as per prior validation steps.                                                    |
+| BR-002  | Data validation                 | Error handling on delete failure | If the database delete operation fails, an error code of '90' is set, an error message is written, and control returns to the caller. | The error code set is '90'. An error message is written using the error logging routine. Control is returned to the caller after error handling.                                                  |
+| BR-003  | Invoking a Service or a Process | Delete policy by identifiers     | The policy record matching the provided customer number and policy number is deleted from the database.                               | The customer number is a 10-digit number. The policy number is a 10-digit number. Both are used to identify the record to delete. No additional formatting or padding is applied in this section. |
 
 <SwmSnippet path="/base/src/lgdpdb01.cbl" line="186">
 
 ---
 
-<SwmToken path="base/src/lgdpdb01.cbl" pos="186:1:7" line-data="       DELETE-POLICY-DB2-INFO.">`DELETE-POLICY-DB2-INFO`</SwmToken> runs the SQL DELETE for the policy. If the record is gone or wasn't there (SQLCODE 0 or 100), it's considered done. Any other error sets a '90' code and logs the issue.
+In <SwmToken path="base/src/lgdpdb01.cbl" pos="186:1:7" line-data="       DELETE-POLICY-DB2-INFO.">`DELETE-POLICY-DB2-INFO`</SwmToken>, the code runs a SQL DELETE using <SwmToken path="base/src/lgdpdb01.cbl" pos="192:10:14" line-data="               WHERE ( CUSTOMERNUMBER = :DB2-CUSTOMERNUM-INT AND">`DB2-CUSTOMERNUM-INT`</SwmToken> and <SwmToken path="base/src/lgdpdb01.cbl" pos="193:6:10" line-data="                       POLICYNUMBER  = :DB2-POLICYNUM-INT      )">`DB2-POLICYNUM-INT`</SwmToken> to target the policy record. It doesn't validate these inputs here, so it expects them to be correct from earlier steps. If the SQL fails, error handling kicks in right after.
 
 ```cobol
        DELETE-POLICY-DB2-INFO.
@@ -3782,9 +3845,19 @@ MAINLINE in <SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath> ch
                WHERE ( CUSTOMERNUMBER = :DB2-CUSTOMERNUM-INT AND
                        POLICYNUMBER  = :DB2-POLICYNUM-INT      )
            END-EXEC
+```
 
-      *    Treat SQLCODE 0 and SQLCODE 100 (record not found) as
-      *    successful - end result is record does not exist
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgdpdb01.cbl" line="198">
+
+---
+
+After the SQL DELETE, if it fails, the code sets <SwmToken path="base/src/lgdpdb01.cbl" pos="199:9:13" line-data="               MOVE &#39;90&#39; TO CA-RETURN-CODE">`CA-RETURN-CODE`</SwmToken> to '90', logs the error, and returns. This hands control back to the caller with an error code so the UI or upstream logic can react.
+
+```cobol
            IF SQLCODE NOT EQUAL 0 Then
                MOVE '90' TO CA-RETURN-CODE
                PERFORM WRITE-ERROR-MESSAGE
@@ -3798,57 +3871,52 @@ MAINLINE in <SwmPath>[base/src/lgdpdb01.cbl](base/src/lgdpdb01.cbl)</SwmPath> ch
 
 </SwmSnippet>
 
-## Deleting Policy Record in VSAM and Handling Errors
+## Deleting the Policy Record in CICS File
 
 ```mermaid
 %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
 flowchart TD
-    node1["Prepare policy key and request data"]
-    click node1 openCode "base/src/lgdpvs01.cbl:75:79"
-    node1 --> node2["Delete policy record"]
+    node1["Prepare policy and customer details"] --> node2["Attempt to delete policy"]
+    click node1 openCode "base/src/lgdpvs01.cbl:75:80"
     click node2 openCode "base/src/lgdpvs01.cbl:81:85"
-    node2 --> node3{"Policy deleted successfully?"}
+    node2 --> node3{"Was deletion successful?"}
     click node3 openCode "base/src/lgdpvs01.cbl:86:91"
-    node3 -->|"Yes"| node4["Finish"]
-    click node4 openCode "base/src/lgdpvs01.cbl:95:97"
-    node3 -->|"No"| node5["Set CA-RETURN-CODE to '81'"]
-    click node5 openCode "base/src/lgdpvs01.cbl:88:88"
-    node5 --> node6["Log error and notify downstream systems"]
-    click node6 openCode "base/src/lgdpvs01.cbl:89:90"
-    node6 --> node4
+    node3 -->|"Yes"| node4["End function"]
+    click node4 openCode "base/src/lgdpvs01.cbl:91:91"
+    node3 -->|"No"| node5["Set CA-RETURN-CODE to '81', log error, and return"]
+    click node5 openCode "base/src/lgdpvs01.cbl:87:90"
+    node5 --> node4
 classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
 
 %% Swimm:
 %% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
 %% flowchart TD
-%%     node1["Prepare policy key and request data"]
-%%     click node1 openCode "<SwmPath>[base/src/lgdpvs01.cbl](base/src/lgdpvs01.cbl)</SwmPath>:75:79"
-%%     node1 --> node2["Delete policy record"]
+%%     node1["Prepare policy and customer details"] --> node2["Attempt to delete policy"]
+%%     click node1 openCode "<SwmPath>[base/src/lgdpvs01.cbl](base/src/lgdpvs01.cbl)</SwmPath>:75:80"
 %%     click node2 openCode "<SwmPath>[base/src/lgdpvs01.cbl](base/src/lgdpvs01.cbl)</SwmPath>:81:85"
-%%     node2 --> node3{"Policy deleted successfully?"}
+%%     node2 --> node3{"Was deletion successful?"}
 %%     click node3 openCode "<SwmPath>[base/src/lgdpvs01.cbl](base/src/lgdpvs01.cbl)</SwmPath>:86:91"
-%%     node3 -->|"Yes"| node4["Finish"]
-%%     click node4 openCode "<SwmPath>[base/src/lgdpvs01.cbl](base/src/lgdpvs01.cbl)</SwmPath>:95:97"
-%%     node3 -->|"No"| node5["Set <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> to '81'"]
-%%     click node5 openCode "<SwmPath>[base/src/lgdpvs01.cbl](base/src/lgdpvs01.cbl)</SwmPath>:88:88"
-%%     node5 --> node6["Log error and notify downstream systems"]
-%%     click node6 openCode "<SwmPath>[base/src/lgdpvs01.cbl](base/src/lgdpvs01.cbl)</SwmPath>:89:90"
-%%     node6 --> node4
+%%     node3 -->|"Yes"| node4["End function"]
+%%     click node4 openCode "<SwmPath>[base/src/lgdpvs01.cbl](base/src/lgdpvs01.cbl)</SwmPath>:91:91"
+%%     node3 -->|"No"| node5["Set <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> to '81', log error, and return"]
+%%     click node5 openCode "<SwmPath>[base/src/lgdpvs01.cbl](base/src/lgdpvs01.cbl)</SwmPath>:87:90"
+%%     node5 --> node4
 %% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
 ```
 
-This section governs the business logic and error handling for deleting a policy record from the VSAM file. It ensures that policy deletions are tracked, errors are communicated, and downstream systems are notified with sufficient detail.
+This section is responsible for deleting a policy record from the CICS file based on provided customer and policy details. It ensures that errors are flagged and logged if the deletion is unsuccessful.
 
-| Category       | Rule Name                  | Description                                                                                                                                                                  |
-| -------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Business logic | Successful policy deletion | If the policy record is deleted successfully, the process completes without error and control is returned to the caller.                                                     |
-| Business logic | Commarea data forwarding   | If commarea data is present and its length is less than 91 bytes, all of it must be sent to downstream systems; if it is 91 bytes or more, only the first 90 bytes are sent. |
+| Rule ID | Category        | Rule Name                          | Description                                                                                                                                             | Implementation Details                                                                                                                                                                                              |
+| ------- | --------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Reading Input   | Policy identification for deletion | The policy record to be deleted is identified using the customer number and policy number provided in the input.                                        | The key used for deletion consists of the request ID (1 character), customer number (10 digits), and policy number (10 digits), totaling 21 bytes. All fields are alphanumeric or numeric as per their definitions. |
+| BR-002  | Decision Making | Error handling on failed deletion  | If the policy record deletion fails, the system sets the return code to '81', logs the error with the response code, and returns control to the caller. | The return code '81' is used to indicate a failed deletion. The error is logged with the additional response code for diagnostic purposes.                                                                          |
+| BR-003  | Decision Making | Successful deletion outcome        | If the policy record deletion is successful, the function completes without setting an error code or logging an error.                                  | No error code is set and no error is logged when deletion is successful.                                                                                                                                            |
 
 <SwmSnippet path="/base/src/lgdpvs01.cbl" line="72">
 
 ---
 
-MAINLINE in <SwmPath>[base/src/lgdpvs01.cbl](base/src/lgdpvs01.cbl)</SwmPath> deletes the policy record from the VSAM file using EXEC CICS DELETE FILE. If the delete fails, it logs the error and returns with a failure code.
+In <SwmToken path="base/src/lgdpvs01.cbl" pos="72:1:1" line-data="       MAINLINE SECTION.">`MAINLINE`</SwmToken>, the code sets up working fields from the commarea, then runs a CICS Delete File on 'KSDSPOLY' using a 21-byte key. The response is saved for error checking right after.
 
 ```cobol
        MAINLINE SECTION.
@@ -3865,6 +3933,19 @@ MAINLINE in <SwmPath>[base/src/lgdpvs01.cbl](base/src/lgdpvs01.cbl)</SwmPath> de
                      KeyLength(21)
                      RESP(WS-RESP)
            End-Exec.
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgdpvs01.cbl" line="86">
+
+---
+
+If the file delete fails, the code sets <SwmToken path="base/src/lgdpvs01.cbl" pos="88:9:13" line-data="             MOVE &#39;81&#39; TO CA-RETURN-CODE">`CA-RETURN-CODE`</SwmToken> to '81', logs the error with extra response codes, and returns. This flags the error for the caller and makes sure it's tracked.
+
+```cobol
            If WS-RESP Not = DFHRESP(NORMAL)
              Move EIBRESP2 To WS-RESP2
              MOVE '81' TO CA-RETURN-CODE
@@ -3877,11 +3958,71 @@ MAINLINE in <SwmPath>[base/src/lgdpvs01.cbl](base/src/lgdpvs01.cbl)</SwmPath> de
 
 </SwmSnippet>
 
+## Logging File Delete Errors
+
+```mermaid
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+flowchart TD
+    node1["Capture current date and time"]
+    click node1 openCode "base/src/lgdpvs01.cbl:100:105"
+    node1 --> node2["Populate error message with customer, policy, and response info"]
+    click node2 openCode "base/src/lgdpvs01.cbl:107:112"
+    node2 --> node3["Send error message to logging program"]
+    click node3 openCode "base/src/lgdpvs01.cbl:113:116"
+    node3 --> node4{"Is there additional request data? (EIBCALEN > 0)"}
+    click node4 openCode "base/src/lgdpvs01.cbl:117:117"
+    node4 -->|"No"| node7["Finish"]
+    node4 -->|"Yes"| node5{"Is data length < 91? (EIBCALEN < 91)"}
+    click node5 openCode "base/src/lgdpvs01.cbl:118:118"
+    node5 -->|"Yes"| node6["Include all additional data and send to logging"]
+    click node6 openCode "base/src/lgdpvs01.cbl:119:123"
+    node5 -->|"No"| node8["Include first 90 characters and send to logging"]
+    click node8 openCode "base/src/lgdpvs01.cbl:125:129"
+    node6 --> node7
+    node8 --> node7
+    click node7 openCode "base/src/lgdpvs01.cbl:132:132"
+
+classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+
+%% Swimm:
+%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+%% flowchart TD
+%%     node1["Capture current date and time"]
+%%     click node1 openCode "<SwmPath>[base/src/lgdpvs01.cbl](base/src/lgdpvs01.cbl)</SwmPath>:100:105"
+%%     node1 --> node2["Populate error message with customer, policy, and response info"]
+%%     click node2 openCode "<SwmPath>[base/src/lgdpvs01.cbl](base/src/lgdpvs01.cbl)</SwmPath>:107:112"
+%%     node2 --> node3["Send error message to logging program"]
+%%     click node3 openCode "<SwmPath>[base/src/lgdpvs01.cbl](base/src/lgdpvs01.cbl)</SwmPath>:113:116"
+%%     node3 --> node4{"Is there additional request data? (EIBCALEN > 0)"}
+%%     click node4 openCode "<SwmPath>[base/src/lgdpvs01.cbl](base/src/lgdpvs01.cbl)</SwmPath>:117:117"
+%%     node4 -->|"No"| node7["Finish"]
+%%     node4 -->|"Yes"| node5{"Is data length < 91? (EIBCALEN < 91)"}
+%%     click node5 openCode "<SwmPath>[base/src/lgdpvs01.cbl](base/src/lgdpvs01.cbl)</SwmPath>:118:118"
+%%     node5 -->|"Yes"| node6["Include all additional data and send to logging"]
+%%     click node6 openCode "<SwmPath>[base/src/lgdpvs01.cbl](base/src/lgdpvs01.cbl)</SwmPath>:119:123"
+%%     node5 -->|"No"| node8["Include first 90 characters and send to logging"]
+%%     click node8 openCode "<SwmPath>[base/src/lgdpvs01.cbl](base/src/lgdpvs01.cbl)</SwmPath>:125:129"
+%%     node6 --> node7
+%%     node8 --> node7
+%%     click node7 openCode "<SwmPath>[base/src/lgdpvs01.cbl](base/src/lgdpvs01.cbl)</SwmPath>:132:132"
+%% 
+%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+```
+
+This section logs file deletion errors by capturing relevant context and sending structured error messages to a logging system. It ensures that all necessary information for tracking and diagnosing errors is included in the log, with special handling for additional request data.
+
+| Rule ID | Category        | Rule Name                        | Description                                                                                                       | Implementation Details                                                                                                                             |
+| ------- | --------------- | -------------------------------- | ----------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Calculation     | Timestamp inclusion              | The error log entry includes the current date and time when the error occurred.                                   | Date is an 8-character string (MMDDYYYY), time is a 6-character string (HHMMSS). Both are included in the error message format.                    |
+| BR-002  | Calculation     | Contextual information inclusion | The error log entry includes customer number, policy number, and response codes relevant to the failed operation. | Customer number and policy number are 10-character strings. Response codes are numeric values. All are included in the error message format.       |
+| BR-003  | Decision Making | Additional data logging          | If additional request data is present, up to 90 characters are included in a separate log entry.                  | Up to 90 characters of additional data are included in the log. If the data is longer than 90 characters, only the first 90 characters are logged. |
+| BR-004  | Decision Making | No additional data logging       | If no additional request data is present, no separate log entry for additional data is created.                   | No additional data is included in the log if none is present.                                                                                      |
+
 <SwmSnippet path="/base/src/lgdpvs01.cbl" line="99">
 
 ---
 
-<SwmToken path="base/src/lgdpvs01.cbl" pos="99:1:5" line-data="       WRITE-ERROR-MESSAGE.">`WRITE-ERROR-MESSAGE`</SwmToken> in <SwmPath>[base/src/lgdpvs01.cbl](base/src/lgdpvs01.cbl)</SwmPath> logs error details and sends both the formatted error message and up to 90 bytes of commarea data to LGSTSQ for queueing. This gives downstream systems enough info to track what went wrong and with which data.
+In <SwmToken path="base/src/lgdpvs01.cbl" pos="99:1:5" line-data="       WRITE-ERROR-MESSAGE.">`WRITE-ERROR-MESSAGE`</SwmToken>, the code grabs the current time and date using CICS commands and formats them for the error log. This info gets included in the error message for tracking.
 
 ```cobol
        WRITE-ERROR-MESSAGE.
@@ -3891,7 +4032,19 @@ MAINLINE in <SwmPath>[base/src/lgdpvs01.cbl](base/src/lgdpvs01.cbl)</SwmPath> de
                      MMDDYYYY(WS-DATE)
                      TIME(WS-TIME)
            END-EXEC
-      *
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgdpvs01.cbl" line="107">
+
+---
+
+Here the code fills out the error message with date, time, customer, policy, and response codes, then calls LGSTSQ to send it to the message queue for logging.
+
+```cobol
            MOVE WS-DATE TO EM-DATE
            MOVE WS-TIME TO EM-TIME
            Move CA-Customer-Num To EM-CUSNUM 
@@ -3902,6 +4055,19 @@ MAINLINE in <SwmPath>[base/src/lgdpvs01.cbl](base/src/lgdpvs01.cbl)</SwmPath> de
                      COMMAREA(ERROR-MSG)
                      LENGTH(LENGTH OF ERROR-MSG)
            END-EXEC.
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgdpvs01.cbl" line="117">
+
+---
+
+After sending the error message, if there's commarea data, the code moves up to 90 bytes to <SwmToken path="base/src/lgdpvs01.cbl" pos="119:12:14" line-data="               MOVE DFHCOMMAREA(1:EIBCALEN) TO CA-DATA">`CA-DATA`</SwmToken> and sends it to LGSTSQ for logging. Anything longer gets truncated.
+
+```cobol
            IF EIBCALEN > 0 THEN
              IF EIBCALEN < 91 THEN
                MOVE DFHCOMMAREA(1:EIBCALEN) TO CA-DATA
@@ -3924,86 +4090,73 @@ MAINLINE in <SwmPath>[base/src/lgdpvs01.cbl](base/src/lgdpvs01.cbl)</SwmPath> de
 
 </SwmSnippet>
 
-<SwmSnippet path="/base/src/lgdpvs01.cbl" line="95">
-
----
-
-<SwmToken path="base/src/lgdpvs01.cbl" pos="95:1:3" line-data="       A-EXIT.">`A-EXIT`</SwmToken> just ends the program and returns control. EXIT and GOBACK are standard commands for this environment to wrap up the routine.
-
-```cobol
-       A-EXIT.
-           EXIT.
-           GOBACK.
-```
-
----
-
-</SwmSnippet>
-
-## Handling Policy Deletion Results and User Feedback
+## Handling Delete Results in the Menu
 
 ```mermaid
 %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
 flowchart TD
-    node1{"CA-RETURN-CODE > 0 after deletion attempt?"}
-    click node1 openCode "base/src/lgtestp3.cbl:133:136"
-    node1 -->|"Yes"| node2["Show 'Error Deleting House Policy' and exit"]
-    click node2 openCode "base/src/lgtestp3.cbl:281:283"
-    node1 -->|"No"| node3["Clear policy fields and show 'House Policy Deleted'"]
+    node1["Attempt to delete house policy"] --> node2{"Was deletion successful? (CA-RETURN-CODE > 0)"}
+    click node1 openCode "base/src/lgtestp3.cbl:133:134"
+    click node2 openCode "base/src/lgtestp3.cbl:133:136"
+    node2 -->|"No"| node3["Clear all policy fields and show 'House Policy Deleted' to user"]
     click node3 openCode "base/src/lgtestp3.cbl:138:148"
-    node3 --> node4["Update UI with deletion success"]
-    click node4 openCode "base/src/lgtestp3.cbl:149:152"
-    node4 --> node5{"Is operation code '4'?"}
+    node2 -->|"Yes"| node4["Show 'Error Deleting House Policy' and exit"]
+    click node4 openCode "base/src/lgtestp3.cbl:281:283"
+    node3 --> node5{"Reload policy data? (WHEN '4')"}
     click node5 openCode "base/src/lgtestp3.cbl:155:155"
-    node5 -->|"Yes"| node6["Perform policy inquiry"]
+    node5 -->|"Yes"| node6["Reload policy data from backend"]
     click node6 openCode "base/src/lgtestp3.cbl:156:162"
-    node6 --> node7{"CA-RETURN-CODE > 0 after inquiry?"}
+    node6 --> node7{"Was reload successful? (CA-RETURN-CODE > 0)"}
     click node7 openCode "base/src/lgtestp3.cbl:163:165"
-    node7 -->|"Yes"| node8["Show 'No Data' error"]
-    click node8 openCode "base/src/lgtestp3.cbl:164:164"
-    node7 -->|"No"| node9["Repopulate policy fields and update UI"]
+    node7 -->|"No"| node8["Show 'No Data' error"]
+    click node8 openCode "base/src/lgtestp3.cbl:164:165"
+    node7 -->|"Yes"| node9["Display updated policy details to user"]
     click node9 openCode "base/src/lgtestp3.cbl:167:181"
-    node9 --> node10["Update backend with new policy data"]
-    click node10 openCode "base/src/lgtestp3.cbl:183:199"
-    node5 -->|"No"| node11["End"]
-    click node11 openCode "base/src/lgtestp3.cbl:199:199"
-
+    node5 -->|"No"| node10["Done"]
+    click node10 openCode "base/src/lgtestp3.cbl:149:152"
 classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
 
 %% Swimm:
 %% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
 %% flowchart TD
-%%     node1{"<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> > 0 after deletion attempt?"}
-%%     click node1 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:133:136"
-%%     node1 -->|"Yes"| node2["Show 'Error Deleting House Policy' and exit"]
-%%     click node2 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:281:283"
-%%     node1 -->|"No"| node3["Clear policy fields and show 'House Policy Deleted'"]
+%%     node1["Attempt to delete house policy"] --> node2{"Was deletion successful? (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> > 0)"}
+%%     click node1 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:133:134"
+%%     click node2 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:133:136"
+%%     node2 -->|"No"| node3["Clear all policy fields and show 'House Policy Deleted' to user"]
 %%     click node3 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:138:148"
-%%     node3 --> node4["Update UI with deletion success"]
-%%     click node4 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:149:152"
-%%     node4 --> node5{"Is operation code '4'?"}
+%%     node2 -->|"Yes"| node4["Show 'Error Deleting House Policy' and exit"]
+%%     click node4 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:281:283"
+%%     node3 --> node5{"Reload policy data? (WHEN '4')"}
 %%     click node5 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:155:155"
-%%     node5 -->|"Yes"| node6["Perform policy inquiry"]
+%%     node5 -->|"Yes"| node6["Reload policy data from backend"]
 %%     click node6 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:156:162"
-%%     node6 --> node7{"<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> > 0 after inquiry?"}
+%%     node6 --> node7{"Was reload successful? (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> > 0)"}
 %%     click node7 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:163:165"
-%%     node7 -->|"Yes"| node8["Show 'No Data' error"]
-%%     click node8 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:164:164"
-%%     node7 -->|"No"| node9["Repopulate policy fields and update UI"]
+%%     node7 -->|"No"| node8["Show 'No Data' error"]
+%%     click node8 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:164:165"
+%%     node7 -->|"Yes"| node9["Display updated policy details to user"]
 %%     click node9 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:167:181"
-%%     node9 --> node10["Update backend with new policy data"]
-%%     click node10 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:183:199"
-%%     node5 -->|"No"| node11["End"]
-%%     click node11 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:199:199"
-%% 
+%%     node5 -->|"No"| node10["Done"]
+%%     click node10 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:149:152"
 %% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
 ```
+
+This section manages the user experience after a house policy deletion attempt, ensuring the UI and messages reflect the outcome and any follow-up actions.
+
+| Rule ID | Category        | Rule Name                            | Description                                                                                                                         | Implementation Details                                                                                                                                                                           |
+| ------- | --------------- | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| BR-001  | Decision Making | Unsuccessful Deletion Error Handling | If the deletion of a house policy is unsuccessful, the system rolls back the transaction and displays an error message to the user. | The error message shown is 'Error Deleting House Policy'. The user is returned to the menu with this message and no retry is offered.                                                            |
+| BR-002  | Decision Making | Policy Data Reload on Option 4       | If the user selects option '4' after deletion, the system reloads policy data from the backend and updates the UI accordingly.      | Option value is '4'. The system performs a policy inquiry and updates the UI with the latest policy details if successful.                                                                       |
+| BR-003  | Decision Making | Policy Data Reload Error Handling    | If the policy data reload fails, the system displays a 'No Data' error message to the user.                                         | The error message shown is 'No Data'. The user is informed that no policy data could be retrieved.                                                                                               |
+| BR-004  | Writing Output  | Successful Deletion UI Reset         | If the deletion is successful, all policy fields are cleared and the user is shown a confirmation message.                          | All policy-related fields are cleared (set to spaces or blank). The status message 'House Policy Deleted' is displayed. Field formats: alphanumeric, blank-filled as appropriate for each field. |
+| BR-005  | Writing Output  | Send Updated Menu Screen             | After clearing fields and setting the status message, the updated menu screen is sent to the user.                                  | The menu screen is refreshed with cleared fields and the status message. The screen layout and field formats are consistent with the menu definition.                                            |
+| BR-006  | Writing Output  | Display Updated Policy Details       | If the policy data reload is successful, the system displays the updated policy details to the user.                                | All policy fields are updated with the latest data from the backend. Field formats: alphanumeric, as defined by the UI.                                                                          |
 
 <SwmSnippet path="/base/src/lgtestp3.cbl" line="133">
 
 ---
 
-Back in <SwmToken path="base/src/lgtestp3.cbl" pos="33:5:7" line-data="              GO TO A-GAIN.">`A-GAIN`</SwmToken>, after returning from <SwmToken path="base/src/lgtestp3.cbl" pos="129:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGDPOL01&#39;)">`LGDPOL01`</SwmToken>, we check if the deletion failed. If so, we roll back the transaction and jump to <SwmToken path="base/src/lgtestp3.cbl" pos="135:5:7" line-data="                   GO TO NO-DELETE">`NO-DELETE`</SwmToken> to show the error and reset the session.
+Back in <SwmToken path="base/src/lgtestp3.cbl" pos="33:5:7" line-data="              GO TO A-GAIN.">`A-GAIN`</SwmToken>, if <SwmToken path="base/src/lgtestp3.cbl" pos="133:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> is set after the delete call, the code rolls back the transaction and jumps to <SwmToken path="base/src/lgtestp3.cbl" pos="135:5:7" line-data="                   GO TO NO-DELETE">`NO-DELETE`</SwmToken> to show an error message. This keeps things clean for the user.
 
 ```cobol
                  IF CA-RETURN-CODE > 0
@@ -4020,7 +4173,7 @@ Back in <SwmToken path="base/src/lgtestp3.cbl" pos="33:5:7" line-data="         
 
 ---
 
-<SwmToken path="base/src/lgtestp3.cbl" pos="281:1:3" line-data="       NO-DELETE.">`NO-DELETE`</SwmToken> sets the error message for failed house policy deletion and jumps to <SwmToken path="base/src/lgtestp3.cbl" pos="283:5:7" line-data="           Go To ERROR-OUT.">`ERROR-OUT`</SwmToken> to display it and reset the session.
+In <SwmToken path="base/src/lgtestp3.cbl" pos="281:1:3" line-data="       NO-DELETE.">`NO-DELETE`</SwmToken>, the code sets the error message for the user and jumps to <SwmToken path="base/src/lgtestp3.cbl" pos="283:5:7" line-data="           Go To ERROR-OUT.">`ERROR-OUT`</SwmToken> to display it and reset the session. No retry, just a clear error.
 
 ```cobol
        NO-DELETE.
@@ -4036,7 +4189,7 @@ Back in <SwmToken path="base/src/lgtestp3.cbl" pos="33:5:7" line-data="         
 
 ---
 
-After returning from <SwmToken path="base/src/lgtestp3.cbl" pos="135:5:7" line-data="                   GO TO NO-DELETE">`NO-DELETE`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="33:5:7" line-data="              GO TO A-GAIN.">`A-GAIN`</SwmToken> clears all the input/output fields and sets up the success message for the next user action.
+After <SwmToken path="base/src/lgtestp3.cbl" pos="135:5:7" line-data="                   GO TO NO-DELETE">`NO-DELETE`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="33:5:7" line-data="              GO TO A-GAIN.">`A-GAIN`</SwmToken> clears all the input fields and sets the status message to 'House Policy Deleted'. This resets the UI for the next action.
 
 ```cobol
                  Move Spaces             To  ENP3IDAI
@@ -4060,7 +4213,7 @@ After returning from <SwmToken path="base/src/lgtestp3.cbl" pos="135:5:7" line-d
 
 ---
 
-After clearing the fields, we send the map to the user's terminal to update the display and show the result of the last operation.
+After clearing fields, the code sends the House Policy Menu screen so the user gets a fresh UI with the status message.
 
 ```cobol
                  EXEC CICS SEND MAP ('SSMAPP3')
@@ -4077,7 +4230,7 @@ After clearing the fields, we send the map to the user's terminal to update the 
 
 ---
 
-For option '4', we prep the commarea with user input and set the request ID before calling <SwmToken path="base/src/lgtestp3.cbl" pos="159:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGIPOL01&#39;)">`LGIPOL01`</SwmToken> to handle the inquiry.
+When the user picks option '4', the code sets up the commarea and links to <SwmToken path="base/src/lgtestp3.cbl" pos="159:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGIPOL01&#39;)">`LGIPOL01`</SwmToken> to run a policy inquiry.
 
 ```cobol
              WHEN '4'
@@ -4098,7 +4251,7 @@ For option '4', we prep the commarea with user input and set the request ID befo
 
 ---
 
-After calling <SwmToken path="base/src/lgtestp3.cbl" pos="70:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGIPOL01&#39;)">`LGIPOL01`</SwmToken>, we check the return code. If there's an error, we jump to <SwmToken path="base/src/lgtestp3.cbl" pos="164:5:7" line-data="                   GO TO NO-DATA">`NO-DATA`</SwmToken> to handle the feedback.
+After the inquiry, if <SwmToken path="base/src/lgtestp3.cbl" pos="163:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> is set, the code jumps to <SwmToken path="base/src/lgtestp3.cbl" pos="164:5:7" line-data="                   GO TO NO-DATA">`NO-DATA`</SwmToken> to show an error message. Otherwise, it keeps going.
 
 ```cobol
                  IF CA-RETURN-CODE > 0
@@ -4114,7 +4267,7 @@ After calling <SwmToken path="base/src/lgtestp3.cbl" pos="70:10:10" line-data=" 
 
 ---
 
-After a successful inquiry, we move the retrieved policy data to the output fields and send the map to update the user's screen.
+Here the code moves all the policy details from the commarea to the output fields and sends the updated screen to the user.
 
 ```cobol
                  Move CA-ISSUE-DATE      To  ENP3IDAI
@@ -4142,7 +4295,7 @@ After a successful inquiry, we move the retrieved policy data to the output fiel
 
 ---
 
-After receiving the user's input, we prep the commarea with the updated data and set the request ID for the update operation.
+After receiving input, the code sets up all the commarea fields for the update and gets ready to call <SwmToken path="base/src/lgtestp3.cbl" pos="196:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGUPOL01&#39;)">`LGUPOL01`</SwmToken>.
 
 ```cobol
                  Move '01UHOU'          To CA-REQUEST-ID
@@ -4168,7 +4321,7 @@ After receiving the user's input, we prep the commarea with the updated data and
 
 ---
 
-After prepping the update request, we call <SwmToken path="base/src/lgtestp3.cbl" pos="196:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGUPOL01&#39;)">`LGUPOL01`</SwmToken> to handle the actual policy update. This program checks the request and passes it to the <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> update logic, so it's the entry point for updating a policy.
+After setting up the commarea, the code links to <SwmToken path="base/src/lgtestp3.cbl" pos="196:10:10" line-data="                 EXEC CICS LINK PROGRAM(&#39;LGUPOL01&#39;)">`LGUPOL01`</SwmToken> to run the policy update in the backend.
 
 ```cobol
                  EXEC CICS LINK PROGRAM('LGUPOL01')
@@ -4181,79 +4334,21 @@ After prepping the update request, we call <SwmToken path="base/src/lgtestp3.cbl
 
 </SwmSnippet>
 
-## Validating and Routing Policy Update Requests
+## Validating and Preparing Policy Update
 
-```mermaid
-%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
-flowchart TD
-    node1["Start: Initialize request and variables"]
-    click node1 openCode "base/src/lgupol01.cbl:83:94"
-    node1 --> node2{"Was commarea received?"}
-    click node2 openCode "base/src/lgupol01.cbl:99:103"
-    node2 -->|"No"| node3["Log error (' NO COMMAREA RECEIVED') and terminate"]
-    click node3 openCode "base/src/lgupol01.cbl:100:102"
-    node2 -->|"Yes"| node4{"What policy type is requested?"}
-    click node4 openCode "base/src/lgupol01.cbl:113:141"
-    node4 -->|"Endowment (01UEND)"| node5{"Is commarea length >= header + endowment?"}
-    node4 -->|"House (01UHOU)"| node6{"Is commarea length >= header + house?"}
-    node4 -->|"Motor (01UMOT)"| node7{"Is commarea length >= header + motor?"}
-    node4 -->|"Other"| node8["Return error code '99' (unknown request)"]
-    click node8 openCode "base/src/lgupol01.cbl:140:141"
-    node5 -->|"No"| node9["Return error code '98' (insufficient data)"]
-    node5 -->|"Yes"| node10["Update policy in database"]
-    node6 -->|"No"| node9
-    node6 -->|"Yes"| node10
-    node7 -->|"No"| node9
-    node7 -->|"Yes"| node10
-    click node9 openCode "base/src/lgupol01.cbl:119:120"
-    node10 --> node11["End"]
-    click node10 openCode "base/src/lgupol01.cbl:143:143"
-    click node11 openCode "base/src/lgupol01.cbl:143:143"
-classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+This section ensures that a commarea is present before any policy update logic is executed. It prevents processing of incomplete or invalid requests by enforcing the presence of required input data.
 
-%% Swimm:
-%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
-%% flowchart TD
-%%     node1["Start: Initialize request and variables"]
-%%     click node1 openCode "<SwmPath>[base/src/lgupol01.cbl](base/src/lgupol01.cbl)</SwmPath>:83:94"
-%%     node1 --> node2{"Was commarea received?"}
-%%     click node2 openCode "<SwmPath>[base/src/lgupol01.cbl](base/src/lgupol01.cbl)</SwmPath>:99:103"
-%%     node2 -->|"No"| node3["Log error (' NO COMMAREA RECEIVED') and terminate"]
-%%     click node3 openCode "<SwmPath>[base/src/lgupol01.cbl](base/src/lgupol01.cbl)</SwmPath>:100:102"
-%%     node2 -->|"Yes"| node4{"What policy type is requested?"}
-%%     click node4 openCode "<SwmPath>[base/src/lgupol01.cbl](base/src/lgupol01.cbl)</SwmPath>:113:141"
-%%     node4 -->|"Endowment (<SwmToken path="base/src/lgupol01.cbl" pos="115:4:4" line-data="             WHEN &#39;01UEND&#39;">`01UEND`</SwmToken>)"| node5{"Is commarea length >= header + endowment?"}
-%%     node4 -->|"House (<SwmToken path="base/src/lgtestp3.cbl" pos="183:4:4" line-data="                 Move &#39;01UHOU&#39;          To CA-REQUEST-ID">`01UHOU`</SwmToken>)"| node6{"Is commarea length >= header + house?"}
-%%     node4 -->|"Motor (<SwmToken path="base/src/lgupol01.cbl" pos="131:4:4" line-data="             WHEN &#39;01UMOT&#39;">`01UMOT`</SwmToken>)"| node7{"Is commarea length >= header + motor?"}
-%%     node4 -->|"Other"| node8["Return error code '99' (unknown request)"]
-%%     click node8 openCode "<SwmPath>[base/src/lgupol01.cbl](base/src/lgupol01.cbl)</SwmPath>:140:141"
-%%     node5 -->|"No"| node9["Return error code '98' (insufficient data)"]
-%%     node5 -->|"Yes"| node10["Update policy in database"]
-%%     node6 -->|"No"| node9
-%%     node6 -->|"Yes"| node10
-%%     node7 -->|"No"| node9
-%%     node7 -->|"Yes"| node10
-%%     click node9 openCode "<SwmPath>[base/src/lgupol01.cbl](base/src/lgupol01.cbl)</SwmPath>:119:120"
-%%     node10 --> node11["End"]
-%%     click node10 openCode "<SwmPath>[base/src/lgupol01.cbl](base/src/lgupol01.cbl)</SwmPath>:143:143"
-%%     click node11 openCode "<SwmPath>[base/src/lgupol01.cbl](base/src/lgupol01.cbl)</SwmPath>:143:143"
-%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
-```
-
-This section is responsible for validating incoming policy update requests and routing them to the appropriate update logic, or returning a specific error code if the request is invalid.
-
-| Category        | Rule Name                           | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| --------------- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Data validation | Missing commarea termination        | If no commarea is received with the request, the process must terminate immediately and log an error message stating 'NO COMMAREA RECEIVED'.                                                                                                                                                                                                                                                                                                                                                                                                         |
-| Data validation | Minimum data length per policy type | For each policy type (Endowment, House, Motor), the request must include a commarea with a minimum length equal to the sum of the header length (28 bytes) and the specific policy data length (Endowment: 124 bytes, House: 130 bytes, Motor: 137 bytes). Requests with insufficient data must be rejected with error code '98'.                                                                                                                                                                                                                    |
-| Data validation | Unsupported policy type rejection   | If the policy type identifier in the request does not match any of the supported types (<SwmToken path="base/src/lgupol01.cbl" pos="115:4:4" line-data="             WHEN &#39;01UEND&#39;">`01UEND`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="183:4:4" line-data="                 Move &#39;01UHOU&#39;          To CA-REQUEST-ID">`01UHOU`</SwmToken>, <SwmToken path="base/src/lgupol01.cbl" pos="131:4:4" line-data="             WHEN &#39;01UMOT&#39;">`01UMOT`</SwmToken>), the request must be rejected with error code '99'. |
-| Business logic  | Routing valid requests              | If the request passes all validation checks, it must be routed to the policy update logic for further processing.                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Rule ID | Category        | Rule Name                                   | Description                                                                                                                                                        | Implementation Details                                                                                                                                                                                                                                                              |
+| ------- | --------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Data validation | Commarea Required                           | If no commarea is received (commarea length is zero), an error message is logged and the transaction is abended with code 'LGCA'.                                  | The error message logged is ' NO COMMAREA RECEIVED'. The abend code used is 'LGCA'. The error message format includes the current date, time, transaction identifier, and the error variable. The message is sent to the system's message queue for monitoring and troubleshooting. |
+| BR-002  | Decision Making | Transaction Termination on Missing Commarea | If the commarea is missing, the transaction is abended with a specific abend code ('LGCA') and no recovery or continuation is attempted.                           | The abend code used is 'LGCA'. The abend is performed with the NODUMP option, meaning no system dump is produced.                                                                                                                                                                   |
+| BR-003  | Writing Output  | Error Logging on Missing Commarea           | When an error is detected due to missing commarea, an error message containing the error details and transaction context is written to the system's message queue. | The error message includes the current date (8 characters), time (6 characters), transaction identifier (9 characters), and the error variable (21 characters). The message is sent to the system's message queue for monitoring and troubleshooting.                               |
 
 <SwmSnippet path="/base/src/lgupol01.cbl" line="83">
 
 ---
 
-In MAINLINE, we check the commarea length against the expected size for each policy type using constants. If the request is valid, we route it to the update logic; if not, we set an error code and return.
+In MAINLINE, the code initializes working storage and moves EIB values for tracking and logging. This sets up the context for the update.
 
 ```cobol
        MAINLINE SECTION.
@@ -4267,67 +4362,87 @@ In MAINLINE, we check the commarea length against the expected size for each pol
            MOVE EIBTRNID TO WS-TRANSID.
            MOVE EIBTRMID TO WS-TERMID.
            MOVE EIBTASKN TO WS-TASKNUM.
-
-      *----------------------------------------------------------------*
-      * Check commarea and obtain required details                     *
-      *----------------------------------------------------------------*
-      * If NO commarea received issue an ABEND
-           IF EIBCALEN IS EQUAL TO ZERO
-               MOVE ' NO COMMAREA RECEIVED' TO EM-VARIABLE
-               PERFORM WRITE-ERROR-MESSAGE
-               EXEC CICS ABEND ABCODE('LGCA') NODUMP END-EXEC
-           END-IF
-      * initialize commarea return code to zero
-           MOVE '00' TO CA-RETURN-CODE
-           MOVE EIBCALEN TO WS-CALEN.
-           SET WS-ADDR-DFHCOMMAREA TO ADDRESS OF DFHCOMMAREA.
-
-      *----------------------------------------------------------------*
-      * Check which policy type is being requested                     *
-      *   and chec commarea length                                     *
-      *----------------------------------------------------------------*
-           EVALUATE CA-REQUEST-ID
-
-             WHEN '01UEND'
-               ADD WS-CA-HEADER-LEN  TO WS-REQUIRED-CA-LEN
-               ADD WS-FULL-ENDOW-LEN TO WS-REQUIRED-CA-LEN
-               IF EIBCALEN IS LESS THAN WS-REQUIRED-CA-LEN
-                 MOVE '98' TO CA-RETURN-CODE
-                 EXEC CICS RETURN END-EXEC
-               END-IF
-
-             WHEN '01UHOU'
-               ADD WS-CA-HEADER-LEN  TO WS-REQUIRED-CA-LEN
-               ADD WS-FULL-HOUSE-LEN TO WS-REQUIRED-CA-LEN
-               IF EIBCALEN IS LESS THAN WS-REQUIRED-CA-LEN
-                 MOVE '98' TO CA-RETURN-CODE
-                 EXEC CICS RETURN END-EXEC
-               END-IF
-
-             WHEN '01UMOT'
-               ADD WS-CA-HEADER-LEN  TO WS-REQUIRED-CA-LEN
-               ADD WS-FULL-MOTOR-LEN TO WS-REQUIRED-CA-LEN
-               IF EIBCALEN IS LESS THAN WS-REQUIRED-CA-LEN
-                 MOVE '98' TO CA-RETURN-CODE
-                 EXEC CICS RETURN END-EXEC
-               END-IF
-
-             WHEN OTHER
-               MOVE '99' TO CA-RETURN-CODE
-           END-EVALUATE
-
-           PERFORM UPDATE-POLICY-DB2-INFO.
 ```
 
 ---
 
 </SwmSnippet>
 
+<SwmSnippet path="/base/src/lgupol01.cbl" line="99">
+
+---
+
+If the commarea is missing, the code logs an error and abends the transaction. No recovery, just a hard stop to avoid corrupt updates.
+
+```cobol
+           IF EIBCALEN IS EQUAL TO ZERO
+               MOVE ' NO COMMAREA RECEIVED' TO EM-VARIABLE
+               PERFORM WRITE-ERROR-MESSAGE
+               EXEC CICS ABEND ABCODE('LGCA') NODUMP END-EXEC
+           END-IF
+```
+
+---
+
+</SwmSnippet>
+
+### Logging Policy Update Errors
+
+```mermaid
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+flowchart TD
+    node1["Capture current date and time for error tracking"] --> node2["Format and write error message to queue for review"]
+    click node1 openCode "base/src/lgupol01.cbl:172:179"
+    click node2 openCode "base/src/lgupol01.cbl:181:184"
+    node2 --> node3{"Is there additional context data?"}
+    click node3 openCode "base/src/lgupol01.cbl:186:200"
+    node3 -->|"No"| node6["End"]
+    node3 -->|"Yes"| node4{"Is context data length less than 91?"}
+    click node4 openCode "base/src/lgupol01.cbl:187:194"
+    node4 -->|"Yes"| node5["Write all context data to queue for review"]
+    click node5 openCode "base/src/lgupol01.cbl:188:192"
+    node4 -->|"No"| node7["Truncate and write context data to queue for review"]
+    click node7 openCode "base/src/lgupol01.cbl:194:198"
+    node5 --> node6
+    node7 --> node6
+    click node6 openCode "base/src/lgupol01.cbl:201:201"
+classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+
+%% Swimm:
+%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+%% flowchart TD
+%%     node1["Capture current date and time for error tracking"] --> node2["Format and write error message to queue for review"]
+%%     click node1 openCode "<SwmPath>[base/src/lgupol01.cbl](base/src/lgupol01.cbl)</SwmPath>:172:179"
+%%     click node2 openCode "<SwmPath>[base/src/lgupol01.cbl](base/src/lgupol01.cbl)</SwmPath>:181:184"
+%%     node2 --> node3{"Is there additional context data?"}
+%%     click node3 openCode "<SwmPath>[base/src/lgupol01.cbl](base/src/lgupol01.cbl)</SwmPath>:186:200"
+%%     node3 -->|"No"| node6["End"]
+%%     node3 -->|"Yes"| node4{"Is context data length less than 91?"}
+%%     click node4 openCode "<SwmPath>[base/src/lgupol01.cbl](base/src/lgupol01.cbl)</SwmPath>:187:194"
+%%     node4 -->|"Yes"| node5["Write all context data to queue for review"]
+%%     click node5 openCode "<SwmPath>[base/src/lgupol01.cbl](base/src/lgupol01.cbl)</SwmPath>:188:192"
+%%     node4 -->|"No"| node7["Truncate and write context data to queue for review"]
+%%     click node7 openCode "<SwmPath>[base/src/lgupol01.cbl](base/src/lgupol01.cbl)</SwmPath>:194:198"
+%%     node5 --> node6
+%%     node7 --> node6
+%%     click node6 openCode "<SwmPath>[base/src/lgupol01.cbl](base/src/lgupol01.cbl)</SwmPath>:201:201"
+%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+```
+
+This section logs policy update errors by capturing the current date and time, formatting an error message, and writing it to a queue. If additional context data is available, it is included in the log, subject to a maximum length.
+
+| Rule ID | Category        | Rule Name                   | Description                                                                                                                           | Implementation Details                                                                                                                                                            |
+| ------- | --------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Data validation | Context data truncation     | If context data length is less than 91 bytes, all context data is logged; otherwise, only the first 90 bytes are logged (truncation). | A maximum of 90 bytes of context data is logged. If the context data exceeds this length, it is truncated to the first 90 bytes. The logged message is prefixed with 'COMMAREA='. |
+| BR-002  | Calculation     | Timestamp inclusion         | Each error log entry includes the current date and time for tracking purposes.                                                        | The date is formatted as an 8-character string (MMDDYYYY), and the time as a 6-character string (HHMMSS). Both are included in the error message output.                          |
+| BR-003  | Decision Making | Context data logging        | If additional context data is present, it is logged as part of the error review process.                                              | Context data is included in a separate message prefixed with 'COMMAREA=' and up to 90 bytes of data. If the context data exceeds 90 bytes, only the first 90 bytes are logged.    |
+| BR-004  | Writing Output  | Error message queue logging | Error messages are written to a message queue for review whenever an error occurs.                                                    | The error message includes date, time, transaction info, and a variable field, formatted as a structured string. The message is sent to a queue for later review.                 |
+
 <SwmSnippet path="/base/src/lgupol01.cbl" line="169">
 
 ---
 
-<SwmToken path="base/src/lgupol01.cbl" pos="169:1:5" line-data="       WRITE-ERROR-MESSAGE.">`WRITE-ERROR-MESSAGE`</SwmToken> in <SwmPath>[base/src/lgupol01.cbl](base/src/lgupol01.cbl)</SwmPath> logs error details and sends both the formatted error message and up to 90 bytes of commarea data to LGSTSQ for queueing. This keeps error logs concise and consistent.
+In <SwmToken path="base/src/lgupol01.cbl" pos="169:1:5" line-data="       WRITE-ERROR-MESSAGE.">`WRITE-ERROR-MESSAGE`</SwmToken>, the code grabs the current time and date using CICS commands and formats them for the error log. This info gets included in the error message for tracking.
 
 ```cobol
        WRITE-ERROR-MESSAGE.
@@ -4339,6 +4454,19 @@ In MAINLINE, we check the commarea length against the expected size for each pol
                      MMDDYYYY(WS-DATE)
                      TIME(WS-TIME)
            END-EXEC
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgupol01.cbl" line="178">
+
+---
+
+Here the code fills out the error message with date, time, and transaction info, then calls LGSTSQ to send it to the message queue for logging.
+
+```cobol
            MOVE WS-DATE TO EM-DATE
            MOVE WS-TIME TO EM-TIME
       * Write output message to TDQ
@@ -4346,7 +4474,19 @@ In MAINLINE, we check the commarea length against the expected size for each pol
                      COMMAREA(ERROR-MSG)
                      LENGTH(LENGTH OF ERROR-MSG)
            END-EXEC.
-      * Write 90 bytes or as much as we have of commarea to TDQ
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgupol01.cbl" line="186">
+
+---
+
+After sending the error message, if there's commarea data, the code moves up to 90 bytes to <SwmToken path="base/src/lgupol01.cbl" pos="188:12:14" line-data="               MOVE DFHCOMMAREA(1:EIBCALEN) TO CA-DATA">`CA-DATA`</SwmToken> and sends it to LGSTSQ for logging. Anything longer gets truncated.
+
+```cobol
            IF EIBCALEN > 0 THEN
              IF EIBCALEN < 91 THEN
                MOVE DFHCOMMAREA(1:EIBCALEN) TO CA-DATA
@@ -4369,43 +4509,97 @@ In MAINLINE, we check the commarea length against the expected size for each pol
 
 </SwmSnippet>
 
-<SwmSnippet path="/base/src/lgupol01.cbl" line="83">
+### Preparing for Policy Update Processing
+
+```mermaid
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+flowchart TD
+    node1["Start: Prepare for policy update"] --> node2{"Policy type requested?"}
+    click node1 openCode "base/src/lgupol01.cbl:105:107"
+    node2 -->|"Endowment (01UEND)"| node3{"Is commarea long enough for Endowment?"}
+    node2 -->|"House (01UHOU)"| node4{"Is commarea long enough for House?"}
+    node2 -->|"Motor (01UMOT)"| node5{"Is commarea long enough for Motor?"}
+    node2 -->|"Other"| node6["Set return code '99' (Unknown request) and end"]
+    click node2 openCode "base/src/lgupol01.cbl:113:141"
+    node3 -->|"Yes"| node7["Proceed to update policy"]
+    node3 -->|"No"| node8["Set return code '98' (Insufficient data) and end"]
+    click node3 openCode "base/src/lgupol01.cbl:115:121"
+    node4 -->|"Yes"| node7
+    node4 -->|"No"| node8
+    click node4 openCode "base/src/lgupol01.cbl:123:129"
+    node5 -->|"Yes"| node7
+    node5 -->|"No"| node8
+    click node5 openCode "base/src/lgupol01.cbl:131:137"
+    click node6 openCode "base/src/lgupol01.cbl:139:141"
+    node7 --> node9["Update policy in DB2"]
+    click node7 openCode "base/src/lgupol01.cbl:143:143"
+    click node9 openCode "base/src/lgupol01.cbl:143:143"
+    click node8 openCode "base/src/lgupol01.cbl:119:120"
+
+classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+
+%% Swimm:
+%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+%% flowchart TD
+%%     node1["Start: Prepare for policy update"] --> node2{"Policy type requested?"}
+%%     click node1 openCode "<SwmPath>[base/src/lgupol01.cbl](base/src/lgupol01.cbl)</SwmPath>:105:107"
+%%     node2 -->|"Endowment (<SwmToken path="base/src/lgupol01.cbl" pos="115:4:4" line-data="             WHEN &#39;01UEND&#39;">`01UEND`</SwmToken>)"| node3{"Is commarea long enough for Endowment?"}
+%%     node2 -->|"House (<SwmToken path="base/src/lgtestp3.cbl" pos="183:4:4" line-data="                 Move &#39;01UHOU&#39;          To CA-REQUEST-ID">`01UHOU`</SwmToken>)"| node4{"Is commarea long enough for House?"}
+%%     node2 -->|"Motor (<SwmToken path="base/src/lgupol01.cbl" pos="131:4:4" line-data="             WHEN &#39;01UMOT&#39;">`01UMOT`</SwmToken>)"| node5{"Is commarea long enough for Motor?"}
+%%     node2 -->|"Other"| node6["Set return code '99' (Unknown request) and end"]
+%%     click node2 openCode "<SwmPath>[base/src/lgupol01.cbl](base/src/lgupol01.cbl)</SwmPath>:113:141"
+%%     node3 -->|"Yes"| node7["Proceed to update policy"]
+%%     node3 -->|"No"| node8["Set return code '98' (Insufficient data) and end"]
+%%     click node3 openCode "<SwmPath>[base/src/lgupol01.cbl](base/src/lgupol01.cbl)</SwmPath>:115:121"
+%%     node4 -->|"Yes"| node7
+%%     node4 -->|"No"| node8
+%%     click node4 openCode "<SwmPath>[base/src/lgupol01.cbl](base/src/lgupol01.cbl)</SwmPath>:123:129"
+%%     node5 -->|"Yes"| node7
+%%     node5 -->|"No"| node8
+%%     click node5 openCode "<SwmPath>[base/src/lgupol01.cbl](base/src/lgupol01.cbl)</SwmPath>:131:137"
+%%     click node6 openCode "<SwmPath>[base/src/lgupol01.cbl](base/src/lgupol01.cbl)</SwmPath>:139:141"
+%%     node7 --> node9["Update policy in <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken>"]
+%%     click node7 openCode "<SwmPath>[base/src/lgupol01.cbl](base/src/lgupol01.cbl)</SwmPath>:143:143"
+%%     click node9 openCode "<SwmPath>[base/src/lgupol01.cbl](base/src/lgupol01.cbl)</SwmPath>:143:143"
+%%     click node8 openCode "<SwmPath>[base/src/lgupol01.cbl](base/src/lgupol01.cbl)</SwmPath>:119:120"
+%% 
+%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+```
+
+This section validates incoming policy update requests, ensuring the request type is supported and that the input data area is sufficiently long for the requested operation. It prevents invalid or incomplete updates by enforcing strict input requirements before proceeding to the main update logic.
+
+| Rule ID | Category                        | Rule Name                            | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Implementation Details                                                                                                     |
+| ------- | ------------------------------- | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Data validation                 | Reset return code                    | The return code is reset to '00' before any validation or processing begins, ensuring previous errors do not affect the current operation.                                                                                                                                                                                                                                                                                                                                                                                                                           | The return code is set to the string '00', which indicates no error at this stage. The format is a 2-digit numeric string. |
+| BR-002  | Data validation                 | Endowment commarea length validation | For Endowment policy updates, if the commarea length is less than 152 bytes (28 for header plus 124 for policy data), the return code is set to '98' to indicate insufficient data, and processing ends.                                                                                                                                                                                                                                                                                                                                                             | The required commarea length is 152 bytes (28 header + 124 policy data). The return code for insufficient data is '98'.    |
+| BR-003  | Data validation                 | House commarea length validation     | For House policy updates, if the commarea length is less than 158 bytes (28 for header plus 130 for policy data), the return code is set to '98' to indicate insufficient data, and processing ends.                                                                                                                                                                                                                                                                                                                                                                 | The required commarea length is 158 bytes (28 header + 130 policy data). The return code for insufficient data is '98'.    |
+| BR-004  | Data validation                 | Motor commarea length validation     | For Motor policy updates, if the commarea length is less than 165 bytes (28 for header plus 137 for policy data), the return code is set to '98' to indicate insufficient data, and processing ends.                                                                                                                                                                                                                                                                                                                                                                 | The required commarea length is 165 bytes (28 header + 137 policy data). The return code for insufficient data is '98'.    |
+| BR-005  | Decision Making                 | Unknown request type handling        | If the request type is not recognized as Endowment (<SwmToken path="base/src/lgupol01.cbl" pos="115:4:4" line-data="             WHEN &#39;01UEND&#39;">`01UEND`</SwmToken>), House (<SwmToken path="base/src/lgtestp3.cbl" pos="183:4:4" line-data="                 Move &#39;01UHOU&#39;          To CA-REQUEST-ID">`01UHOU`</SwmToken>), or Motor (<SwmToken path="base/src/lgupol01.cbl" pos="131:4:4" line-data="             WHEN &#39;01UMOT&#39;">`01UMOT`</SwmToken>), the return code is set to '99' to indicate an unknown request, and processing ends. | The return code is set to '99', indicating an unknown or unsupported request. The format is a 2-digit numeric string.      |
+| BR-006  | Invoking a Service or a Process | Proceed to policy update             | If the request type is valid and the commarea length is sufficient, the section proceeds to update the policy in the database.                                                                                                                                                                                                                                                                                                                                                                                                                                       | No error code is set; processing continues to the update logic. The update is performed only after all validations pass.   |
+
+<SwmSnippet path="/base/src/lgupol01.cbl" line="105">
 
 ---
 
-After <SwmPath>[base/src/lgupol01.cbl](base/src/lgupol01.cbl)</SwmPath>, we validate and route the update request.
+After error handling, the code resets <SwmToken path="base/src/lgupol01.cbl" pos="105:9:13" line-data="           MOVE &#39;00&#39; TO CA-RETURN-CODE">`CA-RETURN-CODE`</SwmToken> and sets up pointers and lengths for the commarea, getting ready for the main update logic.
 
 ```cobol
-       MAINLINE SECTION.
-
-      *----------------------------------------------------------------*
-      * Common code                                                    *
-      *----------------------------------------------------------------*
-      * initialize working storage variables
-           INITIALIZE WS-HEADER.
-      * set up general variable
-           MOVE EIBTRNID TO WS-TRANSID.
-           MOVE EIBTRMID TO WS-TERMID.
-           MOVE EIBTASKN TO WS-TASKNUM.
-
-      *----------------------------------------------------------------*
-      * Check commarea and obtain required details                     *
-      *----------------------------------------------------------------*
-      * If NO commarea received issue an ABEND
-           IF EIBCALEN IS EQUAL TO ZERO
-               MOVE ' NO COMMAREA RECEIVED' TO EM-VARIABLE
-               PERFORM WRITE-ERROR-MESSAGE
-               EXEC CICS ABEND ABCODE('LGCA') NODUMP END-EXEC
-           END-IF
-      * initialize commarea return code to zero
            MOVE '00' TO CA-RETURN-CODE
            MOVE EIBCALEN TO WS-CALEN.
            SET WS-ADDR-DFHCOMMAREA TO ADDRESS OF DFHCOMMAREA.
+```
 
-      *----------------------------------------------------------------*
-      * Check which policy type is being requested                     *
-      *   and chec commarea length                                     *
-      *----------------------------------------------------------------*
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgupol01.cbl" line="113">
+
+---
+
+Here the code checks the commarea length for each policy type using fixed constants. If the input is too short, it sets an error code and exits to avoid bad updates.
+
+```cobol
            EVALUATE CA-REQUEST-ID
 
              WHEN '01UEND'
@@ -4415,7 +4609,19 @@ After <SwmPath>[base/src/lgupol01.cbl](base/src/lgupol01.cbl)</SwmPath>, we vali
                  MOVE '98' TO CA-RETURN-CODE
                  EXEC CICS RETURN END-EXEC
                END-IF
+```
 
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgupol01.cbl" line="123">
+
+---
+
+For house policies, the code checks the commarea length and exits with an error if it's too short. No update happens unless the data is complete.
+
+```cobol
              WHEN '01UHOU'
                ADD WS-CA-HEADER-LEN  TO WS-REQUIRED-CA-LEN
                ADD WS-FULL-HOUSE-LEN TO WS-REQUIRED-CA-LEN
@@ -4423,7 +4629,19 @@ After <SwmPath>[base/src/lgupol01.cbl](base/src/lgupol01.cbl)</SwmPath>, we vali
                  MOVE '98' TO CA-RETURN-CODE
                  EXEC CICS RETURN END-EXEC
                END-IF
+```
 
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgupol01.cbl" line="131">
+
+---
+
+For motor policies, the code checks the commarea length and exits with an error if it's too short. No update happens unless the data is complete.
+
+```cobol
              WHEN '01UMOT'
                ADD WS-CA-HEADER-LEN  TO WS-REQUIRED-CA-LEN
                ADD WS-FULL-MOTOR-LEN TO WS-REQUIRED-CA-LEN
@@ -4431,7 +4649,19 @@ After <SwmPath>[base/src/lgupol01.cbl](base/src/lgupol01.cbl)</SwmPath>, we vali
                  MOVE '98' TO CA-RETURN-CODE
                  EXEC CICS RETURN END-EXEC
                END-IF
+```
 
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgupol01.cbl" line="139">
+
+---
+
+After all the length checks, if the request ID is valid, the code calls <SwmToken path="base/src/lgupol01.cbl" pos="143:3:9" line-data="           PERFORM UPDATE-POLICY-DB2-INFO.">`UPDATE-POLICY-DB2-INFO`</SwmToken> to run the actual update. If not, it sets an error code and exits.
+
+```cobol
              WHEN OTHER
                MOVE '99' TO CA-RETURN-CODE
            END-EVALUATE
@@ -4443,15 +4673,19 @@ After <SwmPath>[base/src/lgupol01.cbl](base/src/lgupol01.cbl)</SwmPath>, we vali
 
 </SwmSnippet>
 
-## Delegating Policy Update to Database Handler
+## Delegating Policy Update to <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken>
 
-This section is responsible for delegating policy update requests to a specialized database handler, ensuring that database-specific logic is managed outside the main handler.
+This section delegates the policy update operation to a backend <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> process by linking to the <SwmToken path="base/src/lgupol01.cbl" pos="157:9:9" line-data="           EXEC CICS LINK Program(LGUPDB01)">`LGUPDB01`</SwmToken> program using CICS, ensuring that policy updates are managed by the backend system of record.
+
+| Rule ID | Category                        | Rule Name                         | Description                                                                                                                                                                                                                                                                                                                                                                                                              | Implementation Details                                                                                                                           |
+| ------- | ------------------------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| BR-001  | Invoking a Service or a Process | Delegate policy update to backend | The policy update operation is delegated to the backend <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> process by linking to the <SwmToken path="base/src/lgupol01.cbl" pos="157:9:9" line-data="           EXEC CICS LINK Program(LGUPDB01)">`LGUPDB01`</SwmToken> program, passing the commarea data structure with a length of 32,500 bytes. | The commarea data structure is passed with a length of 32,500 bytes. No specific field formats or output structures are defined in this section. |
 
 <SwmSnippet path="/base/src/lgupol01.cbl" line="155">
 
 ---
 
-<SwmToken path="base/src/lgupol01.cbl" pos="155:1:7" line-data="       UPDATE-POLICY-DB2-INFO.">`UPDATE-POLICY-DB2-INFO`</SwmToken> just passes the update request to <SwmToken path="base/src/lgupol01.cbl" pos="157:9:9" line-data="           EXEC CICS LINK Program(LGUPDB01)">`LGUPDB01`</SwmToken> using EXEC CICS LINK. This keeps the <SwmToken path="base/src/lgupol01.cbl" pos="155:5:5" line-data="       UPDATE-POLICY-DB2-INFO.">`DB2`</SwmToken> logic out of the main handler and lets the specialized module do the actual work.
+In <SwmToken path="base/src/lgupol01.cbl" pos="155:1:7" line-data="       UPDATE-POLICY-DB2-INFO.">`UPDATE-POLICY-DB2-INFO`</SwmToken>, the code links to <SwmToken path="base/src/lgupol01.cbl" pos="157:9:9" line-data="           EXEC CICS LINK Program(LGUPDB01)">`LGUPDB01`</SwmToken> to run the policy update in the backend using the commarea data.
 
 ```cobol
        UPDATE-POLICY-DB2-INFO.
@@ -4468,48 +4702,19 @@ This section is responsible for delegating policy update requests to a specializ
 
 </SwmSnippet>
 
-## Validating and Executing Policy Update in <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken>
+## Validating and Preparing <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> Policy Update
 
-```mermaid
-%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
-flowchart TD
-    node1["Start: Initialize environment"] --> node2{"Is commarea present? (EIBCALEN > 0)"}
-    click node1 openCode "base/src/lgupdb01.cbl:162:178"
-    node2 -->|"No"| node3["Log error: No commarea received and terminate"]
-    click node2 openCode "base/src/lgupdb01.cbl:183:187"
-    click node3 openCode "base/src/lgupdb01.cbl:184:186"
-    node2 -->|"Yes"| node4["Prepare request data (customer/policy numbers, return code)"]
-    click node4 openCode "base/src/lgupdb01.cbl:190:200"
-    node4 --> node5["Update policy information in DB2"]
-    click node5 openCode "base/src/lgupdb01.cbl:207:207"
-    node5 --> node6["Link to downstream business process (LGUPVS01)"]
-    click node6 openCode "base/src/lgupdb01.cbl:209:212"
-classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+This section ensures that a valid commarea is present before any <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> policy update logic is executed. It protects data integrity by halting processing if the required input is missing.
 
-%% Swimm:
-%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
-%% flowchart TD
-%%     node1["Start: Initialize environment"] --> node2{"Is commarea present? (EIBCALEN > 0)"}
-%%     click node1 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:162:178"
-%%     node2 -->|"No"| node3["Log error: No commarea received and terminate"]
-%%     click node2 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:183:187"
-%%     click node3 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:184:186"
-%%     node2 -->|"Yes"| node4["Prepare request data (customer/policy numbers, return code)"]
-%%     click node4 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:190:200"
-%%     node4 --> node5["Update policy information in <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken>"]
-%%     click node5 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:207:207"
-%%     node5 --> node6["Link to downstream business process (<SwmToken path="base/src/lgupdb01.cbl" pos="209:9:9" line-data="           EXEC CICS LINK Program(LGUPVS01)">`LGUPVS01`</SwmToken>)"]
-%%     click node6 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:209:212"
-%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
-```
-
-This section ensures that policy update requests are valid, processes the update in <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken>, and coordinates error logging and downstream updates. It is critical for maintaining data integrity and consistent error handling in the policy management workflow.
+| Rule ID | Category        | Rule Name         | Description                                                                                                          | Implementation Details                                                                                                                                                                                 |
+| ------- | --------------- | ----------------- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| BR-001  | Data validation | Commarea Required | If the commarea is missing, an error message is logged and the transaction is abended to prevent further processing. | The error message includes the text ' NO COMMAREA RECEIVED' and is formatted for the message queue system. No further processing occurs after this error; the transaction is abended with code 'LGCA'. |
 
 <SwmSnippet path="/base/src/lgupdb01.cbl" line="162">
 
 ---
 
-MAINLINE in <SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath> validates the request, converts IDs to <SwmToken path="base/src/lgupdb01.cbl" pos="175:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> format, and calls the update logic for the right policy type. After updating <SwmToken path="base/src/lgupdb01.cbl" pos="175:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken>, it calls <SwmToken path="base/src/lgupdb01.cbl" pos="209:9:9" line-data="           EXEC CICS LINK Program(LGUPVS01)">`LGUPVS01`</SwmToken> to update the VSAM record too.
+In MAINLINE, the code initializes working storage and <SwmToken path="base/src/lgupdb01.cbl" pos="175:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> host variables, then moves EIB values for tracking and logging. This sets up the context for the update.
 
 ```cobol
        MAINLINE SECTION.
@@ -4528,52 +4733,86 @@ MAINLINE in <SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath> va
       * initialize DB2 host variables
            INITIALIZE DB2-POLICY.
            INITIALIZE DB2-IN-INTEGERS.
-
-      *----------------------------------------------------------------*
-      * Check commarea and obtain required details                     *
-      *----------------------------------------------------------------*
-      * If NO commarea received issue an ABEND
-           IF EIBCALEN IS EQUAL TO ZERO
-               MOVE ' NO COMMAREA RECEIVED' TO EM-VARIABLE
-               PERFORM WRITE-ERROR-MESSAGE
-               EXEC CICS ABEND ABCODE('LGCA') NODUMP END-EXEC
-           END-IF
-
-      * initialize commarea return code to zero
-           MOVE '00' TO CA-RETURN-CODE
-           MOVE EIBCALEN TO WS-CALEN.
-           SET WS-ADDR-DFHCOMMAREA TO ADDRESS OF DFHCOMMAREA.
-
-      * Convert commarea customer & policy nums to DB2 integer format
-           MOVE CA-CUSTOMER-NUM TO DB2-CUSTOMERNUM-INT
-           MOVE CA-POLICY-NUM   TO DB2-POLICYNUM-INT
-      * and save in error msg field incase required
-           MOVE CA-CUSTOMER-NUM TO EM-CUSNUM
-           MOVE CA-POLICY-NUM   TO EM-POLNUM
-
-      *----------------------------------------------------------------*
-      * Check which policy type is being requested                     *
-      *   and check commarea length                                    *
-      *----------------------------------------------------------------*
-
-      *    Call procedure to update required tables
-           PERFORM UPDATE-POLICY-DB2-INFO.
-
-           EXEC CICS LINK Program(LGUPVS01)
-                Commarea(DFHCOMMAREA)
-                LENGTH(225)
-           END-EXEC.
 ```
 
 ---
 
 </SwmSnippet>
 
+<SwmSnippet path="/base/src/lgupdb01.cbl" line="183">
+
+---
+
+If the commarea is missing, the code logs an error and abends the transaction. No recovery, just a hard stop to avoid corrupt updates.
+
+```cobol
+           IF EIBCALEN IS EQUAL TO ZERO
+               MOVE ' NO COMMAREA RECEIVED' TO EM-VARIABLE
+               PERFORM WRITE-ERROR-MESSAGE
+               EXEC CICS ABEND ABCODE('LGCA') NODUMP END-EXEC
+           END-IF
+```
+
+---
+
+</SwmSnippet>
+
+### Logging <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> Policy Update Errors
+
+```mermaid
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+flowchart TD
+    node1["Record SQL error code and timestamp in error message"] --> node2["Send error message to queue"]
+    click node1 openCode "base/src/lgupdb01.cbl:504:513"
+    click node2 openCode "base/src/lgupdb01.cbl:514:518"
+    node2 --> node3{"Is there transaction data? (EIBCALEN > 0)"}
+    click node3 openCode "base/src/lgupdb01.cbl:520:520"
+    node3 -->|"No"| node6["End"]
+    node3 -->|"Yes"| node4{"Is commarea length < 91?"}
+    click node4 openCode "base/src/lgupdb01.cbl:521:521"
+    node4 -->|"Yes"| node5["Send full commarea data to queue"]
+    click node5 openCode "base/src/lgupdb01.cbl:522:526"
+    node4 -->|"No"| node7["Send first 90 bytes of commarea to queue"]
+    click node7 openCode "base/src/lgupdb01.cbl:528:532"
+    node5 --> node6
+    node7 --> node6
+    click node6 openCode "base/src/lgupdb01.cbl:535:535"
+classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+
+%% Swimm:
+%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+%% flowchart TD
+%%     node1["Record SQL error code and timestamp in error message"] --> node2["Send error message to queue"]
+%%     click node1 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:504:513"
+%%     click node2 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:514:518"
+%%     node2 --> node3{"Is there transaction data? (EIBCALEN > 0)"}
+%%     click node3 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:520:520"
+%%     node3 -->|"No"| node6["End"]
+%%     node3 -->|"Yes"| node4{"Is commarea length < 91?"}
+%%     click node4 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:521:521"
+%%     node4 -->|"Yes"| node5["Send full commarea data to queue"]
+%%     click node5 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:522:526"
+%%     node4 -->|"No"| node7["Send first 90 bytes of commarea to queue"]
+%%     click node7 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:528:532"
+%%     node5 --> node6
+%%     node7 --> node6
+%%     click node6 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:535:535"
+%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+```
+
+This section logs <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> policy update errors by capturing key error details and sending them to a queue for downstream logging and integration. It ensures that both the error context and relevant transaction data are available for troubleshooting.
+
+| Rule ID | Category                        | Rule Name                | Description                                                                                                                                                                                                       | Implementation Details                                                                                                                                                                                                                                                                                           |
+| ------- | ------------------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Writing Output                  | Error log content        | The error log entry includes the SQL error code, the current date, the current time, and policy/customer identifiers.                                                                                             | The error message includes: SQL error code (5 digits, signed), date (8 characters, MMDDYYYY), time (6 characters, HHMMSS), customer number (10 characters), policy number (10 characters), and a 16-character SQL request field. All fields are alphanumeric except SQL error code, which is numeric and signed. |
+| BR-002  | Writing Output                  | Commarea context logging | If transaction data is present, up to 90 bytes of commarea data are sent to the queue for additional error context.                                                                                               | If commarea data is present, it is sent as a separate message with a prefix 'COMMAREA=' followed by up to 90 bytes of data. If the commarea is shorter than 91 bytes, the entire commarea is sent; otherwise, only the first 90 bytes are included.                                                              |
+| BR-003  | Invoking a Service or a Process | Error message queueing   | An error message is sent to the logging queue whenever a <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> policy update error is detected. | The error message is sent to the queue handler program for logging. The message format is as described in the error log content rule.                                                                                                                                                                            |
+
 <SwmSnippet path="/base/src/lgupdb01.cbl" line="502">
 
 ---
 
-<SwmToken path="base/src/lgupdb01.cbl" pos="502:1:5" line-data="       WRITE-ERROR-MESSAGE.">`WRITE-ERROR-MESSAGE`</SwmToken> in <SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath> logs error details and sends both the formatted error message and up to 90 bytes of commarea data to LGSTSQ for queueing. This keeps error logs concise and consistent.
+In <SwmToken path="base/src/lgupdb01.cbl" pos="502:1:5" line-data="       WRITE-ERROR-MESSAGE.">`WRITE-ERROR-MESSAGE`</SwmToken>, the code saves SQLCODE, grabs the current time and date, formats them, and sends all this info to LGSTSQ for logging. If there's commarea data, it sends up to 90 bytes for extra context.
 
 ```cobol
        WRITE-ERROR-MESSAGE.
@@ -4586,6 +4825,19 @@ MAINLINE in <SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath> va
                      MMDDYYYY(WS-DATE)
                      TIME(WS-TIME)
            END-EXEC
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgupdb01.cbl" line="512">
+
+---
+
+Here the code moves the formatted date and time into the error message fields, then calls LGSTSQ to write the error message to the transactional queue. This step hands off the error details to the queue handler, so they're available for logging and integration.
+
+```cobol
            MOVE WS-DATE TO EM-DATE
            MOVE WS-TIME TO EM-TIME
       * Write output message to TDQ
@@ -4593,7 +4845,19 @@ MAINLINE in <SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath> va
                      COMMAREA(ERROR-MSG)
                      LENGTH(LENGTH OF ERROR-MSG)
            END-EXEC.
-      * Write 90 bytes or as much as we have of commarea to TDQ
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgupdb01.cbl" line="520">
+
+---
+
+After returning from LGSTSQ, the code in <SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath> checks if there's commarea data to log. If EIBCALEN is less than 91, it writes the whole thing; otherwise, it truncates to 90 bytes and calls LGSTSQ again. This keeps error logs short but means longer commarea data gets cut off.
+
+```cobol
            IF EIBCALEN > 0 THEN
              IF EIBCALEN < 91 THEN
                MOVE DFHCOMMAREA(1:EIBCALEN) TO CA-DATA
@@ -4616,124 +4880,142 @@ MAINLINE in <SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath> va
 
 </SwmSnippet>
 
-## Updating Product-Specific Policy Tables and Finalizing Policy Record
+### Preparing Identifiers and Error Context for Update
+
+This section prepares all necessary identifiers and error context before updating policy information in the database. It ensures both the update and any error logs have the correct context, then initiates the update and subsequent processing.
+
+| Rule ID | Category                        | Rule Name                                                                                                                                   | Description                                                                                                                                                                                                                                  | Implementation Details                                                                                                                                                                                                                                                                                                                                                                                                  |
+| ------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Writing Output                  | Reset return code                                                                                                                           | The return code is reset to '00' before any update or error context preparation occurs, ensuring a clean operation state.                                                                                                                    | The return code is a two-digit numeric string. This ensures any previous error or status is cleared before proceeding.                                                                                                                                                                                                                                                                                                  |
+| BR-002  | Writing Output                  | Prepare <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> identifiers | The customer and policy numbers from the commarea are copied into <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> integer fields to be used for the database update. | Customer and policy numbers are 10-digit numbers. The <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> integer fields are 9-digit signed integers, so the values are truncated or converted as needed for <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> compatibility. |
+| BR-003  | Writing Output                  | Prepare error context identifiers                                                                                                           | The customer and policy numbers are also copied into error message fields to provide context in case an error occurs during the update.                                                                                                      | Customer and policy numbers are stored as 10-digit strings in the error message structure, ensuring error logs can reference the correct context.                                                                                                                                                                                                                                                                       |
+| BR-004  | Invoking a Service or a Process | Invoke update and follow-up process                                                                                                         | The update process is invoked after identifiers and error context are prepared, followed by a link to a follow-up process for further handling.                                                                                              | The update process and follow-up are invoked as procedural steps, ensuring the prepared data is used for the update and any subsequent actions.                                                                                                                                                                                                                                                                         |
+
+<SwmSnippet path="/base/src/lgupdb01.cbl" line="190">
+
+---
+
+After the error handling, <SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath> resets the return code and sets up the commarea pointers. It then moves the customer and policy numbers into both <SwmToken path="base/src/lgupdb01.cbl" pos="194:17:17" line-data="      * Convert commarea customer &amp; policy nums to DB2 integer format">`DB2`</SwmToken> integer fields (for the update) and error message fields (for logging), so both the update and any error logs have the right context.
+
+```cobol
+           MOVE '00' TO CA-RETURN-CODE
+           MOVE EIBCALEN TO WS-CALEN.
+           SET WS-ADDR-DFHCOMMAREA TO ADDRESS OF DFHCOMMAREA.
+
+      * Convert commarea customer & policy nums to DB2 integer format
+           MOVE CA-CUSTOMER-NUM TO DB2-CUSTOMERNUM-INT
+           MOVE CA-POLICY-NUM   TO DB2-POLICYNUM-INT
+      * and save in error msg field incase required
+           MOVE CA-CUSTOMER-NUM TO EM-CUSNUM
+           MOVE CA-POLICY-NUM   TO EM-POLNUM
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgupdb01.cbl" line="207">
+
+---
+
+After prepping the identifiers and error context, the code calls <SwmToken path="base/src/lgupdb01.cbl" pos="207:3:9" line-data="           PERFORM UPDATE-POLICY-DB2-INFO.">`UPDATE-POLICY-DB2-INFO`</SwmToken> to run the actual database update. Once that's done, it links to <SwmToken path="base/src/lgupdb01.cbl" pos="209:9:9" line-data="           EXEC CICS LINK Program(LGUPVS01)">`LGUPVS01`</SwmToken> to handle further cleanup or file updates, keeping the flow moving.
+
+```cobol
+           PERFORM UPDATE-POLICY-DB2-INFO.
+
+           EXEC CICS LINK Program(LGUPVS01)
+                Commarea(DFHCOMMAREA)
+                LENGTH(225)
+           END-EXEC.
+```
+
+---
+
+</SwmSnippet>
+
+## Opening Cursor and Fetching Policy Row for Update
 
 ```mermaid
 %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
 flowchart TD
-    node1["Start: Open policy cursor"] --> node2{"Cursor opened?"}
-    click node1 openCode "base/src/lgupdb01.cbl:254:257"
-    node2 -->|"SQLCODE = 0"| node3["Fetch policy row"]
-    node2 -->|"SQLCODE = -913"| node4["Return error: Deadlock/timeout (CA-RETURN-CODE = '90')"]
-    node2 -->|"Other"| node5["Return error: Could not open cursor (CA-RETURN-CODE = '90')"]
-    click node2 openCode "base/src/lgupdb01.cbl:259:270"
-    node3 --> node6{"Policy found?"}
-    click node3 openCode "base/src/lgupdb01.cbl:273:273"
-    node6 -->|"SQLCODE = 0"| node7{"Timestamp matches?"}
-    node6 -->|"SQLCODE = 100"| node8["Return error: Policy not found (CA-RETURN-CODE = '01')"]
-    node6 -->|"Other"| node9["Return error: Fetch failed (CA-RETURN-CODE = '90')"]
-    click node6 openCode "base/src/lgupdb01.cbl:275:278"
-    node7 -->|"Yes"| node10{"Policy type (CA-REQUEST-ID)"}
-    node7 -->|"No"| node11["Return error: Timestamp mismatch (CA-RETURN-CODE = '02')"]
-    click node7 openCode "base/src/lgupdb01.cbl:278:278"
-    node10 -->|01UEND| node12["Update Endowment policy"]
-    node10 -->|01UHOU| node13["Update House policy"]
-    node10 -->|01UMOT| node14["Update Motor policy"]
-    click node10 openCode "base/src/lgupdb01.cbl:283:300"
-    node12 --> node15{"Policy type update succeeded?"}
-    node13 --> node15
-    node14 --> node15
-    click node12 openCode "base/src/lgupdb01.cbl:387:418"
-    click node13 openCode "base/src/lgupdb01.cbl:424:454"
-    click node14 openCode "base/src/lgupdb01.cbl:460:495"
-    node15 -->|"CA-RETURN-CODE = '00'"| node16["Update main policy table"]
-    node15 -->|"CA-RETURN-CODE != '00'"| node17["Return error: Policy type update failed"]
-    click node15 openCode "base/src/lgupdb01.cbl:302:307"
-    node16 --> node18{"Main policy update succeeded?"}
-    click node16 openCode "base/src/lgupdb01.cbl:317:334"
-    node18 -->|"SQLCODE = 0"| node19["Retrieve and return new timestamp"]
-    node18 -->|"SQLCODE != 0"| node20["Return error: Main policy update failed"]
-    click node18 openCode "base/src/lgupdb01.cbl:336:342"
-    node19 --> node21["Close cursor and return success (CA-RETURN-CODE = '00')"]
-    click node19 openCode "base/src/lgupdb01.cbl:329:334"
-    node4 --> node22["Close cursor"]
-    node5 --> node22
-    node8 --> node22
-    node9 --> node22
-    node11 --> node22
-    node17 --> node22
-    node20 --> node22
-    node21 --> node22
-    click node21 openCode "base/src/lgupdb01.cbl:360:360"
-    click node22 openCode "base/src/lgupdb01.cbl:362:381"
+    node1["Fetch policy row from database"]
+    click node1 openCode "base/src/lgupdb01.cbl:228:239"
+    node1 --> node2{"Was fetch successful? (SQLCODE = 0)"}
+    click node2 openCode "base/src/lgupdb01.cbl:275:276"
+    node2 -->|"Yes"| node3{"Timestamps match? (CA-LASTCHANGED = DB2-LASTCHANGED)"}
+    click node3 openCode "base/src/lgupdb01.cbl:278:278"
+    node2 -->|"No"| node7["Set error code and return"]
+    click node7 openCode "base/src/lgupdb01.cbl:349:358"
+    node3 -->|"Yes"| node4{"Policy type? (CA-REQUEST-ID)"}
+    click node4 openCode "base/src/lgupdb01.cbl:283:300"
+    node3 -->|"No"| node7
+    node4 -->|"Endowment"| node2a["Updating Endowment Policy Details"]
+    
+    node4 -->|"House"| node3a["Updating House Policy Details"]
+    
+    node4 -->|"Motor"| node4a["Updating Motor Policy Details"]
+    
+    node2a --> node5["Update main policy table, close cursor, finish"]
+    click node5 openCode "base/src/lgupdb01.cbl:313:360"
+    node3a --> node5
+    node4a --> node5
+    node7 --> node5
 classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+click node2a goToHeading "Updating Endowment Policy Details"
+node2a:::HeadingStyle
+click node3a goToHeading "Updating House Policy Details"
+node3a:::HeadingStyle
+click node4a goToHeading "Updating Motor Policy Details"
+node4a:::HeadingStyle
 
 %% Swimm:
 %% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
 %% flowchart TD
-%%     node1["Start: Open policy cursor"] --> node2{"Cursor opened?"}
-%%     click node1 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:254:257"
-%%     node2 -->|"SQLCODE = 0"| node3["Fetch policy row"]
-%%     node2 -->|"SQLCODE = -913"| node4["Return error: Deadlock/timeout (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = '90')"]
-%%     node2 -->|"Other"| node5["Return error: Could not open cursor (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = '90')"]
-%%     click node2 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:259:270"
-%%     node3 --> node6{"Policy found?"}
-%%     click node3 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:273:273"
-%%     node6 -->|"SQLCODE = 0"| node7{"Timestamp matches?"}
-%%     node6 -->|"SQLCODE = 100"| node8["Return error: Policy not found (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = '01')"]
-%%     node6 -->|"Other"| node9["Return error: Fetch failed (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = '90')"]
-%%     click node6 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:275:278"
-%%     node7 -->|"Yes"| node10{"Policy type (<SwmToken path="base/src/lgtestp3.cbl" pos="67:9:13" line-data="                 Move &#39;01IHOU&#39;   To CA-REQUEST-ID">`CA-REQUEST-ID`</SwmToken>)"}
-%%     node7 -->|"No"| node11["Return error: Timestamp mismatch (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = '02')"]
-%%     click node7 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:278:278"
-%%     node10 -->|<SwmToken path="base/src/lgupol01.cbl" pos="115:4:4" line-data="             WHEN &#39;01UEND&#39;">`01UEND`</SwmToken>| node12["Update Endowment policy"]
-%%     node10 -->|<SwmToken path="base/src/lgtestp3.cbl" pos="183:4:4" line-data="                 Move &#39;01UHOU&#39;          To CA-REQUEST-ID">`01UHOU`</SwmToken>| node13["Update House policy"]
-%%     node10 -->|<SwmToken path="base/src/lgupol01.cbl" pos="131:4:4" line-data="             WHEN &#39;01UMOT&#39;">`01UMOT`</SwmToken>| node14["Update Motor policy"]
-%%     click node10 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:283:300"
-%%     node12 --> node15{"Policy type update succeeded?"}
-%%     node13 --> node15
-%%     node14 --> node15
-%%     click node12 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:387:418"
-%%     click node13 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:424:454"
-%%     click node14 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:460:495"
-%%     node15 -->|"<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = '00'"| node16["Update main policy table"]
-%%     node15 -->|"<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> != '00'"| node17["Return error: Policy type update failed"]
-%%     click node15 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:302:307"
-%%     node16 --> node18{"Main policy update succeeded?"}
-%%     click node16 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:317:334"
-%%     node18 -->|"SQLCODE = 0"| node19["Retrieve and return new timestamp"]
-%%     node18 -->|"SQLCODE != 0"| node20["Return error: Main policy update failed"]
-%%     click node18 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:336:342"
-%%     node19 --> node21["Close cursor and return success (<SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> = '00')"]
-%%     click node19 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:329:334"
-%%     node4 --> node22["Close cursor"]
-%%     node5 --> node22
-%%     node8 --> node22
-%%     node9 --> node22
-%%     node11 --> node22
-%%     node17 --> node22
-%%     node20 --> node22
-%%     node21 --> node22
-%%     click node21 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:360:360"
-%%     click node22 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:362:381"
+%%     node1["Fetch policy row from database"]
+%%     click node1 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:228:239"
+%%     node1 --> node2{"Was fetch successful? (SQLCODE = 0)"}
+%%     click node2 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:275:276"
+%%     node2 -->|"Yes"| node3{"Timestamps match? (<SwmToken path="base/src/lgupdb01.cbl" pos="278:3:5" line-data="             IF CA-LASTCHANGED EQUAL TO DB2-LASTCHANGED">`CA-LASTCHANGED`</SwmToken> = <SwmToken path="base/src/lgipdb01.cbl" pos="348:2:4" line-data="                   :DB2-LASTCHANGED,">`DB2-LASTCHANGED`</SwmToken>)"}
+%%     click node3 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:278:278"
+%%     node2 -->|"No"| node7["Set error code and return"]
+%%     click node7 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:349:358"
+%%     node3 -->|"Yes"| node4{"Policy type? (<SwmToken path="base/src/lgtestp3.cbl" pos="67:9:13" line-data="                 Move &#39;01IHOU&#39;   To CA-REQUEST-ID">`CA-REQUEST-ID`</SwmToken>)"}
+%%     click node4 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:283:300"
+%%     node3 -->|"No"| node7
+%%     node4 -->|"Endowment"| node2a["Updating Endowment Policy Details"]
+%%     
+%%     node4 -->|"House"| node3a["Updating House Policy Details"]
+%%     
+%%     node4 -->|"Motor"| node4a["Updating Motor Policy Details"]
+%%     
+%%     node2a --> node5["Update main policy table, close cursor, finish"]
+%%     click node5 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:313:360"
+%%     node3a --> node5
+%%     node4a --> node5
+%%     node7 --> node5
 %% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+%% click node2a goToHeading "Updating Endowment Policy Details"
+%% node2a:::HeadingStyle
+%% click node3a goToHeading "Updating House Policy Details"
+%% node3a:::HeadingStyle
+%% click node4a goToHeading "Updating Motor Policy Details"
+%% node4a:::HeadingStyle
 ```
 
-This section ensures that policy updates are accurately applied to both the product-specific and main policy tables, and that all changes are validated and finalized with proper error handling.
+This section ensures safe and correct updates to policy records by enforcing concurrency checks and routing updates to the appropriate policy type handler. It prevents updates if the database state has changed or if database operations fail.
 
-| Category        | Rule Name                         | Description                                                                                                                                                                                                                                                                                              |
-| --------------- | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Data validation | Supported policy types            | A policy update request must specify a valid policy type (Endowment, House, or Motor) using the <SwmToken path="base/src/lgtestp3.cbl" pos="67:9:13" line-data="                 Move &#39;01IHOU&#39;   To CA-REQUEST-ID">`CA-REQUEST-ID`</SwmToken> field. Only these types are supported for updates. |
-| Data validation | Timestamp match required          | The policy record is only eligible for update if the timestamp provided in the request matches the current timestamp in the database. If the timestamps do not match, the update is rejected and an error code '02' is returned.                                                                         |
-| Data validation | Policy existence check            | If the policy record is not found in the database, the update is rejected and error code '01' is returned to the caller.                                                                                                                                                                                 |
-| Business logic  | Product table update prerequisite | Each product-specific table update (Endowment, House, Motor) must succeed before the main policy table is updated. If the product-specific update fails, the process is aborted and an error code is returned.                                                                                           |
-| Business logic  | Return new timestamp on success   | After a successful update, the main policy table is updated with new details and a new timestamp. The new timestamp is returned to the caller to confirm the update.                                                                                                                                     |
+| Rule ID | Category        | Rule Name                       | Description                                                                                                                                                                                                                     | Implementation Details                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| ------- | --------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| BR-001  | Data validation | Cursor open failure handling    | If the database cursor cannot be opened successfully, set the return code to '90', log an error message, and terminate processing without attempting any update.                                                                | Return code '90' indicates a database error. Error message is logged using the system's error logging routine. No update is attempted if this rule is triggered.                                                                                                                                                                                                                                                                                                                                                                           |
+| BR-002  | Data validation | Concurrency check via timestamp | If the fetch of the policy row is successful, compare the timestamp from the input with the timestamp in the database. If they do not match, set an error code and terminate processing to prevent concurrent update conflicts. | Timestamp is a 26-character string. Return code is set to indicate a concurrency error. No update is performed if timestamps do not match.                                                                                                                                                                                                                                                                                                                                                                                                 |
+| BR-003  | Data validation | Fetch failure handling          | If the fetch operation fails (SQLCODE not zero), set the return code to '90', log an error message, and terminate processing without attempting any update.                                                                     | Return code '90' indicates a database error. Error message is logged. No update is attempted if this rule is triggered.                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| BR-004  | Decision Making | Policy type routing             | If the fetch is successful and the timestamps match, route the update to the appropriate policy type handler based on the request ID: endowment, house, or motor.                                                               | Request IDs are <SwmToken path="base/src/lgupol01.cbl" pos="115:4:4" line-data="             WHEN &#39;01UEND&#39;">`01UEND`</SwmToken> for endowment, <SwmToken path="base/src/lgtestp3.cbl" pos="183:4:4" line-data="                 Move &#39;01UHOU&#39;          To CA-REQUEST-ID">`01UHOU`</SwmToken> for house, and <SwmToken path="base/src/lgupol01.cbl" pos="131:4:4" line-data="             WHEN &#39;01UMOT&#39;">`01UMOT`</SwmToken> for motor. Each handler updates the corresponding policy type details in the database. |
 
 <SwmSnippet path="/base/src/lgupdb01.cbl" line="251">
 
 ---
 
-<SwmToken path="base/src/lgupdb01.cbl" pos="251:1:7" line-data="       UPDATE-POLICY-DB2-INFO.">`UPDATE-POLICY-DB2-INFO`</SwmToken> opens a cursor, fetches the policy row, checks timestamps, updates the product-specific table, then updates the main policy record. Errors are logged and handled at each step.
+In <SwmToken path="base/src/lgupdb01.cbl" pos="251:1:7" line-data="       UPDATE-POLICY-DB2-INFO.">`UPDATE-POLICY-DB2-INFO`</SwmToken>, the code opens the <SwmToken path="base/src/lgupdb01.cbl" pos="251:5:5" line-data="       UPDATE-POLICY-DB2-INFO.">`DB2`</SwmToken> cursor for the policy record and sets <SwmToken path="base/src/lgupdb01.cbl" pos="254:13:15" line-data="           MOVE &#39; OPEN   PCURSOR &#39; TO EM-SQLREQ">`EM-SQLREQ`</SwmToken> to track the SQL operation. This sets up the <SwmToken path="base/src/lgupdb01.cbl" pos="251:5:5" line-data="       UPDATE-POLICY-DB2-INFO.">`DB2`</SwmToken> context so we can fetch and update the row safely.
 
 ```cobol
        UPDATE-POLICY-DB2-INFO.
@@ -4743,7 +5025,19 @@ This section ensures that policy updates are accurately applied to both the prod
            EXEC SQL
              OPEN POLICY_CURSOR
            END-EXEC
+```
 
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgupdb01.cbl" line="259">
+
+---
+
+After opening the cursor, the code checks SQLCODE. If it's not zero, it sets an error code, logs the error, and returns immediately. This prevents any updates from running if the cursor isn't ready.
+
+```cobol
            Evaluate SQLCODE
              When 0
                MOVE '00' TO CA-RETURN-CODE
@@ -4756,10 +5050,58 @@ This section ensures that policy updates are accurately applied to both the prod
                PERFORM WRITE-ERROR-MESSAGE
                EXEC CICS RETURN END-EXEC
            END-Evaluate.
+```
 
-      *    Fetch the first row (we only expect one matching row)
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgupdb01.cbl" line="273">
+
+---
+
+After the cursor is open, <SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath> performs <SwmToken path="base/src/lgupdb01.cbl" pos="273:3:9" line-data="           PERFORM FETCH-DB2-POLICY-ROW">`FETCH-DB2-POLICY-ROW`</SwmToken> to grab the current policy data and timestamp. This is needed for the update logic to check for concurrent changes.
+
+```cobol
            PERFORM FETCH-DB2-POLICY-ROW
+```
 
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgupdb01.cbl" line="228">
+
+---
+
+<SwmToken path="base/src/lgupdb01.cbl" pos="228:1:7" line-data="       FETCH-DB2-POLICY-ROW.">`FETCH-DB2-POLICY-ROW`</SwmToken> sets <SwmToken path="base/src/lgupdb01.cbl" pos="229:13:15" line-data="           MOVE &#39; FETCH  ROW   &#39; TO EM-SQLREQ">`EM-SQLREQ`</SwmToken> to ' FETCH  ROW   ' for logging, then fetches the policy row using the open cursor. It grabs all the fields needed for the update and error handling.
+
+```cobol
+       FETCH-DB2-POLICY-ROW.
+           MOVE ' FETCH  ROW   ' TO EM-SQLREQ
+           EXEC SQL
+             FETCH POLICY_CURSOR
+             INTO  :DB2-ISSUEDATE,
+                   :DB2-EXPIRYDATE,
+                   :DB2-LASTCHANGED,
+                   :DB2-BROKERID-INT INDICATOR :IND-BROKERID,
+                   :DB2-BROKERSREF INDICATOR :IND-BROKERSREF,
+                   :DB2-PAYMENT-INT INDICATOR :IND-PAYMENT
+           END-EXEC
+           EXIT.
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgupdb01.cbl" line="275">
+
+---
+
+After fetching the row, the code checks if the commarea timestamp matches the <SwmToken path="base/src/lgupdb01.cbl" pos="277:17:17" line-data="      *      Compare timestamp in commarea with that in DB2">`DB2`</SwmToken> timestamp. If they match, it branches by request ID to call the right update routine for the policy type—endowment, house, or motor.
+
+```cobol
            IF SQLCODE = 0
       *      Fetch was successful
       *      Compare timestamp in commarea with that in DB2
@@ -4786,77 +5128,75 @@ This section ensures that policy updates are accurately applied to both the prod
                  PERFORM UPDATE-MOTOR-DB2-INFO
 
              END-EVALUATE
-      *----------------------------------------------------------------*
-              IF CA-RETURN-CODE NOT EQUAL '00'
-      *         Update policy type specific table has failed
-      *         So close cursor and return
-                PERFORM CLOSE-PCURSOR
-                EXEC CICS RETURN END-EXEC
-              END-IF
-
-      *----------------------------------------------------------------*
-      *        Now update Policy table and set new timestamp           *
-      *----------------------------------------------------------------*
-      *        Move numeric commarea fields to integer format
-               MOVE CA-BROKERID      TO DB2-BROKERID-INT
-               MOVE CA-PAYMENT       TO DB2-PAYMENT-INT
-
-      *        Update policy table details
-               MOVE ' UPDATE POLICY  ' TO EM-SQLREQ
-               EXEC SQL
-                 UPDATE POLICY
-                   SET ISSUEDATE        = :CA-ISSUE-DATE,
-                       EXPIRYDATE       = :CA-EXPIRY-DATE,
-                       LASTCHANGED      = CURRENT TIMESTAMP ,
-                       BROKERID         = :DB2-BROKERID-INT,
-                       BROKERSREFERENCE = :CA-BROKERSREF
-                   WHERE CURRENT OF POLICY_CURSOR
-               END-EXEC
-
-      *        get value of assigned Timestamp for return in commarea
-               EXEC SQL
-                 SELECT LASTCHANGED
-                   INTO :CA-LASTCHANGED
-                   FROM POLICY
-                   WHERE POLICYNUMBER = :DB2-POLICYNUM-INT
-               END-EXEC
-
-               IF SQLCODE NOT EQUAL 0
-      *          Non-zero SQLCODE from Update of policy table
-                   EXEC CICS SYNCPOINT ROLLBACK END-EXEC
-                   MOVE '90' TO CA-RETURN-CODE
-      *            Write error message to TD QUEUE(CSMT)
-                   PERFORM WRITE-ERROR-MESSAGE
-               END-IF
-
-             ELSE
-      *        Timestamps do not match (policy table v commarea)
-               MOVE '02' TO CA-RETURN-CODE
-             END-IF
-
-           ELSE
-      *      Non-zero SQLCODE from first SQL FETCH statement
-             IF SQLCODE EQUAL 100
-               MOVE '01' TO CA-RETURN-CODE
-             ELSE
-               MOVE '90' TO CA-RETURN-CODE
-      *        Write error message to TD QUEUE(CSMT)
-               PERFORM WRITE-ERROR-MESSAGE
-             END-IF
-           END-IF.
-      *    Now close the Cursor and we're done!
-           PERFORM CLOSE-PCURSOR.
 ```
 
 ---
 
 </SwmSnippet>
 
+### Updating Endowment Policy Details
+
+```mermaid
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+flowchart TD
+    node1["Prepare policy data (term, sum assured, attributes)"] --> node2["Update endowment policy in database"]
+    click node1 openCode "base/src/lgupdb01.cbl:390:391"
+    click node2 openCode "base/src/lgupdb01.cbl:393:406"
+    node2 --> node3{"SQLCODE = 0?"}
+    click node3 openCode "base/src/lgupdb01.cbl:408:417"
+    node3 -->|"Yes"| node4["Update successful"]
+    click node4 openCode "base/src/lgupdb01.cbl:418:418"
+    node3 -->|"No"| node5{"SQLCODE = 100?"}
+    click node5 openCode "base/src/lgupdb01.cbl:410:416"
+    node5 -->|"Yes"| node6["Set return code '01' (Policy not found)"]
+    click node6 openCode "base/src/lgupdb01.cbl:411:411"
+    node5 -->|"No"| node7["Set return code '90' (Other error) and log error"]
+    click node7 openCode "base/src/lgupdb01.cbl:413:415"
+    node6 --> node8["Return to caller"]
+    node7 --> node8
+    node4 --> node8
+    click node8 openCode "base/src/lgupdb01.cbl:418:418"
+
+classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+
+%% Swimm:
+%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+%% flowchart TD
+%%     node1["Prepare policy data (term, sum assured, attributes)"] --> node2["Update endowment policy in database"]
+%%     click node1 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:390:391"
+%%     click node2 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:393:406"
+%%     node2 --> node3{"SQLCODE = 0?"}
+%%     click node3 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:408:417"
+%%     node3 -->|"Yes"| node4["Update successful"]
+%%     click node4 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:418:418"
+%%     node3 -->|"No"| node5{"SQLCODE = 100?"}
+%%     click node5 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:410:416"
+%%     node5 -->|"Yes"| node6["Set return code '01' (Policy not found)"]
+%%     click node6 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:411:411"
+%%     node5 -->|"No"| node7["Set return code '90' (Other error) and log error"]
+%%     click node7 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:413:415"
+%%     node6 --> node8["Return to caller"]
+%%     node7 --> node8
+%%     node4 --> node8
+%%     click node8 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:418:418"
+%% 
+%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+```
+
+This section updates endowment policy details in the database for a given policy number, ensuring all relevant fields are set and appropriate error handling is performed.
+
+| Rule ID | Category        | Rule Name                                                                                                                                  | Description                                                                                                                                                | Implementation Details                                                                                                                                            |
+| ------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Calculation     | <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> Integer Conversion | The term and sum assured values for the endowment policy are converted to DB2-compatible integer formats before updating the database.                     | The term is converted to a 4-digit signed integer, and the sum assured is converted to a 9-digit signed integer, both in DB2-compatible format.                   |
+| BR-002  | Decision Making | Policy Not Found Return Code                                                                                                               | If the update operation does not find a matching policy (SQLCODE = 100), the return code is set to '01' to indicate 'Policy not found.'                    | Return code '01' is used to indicate that the policy was not found in the database.                                                                               |
+| BR-003  | Decision Making | General Update Error Handling                                                                                                              | If the update operation fails for any reason other than 'not found' (SQLCODE not 0 or 100), the return code is set to '90' and an error message is logged. | Return code '90' is used for general errors. An error message is written to the error log for further investigation.                                              |
+| BR-004  | Writing Output  | Update Endowment Policy Fields                                                                                                             | All relevant endowment policy fields are updated in the database for the given policy number.                                                              | Fields updated include with-profits, equities, managed fund, fund name, term, sum assured, and life assured. The policy number is used as the key for the update. |
+
 <SwmSnippet path="/base/src/lgupdb01.cbl" line="387">
 
 ---
 
-<SwmToken path="base/src/lgupdb01.cbl" pos="387:1:7" line-data="       UPDATE-ENDOW-DB2-INFO.">`UPDATE-ENDOW-DB2-INFO`</SwmToken> converts numeric fields to <SwmToken path="base/src/lgupdb01.cbl" pos="387:5:5" line-data="       UPDATE-ENDOW-DB2-INFO.">`DB2`</SwmToken> integer format, runs the SQL UPDATE for the endowment table, and logs errors if the update fails or no rows are found.
+In <SwmToken path="base/src/lgupdb01.cbl" pos="387:1:7" line-data="       UPDATE-ENDOW-DB2-INFO.">`UPDATE-ENDOW-DB2-INFO`</SwmToken>, the code converts the term and sum assured fields to <SwmToken path="base/src/lgupdb01.cbl" pos="387:5:5" line-data="       UPDATE-ENDOW-DB2-INFO.">`DB2`</SwmToken> integer formats, sets <SwmToken path="base/src/lgupdb01.cbl" pos="393:13:15" line-data="           MOVE &#39; UPDATE ENDOW &#39; TO EM-SQLREQ">`EM-SQLREQ`</SwmToken> for logging, and runs the SQL UPDATE to change all relevant endowment fields for the given policy number.
 
 ```cobol
        UPDATE-ENDOW-DB2-INFO.
@@ -4879,7 +5219,19 @@ This section ensures that policy updates are accurately applied to both the prod
                WHERE
                    POLICYNUMBER = :DB2-POLICYNUM-INT
            END-EXEC
+```
 
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgupdb01.cbl" line="408">
+
+---
+
+After the update, the code checks SQLCODE. If it's 100, it sets return code '01'; for any other error, it sets '90' and logs the error message. This keeps error handling consistent for downstream logic.
+
+```cobol
            IF SQLCODE NOT EQUAL 0
       *      Non-zero SQLCODE from UPDATE statement
              IF SQLCODE EQUAL 100
@@ -4897,11 +5249,67 @@ This section ensures that policy updates are accurately applied to both the prod
 
 </SwmSnippet>
 
+### Updating House Policy Details
+
+```mermaid
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+flowchart TD
+    node1["Update house details (bedrooms, value, address, etc.) for the policy in the database"]
+    click node1 openCode "base/src/lgupdb01.cbl:424:442"
+    node1 --> node2{"Did the update succeed? (SQLCODE=0?)"}
+    click node2 openCode "base/src/lgupdb01.cbl:444:446"
+    node2 -->|"Yes"| node3["Set return code to '00' (Success)"]
+    click node3 openCode "base/src/lgupdb01.cbl:454:454"
+    node2 -->|"No"| node4{"Was the policy found? (SQLCODE=100?)"}
+    click node4 openCode "base/src/lgupdb01.cbl:446:452"
+    node4 -->|"No"| node5["Set return code to '01' (Policy not found)"]
+    click node5 openCode "base/src/lgupdb01.cbl:447:447"
+    node4 -->|"Yes"| node6["Set return code to '90' (Other error) and log error"]
+    click node6 openCode "base/src/lgupdb01.cbl:449:451"
+    node3 --> node7["Exit"]
+    click node7 openCode "base/src/lgupdb01.cbl:454:454"
+    node5 --> node7
+    node6 --> node7
+
+classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+
+%% Swimm:
+%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+%% flowchart TD
+%%     node1["Update house details (bedrooms, value, address, etc.) for the policy in the database"]
+%%     click node1 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:424:442"
+%%     node1 --> node2{"Did the update succeed? (SQLCODE=0?)"}
+%%     click node2 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:444:446"
+%%     node2 -->|"Yes"| node3["Set return code to '00' (Success)"]
+%%     click node3 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:454:454"
+%%     node2 -->|"No"| node4{"Was the policy found? (SQLCODE=100?)"}
+%%     click node4 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:446:452"
+%%     node4 -->|"No"| node5["Set return code to '01' (Policy not found)"]
+%%     click node5 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:447:447"
+%%     node4 -->|"Yes"| node6["Set return code to '90' (Other error) and log error"]
+%%     click node6 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:449:451"
+%%     node3 --> node7["Exit"]
+%%     click node7 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:454:454"
+%%     node5 --> node7
+%%     node6 --> node7
+%% 
+%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+```
+
+This section updates house policy details in the database for a given policy number and sets a return code based on the outcome of the update operation. It ensures that the correct result is communicated to the caller and that errors are logged for further analysis.
+
+| Rule ID | Category        | Rule Name                           | Description                                                                                                                                       | Implementation Details                                                                                                                                                                                         |
+| ------- | --------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Calculation     | Update house policy details         | Update all house policy details (property type, bedrooms, value, house name, house number, postcode) for the given policy number in the database. | The fields updated are property type (string), bedrooms (integer), value (integer), house name (string), house number (string), and postcode (string), all associated with a specific policy number (integer). |
+| BR-002  | Decision Making | Success return code                 | If the update operation succeeds, set the return code to '00' to indicate success.                                                                | Return code '00' (string, 2 characters) indicates a successful update.                                                                                                                                         |
+| BR-003  | Decision Making | Policy not found return code        | If the update operation does not find the policy (SQLCODE=100), set the return code to '01' to indicate the policy was not found.                 | Return code '01' (string, 2 characters) indicates the policy was not found in the database.                                                                                                                    |
+| BR-004  | Decision Making | Other error return code and logging | If the update operation fails for any other reason (SQLCODE not 0 or 100), set the return code to '90' and log the error message.                 | Return code '90' (string, 2 characters) indicates a general error. An error message is logged for further analysis.                                                                                            |
+
 <SwmSnippet path="/base/src/lgupdb01.cbl" line="424">
 
 ---
 
-<SwmToken path="base/src/lgupdb01.cbl" pos="424:1:7" line-data="       UPDATE-HOUSE-DB2-INFO.">`UPDATE-HOUSE-DB2-INFO`</SwmToken> converts numeric fields to <SwmToken path="base/src/lgupdb01.cbl" pos="424:5:5" line-data="       UPDATE-HOUSE-DB2-INFO.">`DB2`</SwmToken> integer format, runs the SQL UPDATE for the house table, and logs errors if the update fails or no rows are found.
+In <SwmToken path="base/src/lgupdb01.cbl" pos="424:1:7" line-data="       UPDATE-HOUSE-DB2-INFO.">`UPDATE-HOUSE-DB2-INFO`</SwmToken>, the code converts the bedrooms and value fields to <SwmToken path="base/src/lgupdb01.cbl" pos="424:5:5" line-data="       UPDATE-HOUSE-DB2-INFO.">`DB2`</SwmToken> integer formats, sets up the SQL request string, and runs the UPDATE to change all relevant house fields for the given policy number.
 
 ```cobol
        UPDATE-HOUSE-DB2-INFO.
@@ -4923,7 +5331,19 @@ This section ensures that policy updates are accurately applied to both the prod
                WHERE
                     POLICYNUMBER = :DB2-POLICYNUM-INT
            END-EXEC
+```
 
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgupdb01.cbl" line="444">
+
+---
+
+After the house update, the code checks SQLCODE. If it's 100, it sets return code '01'; for any other error, it sets '90' and logs the error. This keeps error handling consistent and makes sure failures are tracked.
+
+```cobol
            IF SQLCODE NOT EQUAL 0
       *      Non-zero SQLCODE from UPDATE statement
              IF SQLCODE = 100
@@ -4941,11 +5361,65 @@ This section ensures that policy updates are accurately applied to both the prod
 
 </SwmSnippet>
 
+### Updating Motor Policy Details
+
+```mermaid
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+flowchart TD
+    node1["Update motor policy in DB (make, model, value, reg number, colour, cc, year, premium, accidents) for given policy number"]
+    click node1 openCode "base/src/lgupdb01.cbl:460:483"
+    node1 --> node2{"Was update successful? (SQLCODE=0)"}
+    click node2 openCode "base/src/lgupdb01.cbl:485:494"
+    node2 -->|"Yes"| node3["Return to caller (success)"]
+    click node3 openCode "base/src/lgupdb01.cbl:495:495"
+    node2 -->|"No"| node4{"Policy found? (SQLCODE=100)"}
+    click node4 openCode "base/src/lgupdb01.cbl:487:493"
+    node4 -->|"Yes"| node5["Set return code '01' (Policy not found)"]
+    click node5 openCode "base/src/lgupdb01.cbl:488:489"
+    node4 -->|"No"| node6["Set return code '90' (Other error)"]
+    click node6 openCode "base/src/lgupdb01.cbl:490:492"
+    node6 --> node7["Log error (WRITE-ERROR-MESSAGE)"]
+    click node7 openCode "base/src/lgupdb01.cbl:492:492"
+    node5 --> node3
+    node7 --> node3
+classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+
+%% Swimm:
+%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+%% flowchart TD
+%%     node1["Update motor policy in DB (make, model, value, reg number, colour, cc, year, premium, accidents) for given policy number"]
+%%     click node1 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:460:483"
+%%     node1 --> node2{"Was update successful? (SQLCODE=0)"}
+%%     click node2 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:485:494"
+%%     node2 -->|"Yes"| node3["Return to caller (success)"]
+%%     click node3 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:495:495"
+%%     node2 -->|"No"| node4{"Policy found? (SQLCODE=100)"}
+%%     click node4 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:487:493"
+%%     node4 -->|"Yes"| node5["Set return code '01' (Policy not found)"]
+%%     click node5 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:488:489"
+%%     node4 -->|"No"| node6["Set return code '90' (Other error)"]
+%%     click node6 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:490:492"
+%%     node6 --> node7["Log error (<SwmToken path="base/src/lgipol01.cbl" pos="81:3:7" line-data="               PERFORM WRITE-ERROR-MESSAGE">`WRITE-ERROR-MESSAGE`</SwmToken>)"]
+%%     click node7 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:492:492"
+%%     node5 --> node3
+%%     node7 --> node3
+%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+```
+
+This section updates the details of a motor policy in the database for a given policy number, and sets appropriate return codes and logs errors based on the outcome of the update operation.
+
+| Rule ID | Category        | Rule Name                           | Description                                                                                                                                                                                  | Implementation Details                                                                                                                                                                                                                                                             |
+| ------- | --------------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Calculation     | Update all motor policy fields      | All motor policy fields (make, model, value, registration number, colour, engine capacity, year of manufacture, premium, accidents) are updated in the database for the given policy number. | The updated fields are: make (string), model (string), value (number), registration number (string), colour (string), engine capacity (number), year of manufacture (string or number), premium (number), accidents (number). The policy number is used as the key for the update. |
+| BR-002  | Decision Making | Successful update returns success   | If the update is successful, the process completes and returns to the caller without error.                                                                                                  | A successful update is indicated by SQLCODE=0. No error code is set in this case.                                                                                                                                                                                                  |
+| BR-003  | Decision Making | Policy not found return code        | If the policy number is not found in the database, the return code is set to '01' to indicate 'Policy not found'.                                                                            | Return code '01' is used to indicate that the policy number was not found in the database.                                                                                                                                                                                         |
+| BR-004  | Decision Making | Other error return code and logging | If the update fails for any reason other than 'policy not found', the return code is set to '90' and the error is logged.                                                                    | Return code '90' is used for general errors. The error is logged using the error logging mechanism.                                                                                                                                                                                |
+
 <SwmSnippet path="/base/src/lgupdb01.cbl" line="460">
 
 ---
 
-<SwmToken path="base/src/lgupdb01.cbl" pos="460:1:7" line-data="       UPDATE-MOTOR-DB2-INFO.">`UPDATE-MOTOR-DB2-INFO`</SwmToken> converts numeric fields to <SwmToken path="base/src/lgupdb01.cbl" pos="460:5:5" line-data="       UPDATE-MOTOR-DB2-INFO.">`DB2`</SwmToken> integer format, runs the SQL UPDATE for the motor table, and logs errors if the update fails or no rows are found.
+In <SwmToken path="base/src/lgupdb01.cbl" pos="460:1:7" line-data="       UPDATE-MOTOR-DB2-INFO.">`UPDATE-MOTOR-DB2-INFO`</SwmToken>, the code converts all the numeric fields to <SwmToken path="base/src/lgupdb01.cbl" pos="460:5:5" line-data="       UPDATE-MOTOR-DB2-INFO.">`DB2`</SwmToken> integer formats, sets up the SQL request string, and runs the UPDATE to change all relevant motor fields for the given policy number.
 
 ```cobol
        UPDATE-MOTOR-DB2-INFO.
@@ -4972,7 +5446,19 @@ This section ensures that policy updates are accurately applied to both the prod
                WHERE
                     POLICYNUMBER      = :DB2-POLICYNUM-INT
            END-EXEC
+```
 
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgupdb01.cbl" line="485">
+
+---
+
+After the motor update, the code checks SQLCODE. If it's 100, it sets return code '01'; for any other error, it sets '90' and logs the error. This keeps error handling consistent and makes sure failures are tracked.
+
+```cobol
            IF SQLCODE NOT EQUAL 0
       *      Non-zero SQLCODE from UPDATE statement
              IF SQLCODE EQUAL 100
@@ -4990,11 +5476,88 @@ This section ensures that policy updates are accurately applied to both the prod
 
 </SwmSnippet>
 
+### Handling Update Failures and Closing Cursor
+
+This section ensures that if an update to the policy type table fails, the process is halted and resources are cleaned up by closing the cursor before returning control. This prevents further updates and maintains data integrity in the event of an error.
+
+| Rule ID | Category        | Rule Name              | Description                                                                                                                                            | Implementation Details                                                                                                               |
+| ------- | --------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
+| BR-001  | Decision Making | Update failure cleanup | If the update to the policy type table fails (return code is not '00'), the process closes the cursor and returns control, preventing further updates. | The return code '00' indicates success; any other value is treated as a failure. No specific output format is defined for this rule. |
+
+<SwmSnippet path="/base/src/lgupdb01.cbl" line="302">
+
+---
+
+After updating the policy type table, if the return code isn't '00', the code closes the cursor and returns immediately. This stops any further updates and keeps things clean if something went wrong.
+
+```cobol
+              IF CA-RETURN-CODE NOT EQUAL '00'
+      *         Update policy type specific table has failed
+      *         So close cursor and return
+                PERFORM CLOSE-PCURSOR
+                EXEC CICS RETURN END-EXEC
+              END-IF
+```
+
+---
+
+</SwmSnippet>
+
+### Closing the Policy Cursor
+
+```mermaid
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+flowchart TD
+    node1["Close the policy cursor"]
+    click node1 openCode "base/src/lgupdb01.cbl:364:367"
+    node1 --> node2{"What is the result of closing?"}
+    click node2 openCode "base/src/lgupdb01.cbl:369:370"
+    node2 -->|"Success (SQLCODE=0)"| node3["Set return code to '00'"]
+    click node3 openCode "base/src/lgupdb01.cbl:371:371"
+    node2 -->|"Already closed (SQLCODE=-501)"| node4["Set return code to '00', update log with '-501 detected'"]
+    click node4 openCode "base/src/lgupdb01.cbl:372:375"
+    node2 -->|"Error (Other)"| node5["Set return code to '90', update log and record error"]
+    click node5 openCode "base/src/lgupdb01.cbl:377:379"
+    node3 --> node6["Return to caller"]
+    click node6 openCode "base/src/lgupdb01.cbl:381:381"
+    node4 --> node6
+    node5 --> node6
+classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+
+%% Swimm:
+%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+%% flowchart TD
+%%     node1["Close the policy cursor"]
+%%     click node1 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:364:367"
+%%     node1 --> node2{"What is the result of closing?"}
+%%     click node2 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:369:370"
+%%     node2 -->|"Success (SQLCODE=0)"| node3["Set return code to '00'"]
+%%     click node3 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:371:371"
+%%     node2 -->|"Already closed (SQLCODE=-501)"| node4["Set return code to '00', update log with '-501 detected'"]
+%%     click node4 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:372:375"
+%%     node2 -->|"Error (Other)"| node5["Set return code to '90', update log and record error"]
+%%     click node5 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:377:379"
+%%     node3 --> node6["Return to caller"]
+%%     click node6 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:381:381"
+%%     node4 --> node6
+%%     node5 --> node6
+%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+```
+
+This section finalizes the <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> session for policy updates by closing the policy cursor and signaling the result to downstream logic. It ensures that the outcome of the close operation is clearly communicated and any errors are logged for audit and troubleshooting.
+
+| Rule ID | Category        | Rule Name                    | Description                                                                                                                                          | Implementation Details                                                                                                                                                    |
+| ------- | --------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Decision Making | Success return code          | If the policy cursor closes successfully (SQLCODE=0), set the return code to '00' to indicate success.                                               | The return code is set to '00', a two-digit string, in the commarea structure.                                                                                            |
+| BR-002  | Decision Making | Already closed handling      | If the policy cursor is already closed (SQLCODE=-501), set the return code to '00' and log that the cursor was already closed.                       | The return code is set to '00', a two-digit string. The log message is set to '-501 detected c', a 16-character string, left-aligned, padded with spaces if necessary.    |
+| BR-003  | Decision Making | General close error handling | If the close operation fails for any other reason (SQLCODE not 0 or -501), set the return code to '90', log the error, and record the error message. | The return code is set to '90', a two-digit string. The error message is recorded using the error message structure.                                                      |
+| BR-004  | Writing Output  | Log close request            | Log the intent to close the policy cursor before performing the close operation. This provides an audit trail for database actions.                  | The log message is set to the string ' CLOSE  PCURSOR' in the error message structure. The field is a 16-character string, left-aligned, padded with spaces if necessary. |
+
 <SwmSnippet path="/base/src/lgupdb01.cbl" line="362">
 
 ---
 
-<SwmToken path="base/src/lgupdb01.cbl" pos="362:1:3" line-data="       CLOSE-PCURSOR.">`CLOSE-PCURSOR`</SwmToken> closes the <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> cursor after updates. If closing fails, it logs the error and returns a failure code; otherwise, it wraps up the transaction cleanly.
+In <SwmToken path="base/src/lgupdb01.cbl" pos="362:1:3" line-data="       CLOSE-PCURSOR.">`CLOSE-PCURSOR`</SwmToken>, the code sets <SwmToken path="base/src/lgupdb01.cbl" pos="364:12:14" line-data="           MOVE &#39; CLOSE  PCURSOR&#39; TO EM-SQLREQ">`EM-SQLREQ`</SwmToken> for logging, then closes the <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> cursor for the policy. This wraps up the <SwmToken path="base/src/lgipdb01.cbl" pos="242:5:5" line-data="      * initialize DB2 host variables">`DB2`</SwmToken> session for the update.
 
 ```cobol
        CLOSE-PCURSOR.
@@ -5003,7 +5566,19 @@ This section ensures that policy updates are accurately applied to both the prod
            EXEC SQL
              CLOSE POLICY_CURSOR
            END-EXEC.
+```
 
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgupdb01.cbl" line="369">
+
+---
+
+After closing the cursor, the code checks SQLCODE. If it's zero or -501, it sets return code '00'; otherwise, it logs the error and sets '90'. This keeps error handling tight and signals any issues to downstream logic.
+
+```cobol
            Evaluate SQLCODE
              When 0
                MOVE '00' TO CA-RETURN-CODE
@@ -5023,106 +5598,196 @@ This section ensures that policy updates are accurately applied to both the prod
 
 </SwmSnippet>
 
-## Updating Policy Record in VSAM and Logging Errors
+### Updating Main Policy Record and Finalizing
 
 ```mermaid
 %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
 flowchart TD
-    node1["Start: Receive policy update request"] --> node15["Map policy number"]
-    click node1 openCode "base/src/lgupvs01.cbl:97:100"
-    click node15 openCode "base/src/lgupvs01.cbl:103:104"
-    node15 --> node2{"WF-Request-ID: What type of request?"}
-    click node2 openCode "base/src/lgupvs01.cbl:106:135"
-    node2 -->|"Customer ('C')"| node3["Map relevant customer data"]
-    click node3 openCode "base/src/lgupvs01.cbl:109:111"
-    node2 -->|"Endowment ('E')"| node4["Map relevant endowment data"]
-    click node4 openCode "base/src/lgupvs01.cbl:114:118"
-    node2 -->|"House ('H')"| node5["Map relevant house data"]
-    click node5 openCode "base/src/lgupvs01.cbl:121:125"
-    node2 -->|"Motor ('M')"| node6["Map relevant motor data"]
-    click node6 openCode "base/src/lgupvs01.cbl:128:131"
-    node2 -->|"Other"| node7["Clear policy data"]
-    click node7 openCode "base/src/lgupvs01.cbl:134:134"
-    node3 --> node16["Map policy number"]
-    node4 --> node16
-    node5 --> node16
-    node6 --> node16
-    node7 --> node16
-    click node16 openCode "base/src/lgupvs01.cbl:137:137"
-    node16 --> node8["Read policy record from database"]
-    click node8 openCode "base/src/lgupvs01.cbl:139:146"
-    node8 --> node9{"Was policy read successful? (WS-RESP = NORMAL)"}
-    click node9 openCode "base/src/lgupvs01.cbl:147:153"
-    node9 -->|"Yes"| node10["Update policy record in database"]
-    click node10 openCode "base/src/lgupvs01.cbl:155:159"
-    node9 -->|"No"| node11["Log and report error, set CA-RETURN-CODE '81', return"]
-    click node11 openCode "base/src/lgupvs01.cbl:150:152"
-    node10 --> node12{"Was update successful? (WS-RESP = NORMAL)"}
-    click node12 openCode "base/src/lgupvs01.cbl:160:166"
-    node12 -->|"Yes"| node13["Policy update completed"]
-    click node13 openCode "base/src/lgupvs01.cbl:166:166"
-    node12 -->|"No"| node14["Log and report error, set CA-RETURN-CODE '82', return"]
-    click node14 openCode "base/src/lgupvs01.cbl:163:165"
-
+    node1["Update policy details in database"] --> node2{"Was update successful?"}
+    click node1 openCode "base/src/lgupdb01.cbl:313:326"
+    node2 -->|"Yes"| node3["Fetch latest change timestamp"]
+    click node2 openCode "base/src/lgupdb01.cbl:329:334"
+    node2 -->|"No"| node4["Set error code '90' and record error message"]
+    click node4 openCode "base/src/lgupdb01.cbl:336:342"
+    node3 --> node5{"Do timestamps match?"}
+    click node3 openCode "base/src/lgupdb01.cbl:329:334"
+    node5 -->|"Yes"| node6["Finish and close cursor"]
+    click node6 openCode "base/src/lgupdb01.cbl:360:360"
+    node5 -->|"No"| node7["Set code '02' (timestamp mismatch)"]
+    click node7 openCode "base/src/lgupdb01.cbl:344:347"
+    node7 --> node6
+    node4 --> node6
 classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
 
 %% Swimm:
 %% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
 %% flowchart TD
-%%     node1["Start: Receive policy update request"] --> node15["Map policy number"]
-%%     click node1 openCode "<SwmPath>[base/src/lgupvs01.cbl](base/src/lgupvs01.cbl)</SwmPath>:97:100"
-%%     click node15 openCode "<SwmPath>[base/src/lgupvs01.cbl](base/src/lgupvs01.cbl)</SwmPath>:103:104"
-%%     node15 --> node2{"<SwmToken path="base/src/lgdpvs01.cbl" pos="77:16:20" line-data="           Move CA-Request-ID(4:1) To WF-Request-ID">`WF-Request-ID`</SwmToken>: What type of request?"}
-%%     click node2 openCode "<SwmPath>[base/src/lgupvs01.cbl](base/src/lgupvs01.cbl)</SwmPath>:106:135"
-%%     node2 -->|"Customer ('C')"| node3["Map relevant customer data"]
-%%     click node3 openCode "<SwmPath>[base/src/lgupvs01.cbl](base/src/lgupvs01.cbl)</SwmPath>:109:111"
-%%     node2 -->|"Endowment ('E')"| node4["Map relevant endowment data"]
-%%     click node4 openCode "<SwmPath>[base/src/lgupvs01.cbl](base/src/lgupvs01.cbl)</SwmPath>:114:118"
-%%     node2 -->|"House ('H')"| node5["Map relevant house data"]
-%%     click node5 openCode "<SwmPath>[base/src/lgupvs01.cbl](base/src/lgupvs01.cbl)</SwmPath>:121:125"
-%%     node2 -->|"Motor ('M')"| node6["Map relevant motor data"]
-%%     click node6 openCode "<SwmPath>[base/src/lgupvs01.cbl](base/src/lgupvs01.cbl)</SwmPath>:128:131"
-%%     node2 -->|"Other"| node7["Clear policy data"]
-%%     click node7 openCode "<SwmPath>[base/src/lgupvs01.cbl](base/src/lgupvs01.cbl)</SwmPath>:134:134"
-%%     node3 --> node16["Map policy number"]
-%%     node4 --> node16
-%%     node5 --> node16
-%%     node6 --> node16
-%%     node7 --> node16
-%%     click node16 openCode "<SwmPath>[base/src/lgupvs01.cbl](base/src/lgupvs01.cbl)</SwmPath>:137:137"
-%%     node16 --> node8["Read policy record from database"]
-%%     click node8 openCode "<SwmPath>[base/src/lgupvs01.cbl](base/src/lgupvs01.cbl)</SwmPath>:139:146"
-%%     node8 --> node9{"Was policy read successful? (<SwmToken path="base/src/lgstsq.cbl" pos="61:3:5" line-data="                RESP(WS-RESP)">`WS-RESP`</SwmToken> = NORMAL)"}
-%%     click node9 openCode "<SwmPath>[base/src/lgupvs01.cbl](base/src/lgupvs01.cbl)</SwmPath>:147:153"
-%%     node9 -->|"Yes"| node10["Update policy record in database"]
-%%     click node10 openCode "<SwmPath>[base/src/lgupvs01.cbl](base/src/lgupvs01.cbl)</SwmPath>:155:159"
-%%     node9 -->|"No"| node11["Log and report error, set <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> '81', return"]
-%%     click node11 openCode "<SwmPath>[base/src/lgupvs01.cbl](base/src/lgupvs01.cbl)</SwmPath>:150:152"
-%%     node10 --> node12{"Was update successful? (<SwmToken path="base/src/lgstsq.cbl" pos="61:3:5" line-data="                RESP(WS-RESP)">`WS-RESP`</SwmToken> = NORMAL)"}
-%%     click node12 openCode "<SwmPath>[base/src/lgupvs01.cbl](base/src/lgupvs01.cbl)</SwmPath>:160:166"
-%%     node12 -->|"Yes"| node13["Policy update completed"]
-%%     click node13 openCode "<SwmPath>[base/src/lgupvs01.cbl](base/src/lgupvs01.cbl)</SwmPath>:166:166"
-%%     node12 -->|"No"| node14["Log and report error, set <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> '82', return"]
-%%     click node14 openCode "<SwmPath>[base/src/lgupvs01.cbl](base/src/lgupvs01.cbl)</SwmPath>:163:165"
-%% 
+%%     node1["Update policy details in database"] --> node2{"Was update successful?"}
+%%     click node1 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:313:326"
+%%     node2 -->|"Yes"| node3["Fetch latest change timestamp"]
+%%     click node2 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:329:334"
+%%     node2 -->|"No"| node4["Set error code '90' and record error message"]
+%%     click node4 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:336:342"
+%%     node3 --> node5{"Do timestamps match?"}
+%%     click node3 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:329:334"
+%%     node5 -->|"Yes"| node6["Finish and close cursor"]
+%%     click node6 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:360:360"
+%%     node5 -->|"No"| node7["Set code '02' (timestamp mismatch)"]
+%%     click node7 openCode "<SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath>:344:347"
+%%     node7 --> node6
+%%     node4 --> node6
 %% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
 ```
 
-This section is responsible for ensuring that policy records in the VSAM database are accurately updated based on incoming requests, and that any errors encountered during the process are logged with sufficient detail for troubleshooting and support.
+This section updates the main policy record in the database, manages concurrency via timestamp checks, and handles errors by setting return codes and logging messages. It ensures the caller receives either the latest policy data or a clear error status.
 
-| Category        | Rule Name                       | Description                                                                                                                                                                                      |
-| --------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Data validation | Mandatory policy identification | The policy update request must include a valid policy number and request type. If either is missing or invalid, the request is not processed.                                                    |
-| Business logic  | Request type data mapping       | The system must map incoming data fields according to the request type: Customer, Endowment, House, Motor, or Other. Only relevant fields for the request type are updated in the policy record. |
-| Business logic  | Detailed error logging          | All error logs must include the current date, time, customer number, response codes, and up to 90 bytes of transaction data if available.                                                        |
-| Business logic  | Transaction data logging limit  | If transaction data is present and its length is less than 91 bytes, the entire data must be logged; if longer, only the first 90 bytes are logged.                                              |
-| Business logic  | Successful update confirmation  | Successful policy updates must result in the policy record being rewritten in the VSAM database and a confirmation returned to the caller.                                                       |
+| Rule ID | Category        | Rule Name                                  | Description                                                                                                                                                                                                                                                   | Implementation Details                                                                                                                                                                                                            |
+| ------- | --------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Data validation | General update failure handling            | If the update to the policy record fails, set return code '90' and log an error message. This signals a general update failure to the caller and ensures the error is recorded for audit or support purposes.                                                 | Return code '90' indicates a general failure. The error message is written to the system log. The format of the error message includes the operation attempted, customer and policy numbers, and the SQL return code as a string. |
+| BR-002  | Data validation | Concurrency conflict detection             | If the timestamp in the commarea does not match the database after update, set return code '02' to indicate a concurrency conflict. This prevents overwriting changes made by another process and signals the issue to the caller.                            | Return code '02' indicates a concurrency conflict. The timestamp is a 26-character string. No update is finalized if this conflict is detected.                                                                                   |
+| BR-003  | Data validation | Initial fetch error handling               | If the initial fetch for the policy record fails with SQLCODE 100, set return code '01' to indicate no data found. If another error occurs, set return code '90' and log the error. This ensures the caller is informed of missing data or unexpected errors. | Return code '01' means no data found. Return code '90' means a general error. Error messages are logged for non-100 errors.                                                                                                       |
+| BR-004  | Calculation     | Synchronize latest timestamp               | After updating the policy, fetch the latest change timestamp from the database and update the commarea to reflect the current state. This ensures the caller has the most recent data for further processing or display.                                      | The timestamp is a 26-character string representing the last change time. The commarea is updated with this value for consistency.                                                                                                |
+| BR-005  | Technical Step  | Finalize transaction and release resources | After all updates and error handling, close the policy cursor to finalize the transaction and release database resources. This ensures the transaction is properly completed and resources are not held unnecessarily.                                        | No output is produced by this step, but it is required for proper transaction management.                                                                                                                                         |
+
+<SwmSnippet path="/base/src/lgupdb01.cbl" line="313">
+
+---
+
+After closing the cursor, <SwmPath>[base/src/lgupdb01.cbl](base/src/lgupdb01.cbl)</SwmPath> moves the broker and payment fields to <SwmToken path="base/src/lgupdb01.cbl" pos="313:9:9" line-data="               MOVE CA-BROKERID      TO DB2-BROKERID-INT">`DB2`</SwmToken> integer formats, sets <SwmToken path="base/src/lgupdb01.cbl" pos="317:13:15" line-data="               MOVE &#39; UPDATE POLICY  &#39; TO EM-SQLREQ">`EM-SQLREQ`</SwmToken> for logging, and runs the UPDATE on the main policy table using the cursor position.
+
+```cobol
+               MOVE CA-BROKERID      TO DB2-BROKERID-INT
+               MOVE CA-PAYMENT       TO DB2-PAYMENT-INT
+
+      *        Update policy table details
+               MOVE ' UPDATE POLICY  ' TO EM-SQLREQ
+               EXEC SQL
+                 UPDATE POLICY
+                   SET ISSUEDATE        = :CA-ISSUE-DATE,
+                       EXPIRYDATE       = :CA-EXPIRY-DATE,
+                       LASTCHANGED      = CURRENT TIMESTAMP ,
+                       BROKERID         = :DB2-BROKERID-INT,
+                       BROKERSREFERENCE = :CA-BROKERSREF
+                   WHERE CURRENT OF POLICY_CURSOR
+               END-EXEC
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgupdb01.cbl" line="329">
+
+---
+
+After updating the policy, the code runs a SELECT to get the new LASTCHANGED timestamp. This keeps the commarea in sync with the latest <SwmToken path="base/src/lgupdb01.cbl" pos="333:8:8" line-data="                   WHERE POLICYNUMBER = :DB2-POLICYNUM-INT">`DB2`</SwmToken> state for any further processing.
+
+```cobol
+               EXEC SQL
+                 SELECT LASTCHANGED
+                   INTO :CA-LASTCHANGED
+                   FROM POLICY
+                   WHERE POLICYNUMBER = :DB2-POLICYNUM-INT
+               END-EXEC
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgupdb01.cbl" line="336">
+
+---
+
+After the SELECT, if SQLCODE isn't zero, the code rolls back the transaction, sets the error code, and logs the error. This keeps the database clean if something goes wrong.
+
+```cobol
+               IF SQLCODE NOT EQUAL 0
+      *          Non-zero SQLCODE from Update of policy table
+                   EXEC CICS SYNCPOINT ROLLBACK END-EXEC
+                   MOVE '90' TO CA-RETURN-CODE
+      *            Write error message to TD QUEUE(CSMT)
+                   PERFORM WRITE-ERROR-MESSAGE
+               END-IF
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgupdb01.cbl" line="344">
+
+---
+
+If the timestamps don't match, the code sets return code '02' to flag a concurrency conflict. This stops the update and signals the issue to the caller.
+
+```cobol
+             ELSE
+      *        Timestamps do not match (policy table v commarea)
+               MOVE '02' TO CA-RETURN-CODE
+             END-IF
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgupdb01.cbl" line="349">
+
+---
+
+If the initial fetch fails, the code sets return code '01' for no data or '90' for other errors, then logs the error if needed. This keeps error handling tight and signals problems early.
+
+```cobol
+           ELSE
+      *      Non-zero SQLCODE from first SQL FETCH statement
+             IF SQLCODE EQUAL 100
+               MOVE '01' TO CA-RETURN-CODE
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgupdb01.cbl" line="353">
+
+---
+
+After all updates and error handling, the code closes the cursor and returns with the commarea updated or an error code set. The caller gets the latest data or a clear error status.
+
+```cobol
+             ELSE
+               MOVE '90' TO CA-RETURN-CODE
+      *        Write error message to TD QUEUE(CSMT)
+               PERFORM WRITE-ERROR-MESSAGE
+             END-IF
+           END-IF.
+      *    Now close the Cursor and we're done!
+           PERFORM CLOSE-PCURSOR.
+```
+
+---
+
+</SwmSnippet>
+
+## Preparing Policy Data for VSAM File Update
+
+This section prepares and validates policy data for updating a VSAM file, branching logic based on the policy type. It ensures that only valid and complete data is written, and handles errors in file operations.
+
+| Rule ID | Category        | Rule Name                    | Description                                                                                                                                                                                                                                                                                        | Implementation Details                                                                                                                                                                                                                                                                                     |
+| ------- | --------------- | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Data validation | Unknown policy type handling | If the request type does not match a known policy type, the system clears the policy data in the work file to prevent invalid data from being written.                                                                                                                                             | The policy data in the work file is set to all spaces (blank string, 43 bytes).                                                                                                                                                                                                                            |
+| BR-002  | Data validation | File update error handling   | If the file update operation fails, the system logs an error message, sets the return code to '81', and forces an abnormal end with code <SwmToken path="base/src/lgupvs01.cbl" pos="151:10:10" line-data="             EXEC CICS ABEND ABCODE(&#39;LGV3&#39;) NODUMP END-EXEC">`LGV3`</SwmToken>. | The return code is set to '81' (number, 2 digits). The abend code is <SwmToken path="base/src/lgupvs01.cbl" pos="151:10:10" line-data="             EXEC CICS ABEND ABCODE(&#39;LGV3&#39;) NODUMP END-EXEC">`LGV3`</SwmToken> (string, 4 bytes). An error message is logged with the current context data. |
+| BR-003  | Decision Making | Commercial policy mapping    | When the request type is 'C', the system prepares commercial policy data by mapping the business postcode, status, and customer fields from the input to the work file structure.                                                                                                                  | The work file structure for commercial policies includes: postcode (string, 8 bytes), status (number, 4 digits), and customer (string, 31 bytes).                                                                                                                                                          |
+| BR-004  | Decision Making | Endowment policy mapping     | When the request type is 'E', the system prepares endowment policy data by mapping the with-profits, equities, managed fund, fund name, and life assured fields from the input to the work file structure.                                                                                         | The work file structure for endowment policies includes: with-profits (string, 1 byte), equities (string, 1 byte), managed fund (string, 1 byte), fund name (string, 10 bytes), life assured (string, 30 bytes).                                                                                           |
+| BR-005  | Decision Making | House policy mapping         | When the request type is 'H', the system prepares house policy data by mapping the property type, bedrooms, value, postcode, and house name fields from the input to the work file structure.                                                                                                      | The work file structure for house policies includes: property type (string, 15 bytes), bedrooms (number, 3 digits), value (number, 8 digits), postcode (string, 8 bytes), house name (string, 9 bytes).                                                                                                    |
+| BR-006  | Decision Making | Motor policy mapping         | When the request type is 'M', the system prepares motor policy data by mapping the make, model, value, and registration number fields from the input to the work file structure.                                                                                                                   | The work file structure for motor policies includes: make (string, 15 bytes), model (string, 15 bytes), value (number, 6 digits), registration number (string, 7 bytes).                                                                                                                                   |
 
 <SwmSnippet path="/base/src/lgupvs01.cbl" line="97">
 
 ---
 
-MAINLINE reads and rewrites the VSAM policy record, handling errors and logging them if the operation fails. This keeps the file in sync with the latest policy data.
+In MAINLINE, the code grabs the policy type from <SwmToken path="base/src/lgupvs01.cbl" pos="102:3:7" line-data="           Move CA-Request-ID(4:1) To WF-Request-ID">`CA-Request-ID`</SwmToken>(4:1), sets up the policy key, and gets ready to move the right fields for the update. This sets up the work file structure for the next step.
 
 ```cobol
        MAINLINE SECTION.
@@ -5133,38 +5798,110 @@ MAINLINE reads and rewrites the VSAM policy record, handling errors and logging 
            Move CA-Request-ID(4:1) To WF-Request-ID
            Move CA-Policy-Num      To WF-Policy-Num
            Move CA-Customer-Num    To WF-Customer-Num
+```
 
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgupvs01.cbl" line="106">
+
+---
+
+When the request type is 'C', the code moves the commercial policy fields from the commarea to the work file. This is the first branch in the EVALUATE, setting up for a commercial policy update.
+
+```cobol
            Evaluate WF-Request-ID
 
              When 'C'
                Move CA-B-Postcode  To WF-B-Postcode
                Move CA-B-Status    To WF-B-Status
                Move CA-B-Customer  To WF-B-Customer
+```
 
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgupvs01.cbl" line="113">
+
+---
+
+When the request type is 'E', the code moves the endowment policy fields from the commarea to the work file. This sets up the data for an endowment policy update.
+
+```cobol
              When 'E'
                Move CA-E-WITH-PROFITS To  WF-E-WITH-PROFITS
                Move CA-E-EQUITIES     To  WF-E-EQUITIES
                Move CA-E-MANAGED-FUND To  WF-E-MANAGED-FUND
                Move CA-E-FUND-NAME    To  WF-E-FUND-NAME
                Move CA-E-LIFE-ASSURED To  WF-E-LIFE-ASSURED
+```
 
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgupvs01.cbl" line="120">
+
+---
+
+When the request type is 'H', the code moves the house policy fields from the commarea to the work file. This sets up the data for a house policy update.
+
+```cobol
              When 'H'
                Move CA-H-PROPERTY-TYPE To  WF-H-PROPERTY-TYPE
                Move CA-H-BEDROOMS      To  WF-H-BEDROOMS
                Move CA-H-VALUE         To  WF-H-VALUE
                Move CA-H-POSTCODE      To  WF-H-POSTCODE
                Move CA-H-HOUSE-NAME    To  WF-H-HOUSE-NAME
+```
 
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgupvs01.cbl" line="127">
+
+---
+
+When the request type is 'M', the code moves the motor policy fields from the commarea to the work file. This sets up the data for a motor policy update.
+
+```cobol
              When 'M'
                Move CA-M-MAKE          To  WF-M-MAKE
                Move CA-M-MODEL         To  WF-M-MODEL
                Move CA-M-VALUE         To  WF-M-VALUE
                Move CA-M-REGNUMBER     To  WF-M-REGNUMBER
+```
 
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgupvs01.cbl" line="133">
+
+---
+
+If the request type doesn't match any known policy type, the code just clears <SwmToken path="base/src/lgupvs01.cbl" pos="134:7:11" line-data="               Move Spaces To WF-Policy-Data">`WF-Policy-Data`</SwmToken>. This prevents bad data from being written to the file.
+
+```cobol
              When Other
                Move Spaces To WF-Policy-Data
            End-Evaluate
+```
 
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgupvs01.cbl" line="137">
+
+---
+
+After prepping the work file data, the code reads the policy record from the KSDS file using the key. If the read works, it rewrites the record with the updated fields; if not, it sets an error code and handles it. This keeps file updates atomic and error handling tight.
+
+```cobol
            Move CA-Policy-Num      To WF-Policy-Num
       *---------------------------------------------------------------*
            Exec CICS Read File('KSDSPOLY')
@@ -5175,24 +5912,24 @@ MAINLINE reads and rewrites the VSAM policy record, handling errors and logging 
                      RESP(WS-RESP)
                      Update
            End-Exec.
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgupvs01.cbl" line="147">
+
+---
+
+Here, the code checks if the CICS file operation failed (<SwmToken path="base/src/lgupvs01.cbl" pos="147:3:5" line-data="           If WS-RESP Not = DFHRESP(NORMAL)">`WS-RESP`</SwmToken> not normal). If it did, it logs the error, sets <SwmToken path="base/src/lgupvs01.cbl" pos="149:9:13" line-data="             MOVE &#39;81&#39; TO CA-RETURN-CODE">`CA-RETURN-CODE`</SwmToken> to '81', and forces an ABEND with code <SwmToken path="base/src/lgupvs01.cbl" pos="151:10:10" line-data="             EXEC CICS ABEND ABCODE(&#39;LGV3&#39;) NODUMP END-EXEC">`LGV3`</SwmToken>. These constants ('81', <SwmToken path="base/src/lgupvs01.cbl" pos="151:10:10" line-data="             EXEC CICS ABEND ABCODE(&#39;LGV3&#39;) NODUMP END-EXEC">`LGV3`</SwmToken>) are used to flag this specific failure for support and diagnostics. After this, control doesn't continue, so the next call to <SwmPath>[base/src/lgupvs01.cbl](base/src/lgupvs01.cbl)</SwmPath> only happens if the file operation was successful.
+
+```cobol
            If WS-RESP Not = DFHRESP(NORMAL)
              Move EIBRESP2 To WS-RESP2
              MOVE '81' TO CA-RETURN-CODE
              PERFORM WRITE-ERROR-MESSAGE
              EXEC CICS ABEND ABCODE('LGV3') NODUMP END-EXEC
-             EXEC CICS RETURN END-EXEC
-           End-If.
-      *---------------------------------------------------------------*
-           Exec CICS ReWrite File('KSDSPOLY')
-                     From(WF-Policy-Info)
-                     Length(WS-Commarea-LenF)
-                     RESP(WS-RESP)
-           End-Exec.
-           If WS-RESP Not = DFHRESP(NORMAL)
-             Move EIBRESP2 To WS-RESP2
-             MOVE '82' TO CA-RETURN-CODE
-             PERFORM WRITE-ERROR-MESSAGE
-             EXEC CICS ABEND ABCODE('LGV4') NODUMP END-EXEC
              EXEC CICS RETURN END-EXEC
            End-If.
 ```
@@ -5201,11 +5938,62 @@ MAINLINE reads and rewrites the VSAM policy record, handling errors and logging 
 
 </SwmSnippet>
 
+### Capturing and Formatting Error Context
+
+```mermaid
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+flowchart TD
+    node1["Capture current date/time, customer number, and response codes in error message"] --> node2["Send error message to central logging service"]
+    click node1 openCode "base/src/lgupvs01.cbl:175:186"
+    click node2 openCode "base/src/lgupvs01.cbl:187:190"
+    node2 --> node3{"Is additional context data present? (EIBCALEN > 0)"}
+    click node3 openCode "base/src/lgupvs01.cbl:191:205"
+    node3 -->|"Yes"| node4{"Is context data < 91 characters?"}
+    click node4 openCode "base/src/lgupvs01.cbl:192:204"
+    node3 -->|"No"| node7["End"]
+    click node7 openCode "base/src/lgupvs01.cbl:206:206"
+    node4 -->|"Yes"| node5["Send all context data (CA-ERROR-MSG) to logging service"]
+    click node5 openCode "base/src/lgupvs01.cbl:193:197"
+    node4 -->|"No"| node6["Send first 90 characters of context data (CA-ERROR-MSG) to logging service"]
+    click node6 openCode "base/src/lgupvs01.cbl:199:203"
+    node5 --> node7
+    node6 --> node7
+classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+
+%% Swimm:
+%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+%% flowchart TD
+%%     node1["Capture current date/time, customer number, and response codes in error message"] --> node2["Send error message to central logging service"]
+%%     click node1 openCode "<SwmPath>[base/src/lgupvs01.cbl](base/src/lgupvs01.cbl)</SwmPath>:175:186"
+%%     click node2 openCode "<SwmPath>[base/src/lgupvs01.cbl](base/src/lgupvs01.cbl)</SwmPath>:187:190"
+%%     node2 --> node3{"Is additional context data present? (EIBCALEN > 0)"}
+%%     click node3 openCode "<SwmPath>[base/src/lgupvs01.cbl](base/src/lgupvs01.cbl)</SwmPath>:191:205"
+%%     node3 -->|"Yes"| node4{"Is context data < 91 characters?"}
+%%     click node4 openCode "<SwmPath>[base/src/lgupvs01.cbl](base/src/lgupvs01.cbl)</SwmPath>:192:204"
+%%     node3 -->|"No"| node7["End"]
+%%     click node7 openCode "<SwmPath>[base/src/lgupvs01.cbl](base/src/lgupvs01.cbl)</SwmPath>:206:206"
+%%     node4 -->|"Yes"| node5["Send all context data (<SwmToken path="base/src/lgipdb01.cbl" pos="1019:3:7" line-data="                         COMMAREA(CA-ERROR-MSG)">`CA-ERROR-MSG`</SwmToken>) to logging service"]
+%%     click node5 openCode "<SwmPath>[base/src/lgupvs01.cbl](base/src/lgupvs01.cbl)</SwmPath>:193:197"
+%%     node4 -->|"No"| node6["Send first 90 characters of context data (<SwmToken path="base/src/lgipdb01.cbl" pos="1019:3:7" line-data="                         COMMAREA(CA-ERROR-MSG)">`CA-ERROR-MSG`</SwmToken>) to logging service"]
+%%     click node6 openCode "<SwmPath>[base/src/lgupvs01.cbl](base/src/lgupvs01.cbl)</SwmPath>:199:203"
+%%     node5 --> node7
+%%     node6 --> node7
+%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+```
+
+This section ensures that all relevant error context is captured and formatted for logging. It provides traceability for support by including both standard and optional transaction data in the error log.
+
+| Rule ID | Category        | Rule Name                            | Description                                                                                                                        | Implementation Details                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| ------- | --------------- | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Decision Making | Context data logging with truncation | If additional context data is present, up to 90 bytes of this data are included in a separate log entry prefixed with 'COMMAREA='. | The context log entry starts with 'COMMAREA=' (9 characters) followed by up to 90 characters of context data. If the context data exceeds 90 characters, only the first 90 characters are logged; excess data is not included.                                                                                                                                                                                                                                                            |
+| BR-002  | Decision Making | No context data handling             | If no additional context data is present, only the standard error message is logged; no context log entry is created.              | Only the standard error log entry is created. No separate context log entry is sent.                                                                                                                                                                                                                                                                                                                                                                                                      |
+| BR-003  | Writing Output  | Standard error context logging       | The error log entry includes the current date, time, customer number, and response codes for each error event.                     | The error log entry contains: date (8 characters, MMDDYYYY), time (6 characters, HHMMSS), customer number (10 characters), response code (5 digits), and secondary response code (5 digits). All fields are alphanumeric except response codes, which are numeric. The log entry also includes a program identifier (<SwmToken path="base/src/lgupdb01.cbl" pos="209:9:9" line-data="           EXEC CICS LINK Program(LGUPVS01)">`LGUPVS01`</SwmToken>) and fixed labels for each field. |
+
 <SwmSnippet path="/base/src/lgupvs01.cbl" line="174">
 
 ---
 
-<SwmToken path="base/src/lgupvs01.cbl" pos="174:1:5" line-data="       WRITE-ERROR-MESSAGE.">`WRITE-ERROR-MESSAGE`</SwmToken> in <SwmPath>[base/src/lgupvs01.cbl](base/src/lgupvs01.cbl)</SwmPath> gets the current time, formats it, builds a detailed error message with customer and response codes, and calls LGSTSQ to log it. If there's transaction data, it sends up to 90 bytes of that too. This makes sure errors are logged with enough context for support and monitoring.
+In <SwmToken path="base/src/lgupvs01.cbl" pos="174:1:5" line-data="       WRITE-ERROR-MESSAGE.">`WRITE-ERROR-MESSAGE`</SwmToken>, the code grabs the current time and date using CICS commands and formats them for the error log. This info gets included in the error message for tracking.
 
 ```cobol
        WRITE-ERROR-MESSAGE.
@@ -5215,7 +6003,19 @@ MAINLINE reads and rewrites the VSAM policy record, handling errors and logging 
                      MMDDYYYY(WS-DATE)
                      TIME(WS-TIME)
            END-EXEC
-      *
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgupvs01.cbl" line="182">
+
+---
+
+After formatting the error message, the code links to LGSTSQ to send it to the message queue. If there's commarea data, it moves up to 90 bytes into <SwmToken path="base/src/lgipdb01.cbl" pos="1019:3:7" line-data="                         COMMAREA(CA-ERROR-MSG)">`CA-ERROR-MSG`</SwmToken> and links to LGSTSQ again. This way, both the error details and a chunk of transaction data get logged for support.
+
+```cobol
            MOVE WS-DATE TO EM-DATE
            MOVE WS-TIME TO EM-TIME
            Move CA-Customer-Num To EM-Cusnum
@@ -5225,6 +6025,19 @@ MAINLINE reads and rewrites the VSAM policy record, handling errors and logging 
                      COMMAREA(ERROR-MSG)
                      LENGTH(LENGTH OF ERROR-MSG)
            END-EXEC.
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgupvs01.cbl" line="191">
+
+---
+
+We just got back from LGSTSQ, which logged the error and (optionally) the commarea data. The code here checks EIBCALEN and only moves up to 90 bytes to <SwmToken path="base/src/lgupvs01.cbl" pos="195:3:7" line-data="                         COMMAREA(CA-ERROR-MSG)">`CA-ERROR-MSG`</SwmToken> before linking to LGSTSQ again. This means only the first 90 bytes of transaction data are logged, so if the commarea is longer, the rest is ignored. The code assumes EIBCALEN and DFHCOMMAREA are valid and that <SwmToken path="base/src/lgupvs01.cbl" pos="195:3:7" line-data="                         COMMAREA(CA-ERROR-MSG)">`CA-ERROR-MSG`</SwmToken> is big enough—if not, you could get silent truncation or data loss.
+
+```cobol
            IF EIBCALEN > 0 THEN
              IF EIBCALEN < 91 THEN
                MOVE DFHCOMMAREA(1:EIBCALEN) TO CA-DATA
@@ -5247,13 +6060,104 @@ MAINLINE reads and rewrites the VSAM policy record, handling errors and logging 
 
 </SwmSnippet>
 
-## Handling Update Errors and User Feedback
+### Rewriting the Policy Record and Handling Errors
+
+This section ensures that the policy record is updated in the KSDS file and that any errors encountered during the rewrite are properly handled and communicated. It is the final safeguard for file update integrity before returning control.
+
+| Rule ID | Category        | Rule Name                       | Description                                                                                                                                                                                                                                                             | Implementation Details                                                                                                                                                                                                                                                                                                 |
+| ------- | --------------- | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Data validation | Rewrite failure error handling  | If the policy record rewrite fails, log an error, set the return code to '82', and trigger an abend with code <SwmToken path="base/src/lgupvs01.cbl" pos="164:10:10" line-data="             EXEC CICS ABEND ABCODE(&#39;LGV4&#39;) NODUMP END-EXEC">`LGV4`</SwmToken>. | The return code '82' indicates a rewrite failure. The abend code <SwmToken path="base/src/lgupvs01.cbl" pos="164:10:10" line-data="             EXEC CICS ABEND ABCODE(&#39;LGV4&#39;) NODUMP END-EXEC">`LGV4`</SwmToken> is used to signal a critical failure to support. An error message is logged before abending. |
+| BR-002  | Writing Output  | Policy record rewrite attempt   | Attempt to update the policy record in the KSDS file using the provided policy data and length.                                                                                                                                                                         | The policy data is provided as a structured record. The length used for the operation is the value of the communication area length field.                                                                                                                                                                             |
+| BR-003  | Writing Output  | Return code for rewrite failure | Set the return code to '82' to indicate a policy record rewrite failure before abending.                                                                                                                                                                                | The return code '82' is used to indicate a rewrite failure. This value is set in the communication area before abending.                                                                                                                                                                                               |
+
+<SwmSnippet path="/base/src/lgupvs01.cbl" line="155">
+
+---
+
+Back in MAINLINE of <SwmPath>[base/src/lgupvs01.cbl](base/src/lgupvs01.cbl)</SwmPath>, after error handling, the code tries to rewrite the policy record in the KSDS file. If the rewrite fails (<SwmToken path="base/src/lgupvs01.cbl" pos="158:3:5" line-data="                     RESP(WS-RESP)">`WS-RESP`</SwmToken> not normal), it logs the error, sets <SwmToken path="base/src/lgtestp3.cbl" pos="74:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> to '82', and forces an ABEND with code <SwmToken path="base/src/lgupvs01.cbl" pos="164:10:10" line-data="             EXEC CICS ABEND ABCODE(&#39;LGV4&#39;) NODUMP END-EXEC">`LGV4`</SwmToken>. This is the last chance to catch file update errors before returning control.
+
+```cobol
+           Exec CICS ReWrite File('KSDSPOLY')
+                     From(WF-Policy-Info)
+                     Length(WS-Commarea-LenF)
+                     RESP(WS-RESP)
+           End-Exec.
+```
+
+---
+
+</SwmSnippet>
+
+<SwmSnippet path="/base/src/lgupvs01.cbl" line="160">
+
+---
+
+After all file operations in <SwmPath>[base/src/lgupvs01.cbl](base/src/lgupvs01.cbl)</SwmPath>, the function returns control with either a successful update or an error code ('81' or '82') if something failed. The use of <SwmToken path="base/src/lgupvs01.cbl" pos="151:10:10" line-data="             EXEC CICS ABEND ABCODE(&#39;LGV3&#39;) NODUMP END-EXEC">`LGV3`</SwmToken> and <SwmToken path="base/src/lgupvs01.cbl" pos="164:10:10" line-data="             EXEC CICS ABEND ABCODE(&#39;LGV4&#39;) NODUMP END-EXEC">`LGV4`</SwmToken> for ABENDs makes it clear to support which step failed—read or rewrite. The record is only updated if both steps succeed.
+
+```cobol
+           If WS-RESP Not = DFHRESP(NORMAL)
+             Move EIBRESP2 To WS-RESP2
+             MOVE '82' TO CA-RETURN-CODE
+             PERFORM WRITE-ERROR-MESSAGE
+             EXEC CICS ABEND ABCODE('LGV4') NODUMP END-EXEC
+             EXEC CICS RETURN END-EXEC
+           End-If.
+```
+
+---
+
+</SwmSnippet>
+
+## Handling Update Results and Routing Errors
+
+```mermaid
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+flowchart TD
+    node1{"Was the house policy update successful?"}
+    click node1 openCode "base/src/lgtestp3.cbl:200:202"
+    node1 -->|"No"| node2["Show error: 'Error Updating House Policy'"]
+    click node2 openCode "base/src/lgtestp3.cbl:277:279"
+    node2 --> node3["Return to main menu"]
+    click node3 openCode "base/src/lgtestp3.cbl:235:236"
+    node1 -->|"Yes"| node4["Show confirmation: 'House Policy Updated' with customer and policy number"]
+    click node4 openCode "base/src/lgtestp3.cbl:204:212"
+    node4 --> node3
+    node1 -->|"Invalid option"| node5["Prompt: 'Please enter a valid option' and reset cursor"]
+    click node5 openCode "base/src/lgtestp3.cbl:217:228"
+    node5 --> node3
+classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+
+%% Swimm:
+%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+%% flowchart TD
+%%     node1{"Was the house policy update successful?"}
+%%     click node1 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:200:202"
+%%     node1 -->|"No"| node2["Show error: 'Error Updating House Policy'"]
+%%     click node2 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:277:279"
+%%     node2 --> node3["Return to main menu"]
+%%     click node3 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:235:236"
+%%     node1 -->|"Yes"| node4["Show confirmation: 'House Policy Updated' with customer and policy number"]
+%%     click node4 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:204:212"
+%%     node4 --> node3
+%%     node1 -->|"Invalid option"| node5["Prompt: 'Please enter a valid option' and reset cursor"]
+%%     click node5 openCode "<SwmPath>[base/src/lgtestp3.cbl](base/src/lgtestp3.cbl)</SwmPath>:217:228"
+%%     node5 --> node3
+%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+```
+
+This section determines the user feedback and session routing after a house policy update attempt. It ensures the user is informed of success or failure and the UI is kept in sync with the session state.
+
+| Rule ID | Category        | Rule Name                 | Description                                                                                                                                                                                | Implementation Details                                                                                                                                                                                           |
+| ------- | --------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Data validation | Prompt for valid option   | If an invalid menu option is detected, prompt the user with 'Please enter a valid option', reset the cursor to the option field, and refresh the menu screen.                              | The prompt message is 'Please enter a valid option' (string, 27 characters). The cursor is reset to the option input field (position -1). The menu screen is refreshed for new input.                            |
+| BR-002  | Decision Making | Show update error message | If the house policy update fails, show the error message 'Error Updating House Policy' and reset the session to allow the user to try again or exit.                                       | The error message is 'Error Updating House Policy' (string, 26 characters). The session is reset and the user is returned to the main menu.                                                                      |
+| BR-003  | Writing Output  | Show update confirmation  | If the house policy update succeeds, show the confirmation message 'House Policy Updated' along with the customer and policy numbers, clear the option input, and refresh the menu screen. | The confirmation message is 'House Policy Updated' (string, 21 characters). Customer and policy numbers are displayed as numbers (10 digits each). The option input is cleared and the menu screen is refreshed. |
 
 <SwmSnippet path="/base/src/lgtestp3.cbl" line="200">
 
 ---
 
-After returning from <SwmPath>[base/src/lgupol01.cbl](base/src/lgupol01.cbl)</SwmPath> in <SwmToken path="base/src/lgtestp3.cbl" pos="33:5:7" line-data="              GO TO A-GAIN.">`A-GAIN`</SwmToken>, we check if the update failed (<SwmToken path="base/src/lgtestp3.cbl" pos="200:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken> > 0). If so, we jump to <SwmToken path="base/src/lgtestp3.cbl" pos="201:5:7" line-data="                   GO TO NO-UPD">`NO-UPD`</SwmToken> to show an error message and reset the session, so the user gets immediate feedback about the failure.
+Back in <SwmToken path="base/src/lgtestp3.cbl" pos="33:5:7" line-data="              GO TO A-GAIN.">`A-GAIN`</SwmToken>, after returning from <SwmPath>[base/src/lgupol01.cbl](base/src/lgupol01.cbl)</SwmPath>, the code checks <SwmToken path="base/src/lgtestp3.cbl" pos="200:3:7" line-data="                 IF CA-RETURN-CODE &gt; 0">`CA-RETURN-CODE`</SwmToken>. If it's set (error), it jumps to <SwmToken path="base/src/lgtestp3.cbl" pos="201:5:7" line-data="                   GO TO NO-UPD">`NO-UPD`</SwmToken> to show an error message and reset the session. This keeps the UI clean and gives the user feedback on failed updates.
 
 ```cobol
                  IF CA-RETURN-CODE > 0
@@ -5269,7 +6173,7 @@ After returning from <SwmPath>[base/src/lgupol01.cbl](base/src/lgupol01.cbl)</Sw
 
 ---
 
-<SwmToken path="base/src/lgtestp3.cbl" pos="277:1:3" line-data="       NO-UPD.">`NO-UPD`</SwmToken> sets the error message for a failed house policy update and jumps straight to <SwmToken path="base/src/lgtestp3.cbl" pos="279:5:7" line-data="           Go To ERROR-OUT.">`ERROR-OUT`</SwmToken>, which handles showing the message and resetting the session.
+<SwmToken path="base/src/lgtestp3.cbl" pos="277:1:3" line-data="       NO-UPD.">`NO-UPD`</SwmToken> sets the error message 'Error Updating House Policy' for the user and jumps to <SwmToken path="base/src/lgtestp3.cbl" pos="279:5:7" line-data="           Go To ERROR-OUT.">`ERROR-OUT`</SwmToken>. This makes sure the error is shown on the menu and the session state is reset, so the user can try again or exit cleanly.
 
 ```cobol
        NO-UPD.
@@ -5285,7 +6189,7 @@ After returning from <SwmPath>[base/src/lgupol01.cbl](base/src/lgupol01.cbl)</Sw
 
 ---
 
-After coming back from <SwmToken path="base/src/lgtestp3.cbl" pos="201:5:7" line-data="                   GO TO NO-UPD">`NO-UPD`</SwmToken> in <SwmToken path="base/src/lgtestp3.cbl" pos="33:5:7" line-data="              GO TO A-GAIN.">`A-GAIN`</SwmToken>, we update the output fields, clear the option, and send a message to the user's screen to show the result of the last operation.
+After <SwmToken path="base/src/lgtestp3.cbl" pos="201:5:7" line-data="                   GO TO NO-UPD">`NO-UPD`</SwmToken>, <SwmToken path="base/src/lgtestp3.cbl" pos="33:5:7" line-data="              GO TO A-GAIN.">`A-GAIN`</SwmToken> resumes by moving the customer and policy numbers to the output fields, clears the option input, sets a success message, and sends the updated menu screen. This keeps the UI in sync after an update attempt, regardless of success or failure.
 
 ```cobol
                  Move CA-CUSTOMER-NUM To ENP3CNOI
@@ -5307,7 +6211,7 @@ After coming back from <SwmToken path="base/src/lgtestp3.cbl" pos="201:5:7" line
 
 ---
 
-<SwmToken path="base/src/lgtestp3.cbl" pos="33:5:7" line-data="              GO TO A-GAIN.">`A-GAIN`</SwmToken> wraps up by sending the final message to the user's terminal and returning control, handling invalid options by prompting the user to enter a valid one.
+<SwmToken path="base/src/lgtestp3.cbl" pos="33:5:7" line-data="              GO TO A-GAIN.">`A-GAIN`</SwmToken> returns control to the system after sending the final menu or error message to the user. The session data is updated and the UI is ready for the next user action or transaction.
 
 ```cobol
              WHEN OTHER

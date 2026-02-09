@@ -1,60 +1,60 @@
 ---
 title: Insurance Policy Premium Calculation Batch Job (LGAPJOB)
 ---
-LGAPJOB is a daily batch job that processes insurance policy applications by sorting and validating input data, updating risk and rate tables, calculating premiums, generating reports, backing up results, and notifying stakeholders. It transforms raw application records and configuration data into calculated premium files, summary reports, and backups, ensuring all steps are completed and communicated.
+LGAPJOB is the daily batch job that processes insurance policy applications, calculates premiums, generates summary reports, backs up results, and notifies stakeholders. It receives raw application records, configuration, and rate tables as input, and produces calculated premiums, rejected records, summary reports, backups, and notifications as output. For instance, an application with policy number A123456789 will result in a calculated premium and approval status, while rejected applications are logged with reasons.
 
 # Dependencies
 
 ```mermaid
 graph TD
   
-  4i78i("LGAPJOB"):::currentEntity --> tsusv("Calculating Enhanced Insurance Premiums (LGAPDB01)")
-click tsusv openCode "base/src/LGAPDB01.cbl:1"
-  tsusv("Calculating Enhanced Insurance Premiums (LGAPDB01)") --> eu00l("LGAPDB02")
-click eu00l openCode "base/src/LGAPDB02.cbl:1"
+  u9yrd("LGAPJOB"):::currentEntity --> okkrp("Calculating Enhanced Insurance Premiums (LGAPDB01)")
+click okkrp openCode "base/src/LGAPDB01.cbl:1"
+  okkrp("Calculating Enhanced Insurance Premiums (LGAPDB01)") --> 6q23l("LGAPDB02")
+click 6q23l openCode "base/src/LGAPDB02.cbl:1"
   
   
-tsusv("Calculating Enhanced Insurance Premiums (LGAPDB01)") --> fcuzk("LGAPDB03")
-click fcuzk openCode "base/src/LGAPDB03.cbl:1"
+okkrp("Calculating Enhanced Insurance Premiums (LGAPDB01)") --> jakz2("LGAPDB03")
+click jakz2 openCode "base/src/LGAPDB03.cbl:1"
   
   
-tsusv("Calculating Enhanced Insurance Premiums (LGAPDB01)") --> 3i82u("LGAPDB04")
-click 3i82u openCode "base/src/LGAPDB04.cbl:1"
-  
-  
-  
-4i78i("LGAPJOB"):::currentEntity --> h16qt("Daily Premium Summary Report Generator (LGAPRPT1)")
-click h16qt openCode "base/src/LGAPRPT1.cbl:1"
+okkrp("Calculating Enhanced Insurance Premiums (LGAPDB01)") --> 9ahi5("LGAPDB04")
+click 9ahi5 openCode "base/src/LGAPDB04.cbl:1"
   
   
   
-click 4i78i openCode "base/cntl/lgapjob.jcl:1"
+u9yrd("LGAPJOB"):::currentEntity --> hgt7w("Daily Premium Summary Report Generator (LGAPRPT1)")
+click hgt7w openCode "base/src/LGAPRPT1.cbl:1"
+  
+  
+  
+click u9yrd openCode "base/cntl/lgapjob.jcl:1"
     classDef currentEntity color:#000000,fill:#7CB9F4
 
 %% Swimm:
 %% graph TD
 %%   
-%%   4i78i("LGAPJOB"):::currentEntity --> tsusv("Calculating Enhanced Insurance Premiums (LGAPDB01)")
-%% click tsusv openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:1"
-%%   tsusv("Calculating Enhanced Insurance Premiums (LGAPDB01)") --> eu00l("LGAPDB02")
-%% click eu00l openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:1"
+%%   u9yrd("LGAPJOB"):::currentEntity --> okkrp("Calculating Enhanced Insurance Premiums (LGAPDB01)")
+%% click okkrp openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:1"
+%%   okkrp("Calculating Enhanced Insurance Premiums (LGAPDB01)") --> 6q23l("LGAPDB02")
+%% click 6q23l openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:1"
 %%   
 %%   
-%% tsusv("Calculating Enhanced Insurance Premiums (LGAPDB01)") --> fcuzk("LGAPDB03")
-%% click fcuzk openCode "<SwmPath>[base/src/LGAPDB03.cbl](base/src/LGAPDB03.cbl)</SwmPath>:1"
+%% okkrp("Calculating Enhanced Insurance Premiums (LGAPDB01)") --> jakz2("LGAPDB03")
+%% click jakz2 openCode "<SwmPath>[base/src/LGAPDB03.cbl](base/src/LGAPDB03.cbl)</SwmPath>:1"
 %%   
 %%   
-%% tsusv("Calculating Enhanced Insurance Premiums (LGAPDB01)") --> 3i82u("LGAPDB04")
-%% click 3i82u openCode "<SwmPath>[base/src/LGAPDB04.cbl](base/src/LGAPDB04.cbl)</SwmPath>:1"
-%%   
-%%   
-%%   
-%% 4i78i("LGAPJOB"):::currentEntity --> h16qt("Daily Premium Summary Report Generator (LGAPRPT1)")
-%% click h16qt openCode "<SwmPath>[base/src/LGAPRPT1.cbl](base/src/LGAPRPT1.cbl)</SwmPath>:1"
+%% okkrp("Calculating Enhanced Insurance Premiums (LGAPDB01)") --> 9ahi5("LGAPDB04")
+%% click 9ahi5 openCode "<SwmPath>[base/src/LGAPDB04.cbl](base/src/LGAPDB04.cbl)</SwmPath>:1"
 %%   
 %%   
 %%   
-%% click 4i78i openCode "<SwmPath>[base/cntl/lgapjob.jcl](base/cntl/lgapjob.jcl)</SwmPath>:1"
+%% u9yrd("LGAPJOB"):::currentEntity --> hgt7w("Daily Premium Summary Report Generator (LGAPRPT1)")
+%% click hgt7w openCode "<SwmPath>[base/src/LGAPRPT1.cbl](base/src/LGAPRPT1.cbl)</SwmPath>:1"
+%%   
+%%   
+%%   
+%% click u9yrd openCode "<SwmPath>[base/cntl/lgapjob.jcl](base/cntl/lgapjob.jcl)</SwmPath>:1"
 %%     classDef currentEntity color:#000000,fill:#7CB9F4
 ```
 
@@ -72,15 +72,15 @@ a1f96be9f("Refresh Risk and Rates")
 
 aba1ac4a1("Calculate Premiums and Generate Reports")
   click aba1ac4a1 goToHeading "Calculate Premiums and Generate Reports"
-  24smg("LGAPDB01")
-        aba1ac4a1 -.-> 24smg
-        click 24smg openCode "base/src/LGAPDB01.cbl:1"
+  t9786("LGAPDB01")
+        aba1ac4a1 -.-> t9786
+        click t9786 openCode "base/src/LGAPDB01.cbl:1"
 
 ac18fccd0("Generate Premium Summary Report")
   click ac18fccd0 goToHeading "Generate Premium Summary Report"
-  i99bh("LGAPRPT1")
-        ac18fccd0 -.-> i99bh
-        click i99bh openCode "base/src/LGAPRPT1.cbl:1"
+  l5rw4("LGAPRPT1")
+        ac18fccd0 -.-> l5rw4
+        click l5rw4 openCode "base/src/LGAPRPT1.cbl:1"
 
 aac351048("Backup Premium Data")
   click aac351048 goToHeading "Backup Premium Data"
@@ -117,15 +117,15 @@ style afdff8ccf color:#000000,fill:#7CB9F4
 %% 
 %% aba1ac4a1("Calculate Premiums and Generate Reports")
 %%   click aba1ac4a1 goToHeading "Calculate Premiums and Generate Reports"
-%%   24smg("LGAPDB01")
-%%         aba1ac4a1 -.-> 24smg
-%%         click 24smg openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:1"
+%%   t9786("LGAPDB01")
+%%         aba1ac4a1 -.-> t9786
+%%         click t9786 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:1"
 %% 
 %% ac18fccd0("Generate Premium Summary Report")
 %%   click ac18fccd0 goToHeading "Generate Premium Summary Report"
-%%   i99bh("LGAPRPT1")
-%%         ac18fccd0 -.-> i99bh
-%%         click i99bh openCode "<SwmPath>[base/src/LGAPRPT1.cbl](base/src/LGAPRPT1.cbl)</SwmPath>:1"
+%%   l5rw4("LGAPRPT1")
+%%         ac18fccd0 -.-> l5rw4
+%%         click l5rw4 openCode "<SwmPath>[base/src/LGAPRPT1.cbl](base/src/LGAPRPT1.cbl)</SwmPath>:1"
 %% 
 %% aac351048("Backup Premium Data")
 %%   click aac351048 goToHeading "Backup Premium Data"
@@ -155,216 +155,162 @@ style afdff8ccf color:#000000,fill:#7CB9F4
 
 Step in this section: `STEP01`.
 
-The section ensures all incoming insurance records are consistently ordered and preliminarily validated to facilitate clean downstream processing.
+This section organizes and verifies raw insurance application data to ensure that all records are ordered and correctly formatted before policy calculations begin.
 
-- The raw insurance records from the input file are read into the batch process.
-- Records are sorted based on the first ten characters (typically representing policy identifiers) and a following character field (application type).
-- Each output record preserves the full 300-character layout, ensuring consistent format for all downstream applications.
-- Invalid or malformatted records are excluded during this preparation step, guaranteeing that only clean, validated records are passed on.
-- The result is a sorted and integrity-checked output file that matches expectations of subsequent database and premium processing routines.
+1. Raw insurance application data is read and each record is checked for structural consistency.
+2. All valid records are sorted based on policy number and type fields as defined in the business logic.
+3. The sorted, formatted records are written to a new file for use in subsequent premium calculation steps, ensuring downstream processes receive clean and ordered data.
 
 ### Input
 
 **LGAP.INPUT.RAW.DATA**
 
-Raw insurance application records received for daily batch premium calculation.
-
-Sample:
-
-| Column Name      | Sample       |
-| ---------------- | ------------ |
-| POLICY_ID        | 0001023456   |
-| APPLICATION_TYPE | N            |
-| CUSTOMER_NAME    | LISA THOMAS  |
-| START_DATE       | 20240619     |
-| PREMIUM_AMOUNT   | 000001200.00 |
+Raw insurance application records to be prepared for policy premium calculation.
 
 ### Output
 
 **LGAP.INPUT.SORTED**
 
-Sorted and validated insurance application records, ready for database updates and premium calculations.
-
-Sample:
-
-| Column Name      | Sample       |
-| ---------------- | ------------ |
-| POLICY_ID        | 0001023456   |
-| APPLICATION_TYPE | N            |
-| CUSTOMER_NAME    | LISA THOMAS  |
-| START_DATE       | 20240619     |
-| PREMIUM_AMOUNT   | 000001200.00 |
+Sorted and structurally validated insurance records ready for rating and premium processing.
 
 ## Refresh Risk and Rates
 
 Step in this section: `STEP02`.
 
-This section refreshes the risk data to remove outdated factors and ensures only currently valid rate entries are set as active for policy processing.
+Refreshes the risk factor data by removing outdated records and updates the rate table to make applicable rates active for today's processing.
 
 ## Calculate Premiums and Generate Reports
 
 Step in this section: `STEP03`.
 
-This section calculates policy premiums and creates summary and error reports based on incoming insurance applications, configuration rules, and up-to-date rate tables.
+Calculates premiums using configured rates and risk data, creates a detailed summary of results, and distinguishes valid from rejected applications.
 
-- Each sorted and validated insurance application is read from LGAP.INPUT.SORTED.
-- Configuration limits and rules from LGAP.CONFIG.MASTER guide how applications are checked for eligibility and how risks are scored.
-- Current actuarial rates from LGAP.RATE.TABLES are applied to each record's risk profile and coverage details.
-- For each valid record:
-  - Calculate risk score and determine the premium amount.
-  - Write a row to LGAP.OUTPUT.PREMIUM.DATA with enhanced actuarial details like POLICY_ID, CUSTOMER_NAME, premium, risk score, and application type.
-- If a record fails validation or cannot be processed:
-  - Write a row to LGAP.OUTPUT.REJECTED.DATA with POLICY_ID, error information, and relevant identifying details.
-- As processing completes, aggregate statistics (total processed, accepted, rejected, premium aggregates) are compiled and output to LGAP.OUTPUT.SUMMARY.RPT.
+1. Each record from the sorted application data is read and paired with business rules from the configuration file and matching rates from the rate tables.
+2. The premium is calculated using actuarial formulas defined in the configuration and rate tables, factoring in applicant details (e.g., age, coverage amount).
+3. If the record passes all validations and calculations, the resulting premium, risk score, and approval status are written to the premium data output.
+4. Records that do not meet criteria (such as age requirements or data inconsistencies) are logged into the rejected data output with specific rejection reasons.
+5. Throughout the process, summary statistics are accumulated, including totals for processed, approved, and rejected applications, average, max, and min premium amounts.
+6. At the end of processing, these summary statistics are output to a report for business review.
 
 ### Input
 
-**LGAP.INPUT.SORTED (Sorted Insurance Application Data)**
+**LGAP.INPUT.SORTED (Sorted and validated application records)**
 
-Sorted and validated insurance application records to be processed for premium calculation.
+Insurance application records preprocessed and ready for premium calculation.
 
 Sample:
 
-| Column Name      | Sample       |
-| ---------------- | ------------ |
-| POLICY_ID        | 0001023456   |
-| APPLICATION_TYPE | N            |
-| CUSTOMER_NAME    | LISA THOMAS  |
-| START_DATE       | 20240619     |
-| PREMIUM_AMOUNT   | 000001200.00 |
+| Column Name    | Sample     |
+| -------------- | ---------- |
+| POLICY_NO      | A123456789 |
+| POLICY_TYPE    | H          |
+| APPLICANT_AGE  | 43         |
+| COVERAGE_AMT   | 250000     |
+| EFFECTIVE_DATE | 2024-07-01 |
 
-**LGAP.CONFIG.MASTER (Configuration Master)**
+**LGAP.CONFIG.MASTER (Master configuration)**
 
-Configuration and processing limits for premium calculation and risk scoring.
+Processing rules and general configuration for premium calculation.
 
-**LGAP.RATE.TABLES (Rate Tables)**
+**LGAP.RATE.TABLES (Rate tables)**
 
-Current actuarial rates and rules used for premium calculation.
+Active premium tables for policy rating.
 
 ### Output
 
-**LGAP.OUTPUT.PREMIUM.DATA (Calculated Premiums)**
+**LGAP.OUTPUT.PREMIUM.DATA (Calculated premium data)**
 
-File with detailed premium calculations for all processed and accepted insurance policy applications.
-
-Sample:
-
-| Column Name      | Sample       |
-| ---------------- | ------------ |
-| POLICY_ID        | 0001023456   |
-| CUSTOMER_NAME    | LISA THOMAS  |
-| PREMIUM_AMOUNT   | 000001320.00 |
-| RISK_SCORE       | 073          |
-| APPLICATION_TYPE | N            |
-
-**LGAP.OUTPUT.REJECTED.DATA (Rejected Application Data)**
-
-Records of insurance applications that failed premium calculation or validation checks.
+Detailed premium calculations for each valid application record.
 
 Sample:
 
-| Column Name      | Sample      |
-| ---------------- | ----------- |
-| POLICY_ID        | 0001009999  |
-| ERROR_CODE       | VAL02       |
-| CUSTOMER_NAME    | JAMES SMITH |
-| APPLICATION_TYPE | N           |
+| Column Name | Sample     |
+| ----------- | ---------- |
+| POLICY_NO   | A123456789 |
+| PREMIUM     | 1186.40    |
+| RISK_SCORE  | 2.3        |
+| STATUS      | APPROVED   |
 
-**LGAP.OUTPUT.SUMMARY.RPT (Summary Report)**
+**LGAP.OUTPUT.REJECTED.DATA (Rejected application data)**
 
-Batch processing report with statistics such as total policies processed, number accepted, number rejected, and aggregated premium values.
+Application records that failed validation or premium calculation.
+
+Sample:
+
+| Column Name   | Sample     |
+| ------------- | ---------- |
+| POLICY_NO     | B987654321 |
+| REJECT_REASON | Underage   |
+| STATUS        | REJECTED   |
+
+**LGAP.OUTPUT.SUMMARY.RPT (Summary report)**
+
+Aggregate process statistics and summary metrics for the current batch.
+
+Sample:
+
+```
+TOTAL_PROCESSED: 1000
+TOTAL_APPROVED: 962
+TOTAL_REJECTED: 38
+AVERAGE_PREMIUM: 1050.23
+MAX_PREMIUM: 1995.00
+MIN_PREMIUM: 600.75
+```
 
 ## Generate Premium Summary Report
 
 Step in this section: `STEP04`.
 
-Generates a formatted summary report that aggregates key figures from the recent premium calculation run, providing business stakeholders with a daily overview of premium activity and totals.
+Generates a daily summary report showing totals and key metrics for all insurance premium calculations completed, providing management with a clear overview of processing results.
 
-- All processed premium records are read sequentially from the input file.
-- For each record, relevant monetary and statistical data (e.g., PREMIUM_AMOUNT, RISK_SCORE) is extracted.
-- The logic aggregates premium amounts to compute totals, counts the number of policies, and may compute averages or identify high-level trends.
-- Aggregated data is formatted into a human-readable management report, clearly presenting totals and breakdowns for the day.
-- The completed report is written to the output report file for management's review and archival.
+- The report generator reads each calculated premium record from the input dataset.
+- It aggregates critical figures, such as total premiums, number of policies processed, number approved, rejected, and risk score distributions.
+- Key statistics (count, average, max, min) are calculated for inclusion in the summary.
+- Data is then formatted and written into a structured daily report for management and business users.
 
 ### Input
 
-**LGAP.OUTPUT.PREMIUM.DATA**
+**LGAP.OUTPUT.PREMIUM.DATA (Calculated premium data)**
 
-Detailed data file containing all accepted and processed premium calculations from the day's insurance applications.
+Detailed results for all insurance premium calculations processed earlier in the batch job.
 
 Sample:
 
-| Column Name      | Sample       |
-| ---------------- | ------------ |
-| POLICY_ID        | 0001023456   |
-| CUSTOMER_NAME    | LISA THOMAS  |
-| PREMIUM_AMOUNT   | 000001320.00 |
-| RISK_SCORE       | 073          |
-| APPLICATION_TYPE | N            |
+| Column Name | Sample     |
+| ----------- | ---------- |
+| POLICY_NO   | A123456789 |
+| PREMIUM     | 1186.40    |
+| RISK_SCORE  | 2.3        |
+| STATUS      | APPROVED   |
 
 ### Output
 
-**LGAP.REPORTS.DAILY.SUMMARY**
+**LGAP.REPORTS.DAILY.SUMMARY (Premium summary report)**
 
-Formatted summary report with aggregated daily premium totals and management key figures, suitable for direct business review.
+Formatted management report containing daily totals, averages, and significant statistics from all processed insurance premiums.
 
 ## Backup Premium Data
 
 Step in this section: `STEP05`.
 
-The section makes a secure backup of the processed premium data to tape storage, ensuring all calculated records are preserved.
-
-- All records from the insurance premium data file are read sequentially from LGAP.OUTPUT.PREMIUM.DATA.
-- Each record is written without transformation onto the backup tape dataset (LGAP.BACKUP.PREMIUM.G0001V00).
-- The resulting backup tape is an exact copy of the daily processed premium calculations, preserving the same structure and content as the source file.
-
-### Input
-
-**LGAP.OUTPUT.PREMIUM.DATA**
-
-Detailed file with all accepted insurance premium calculations generated by earlier processing steps.
-
-Sample:
-
-| Column Name      | Sample       |
-| ---------------- | ------------ |
-| POLICY_ID        | 0001023456   |
-| CUSTOMER_NAME    | LISA THOMAS  |
-| PREMIUM_AMOUNT   | 000001320.00 |
-| RISK_SCORE       | 073          |
-| APPLICATION_TYPE | N            |
-
-### Output
-
-**LGAP.BACKUP.PREMIUM.G0001V00**
-
-Backup tape containing all daily calculated insurance premium data for archival purposes.
-
-Sample:
-
-| Column Name      | Sample       |
-| ---------------- | ------------ |
-| POLICY_ID        | 0001023456   |
-| CUSTOMER_NAME    | LISA THOMAS  |
-| PREMIUM_AMOUNT   | 000001320.00 |
-| RISK_SCORE       | 073          |
-| APPLICATION_TYPE | N            |
+This section ensures all calculated premium data is securely preserved by archiving the daily batch output, maintaining a recoverable history for auditing and restoration needs.
 
 ## Notify Job Completion
 
 Step in this section: `NOTIFY`.
 
-This section sends out a completion message that confirms the job finished successfully and provides the locations of the generated summary report and backup data for stakeholder review.
+This section communicates the successful completion of the batch insurance premium calculation job, specifying where output reports and backups have been stored so business and operations teams are aware and can take any necessary follow-up actions.
 
-- The input is a static message containing the job status and references to the summary report and backup data.
-- IEBGENER reads the message template and copies it directly to the output subsystem SYSOUT (INTRDR).
-- This makes the text notification immediately available to stakeholders via the job output system, confirming the job's success and pointing to where results and backups are stored.
+- The IEBGENER utility reads the notification message from the SYSUT1 DD, which contains the lines stating job completion and the locations of the summary report and backup file.
+- The exact content of SYSUT1 is written to SYSUT2, which targets the internal reader (INTRDR), resulting in the notification being distributed to operations and business teams.
+- No transformation takes place; the output is a direct copy of the input message, sent for rendering on the internal systems.
 
 ### Input
 
 **SYSUT1**
 
-Notification template with job completion messages, summary report reference, and backup file details.
+Notification message lines specifying job completion and locations of summary and backup data.
 
 Sample:
 
@@ -378,7 +324,7 @@ BACKUP CREATED: LGAP.BACKUP.PREMIUM.G0001V00
 
 **SYSUT2**
 
-Rendered notification output to the system's job entry subsystem (INTRDR), making the completion and resource locations visible to all stakeholders.
+Job completion notification sent to the operations console (internal reader) for rendering to stakeholders.
 
 Sample:
 

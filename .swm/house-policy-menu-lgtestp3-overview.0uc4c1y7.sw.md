@@ -3,20 +3,23 @@ title: House Policy Menu (LGTESTP3) - Overview
 ---
 # Overview
 
-This document describes the flow for managing house insurance policies through a menu-driven interface. Users can inquire about, add, delete, or update house policies, with the system validating input, processing requests, and providing feedback based on business rules.
+This document describes the flow for managing house insurance policies through an interactive menu. Users can view, add, delete, or update house policy records. The flow receives user selections and policy details as input, processes the requested action, and displays policy information or error messages as output.
 
 ```mermaid
 flowchart TD
-    node1["Handling User Menu Actions"]:::HeadingStyle --> node2{"Menu option selected?"}
-    click node1 goToHeading "Handling User Menu Actions"
-    node2 -->|"Inquiry"| node3["Processing Policy Inquiry Requests"]:::HeadingStyle
-    click node3 goToHeading "Processing Policy Inquiry Requests"
-    node2 -->|"Add"| node4["Validating and Inserting Policy Data"]:::HeadingStyle
-    click node4 goToHeading "Validating and Inserting Policy Data"
-    node2 -->|"Delete"| node5["Validating and Deleting Policy Requests"]:::HeadingStyle
-    click node5 goToHeading "Validating and Deleting Policy Requests"
-    node2 -->|"Update"| node6["Validating and Updating Policy Requests"]:::HeadingStyle
-    click node6 goToHeading "Validating and Updating Policy Requests"
+    node1["Entry and Initial Checks"]:::HeadingStyle --> node2["Menu Input and Action Dispatch"]:::HeadingStyle
+    click node1 goToHeading "Entry and Initial Checks"
+    click node2 goToHeading "Menu Input and Action Dispatch"
+    node2 --> node3{"Which menu option did the user select?"}
+    node3 -->|"Inquiry"|node4["Handling House Policy Menu Results"]:::HeadingStyle
+    click node4 goToHeading "Handling House Policy Menu Results"
+    node3 -->|"Add"|node5["Handling Add Policy Results and Error Routing"]:::HeadingStyle
+    click node5 goToHeading "Handling Add Policy Results and Error Routing"
+    node3 -->|"Delete"|node6["Handling Delete Results in Menu Logic"]:::HeadingStyle
+    click node6 goToHeading "Handling Delete Results in Menu Logic"
+    node3 -->|"Update"|node7["Handling Update Results in the Menu Logic"]:::HeadingStyle
+    click node7 goToHeading "Handling Update Results in the Menu Logic"
+
 classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
 ```
 
