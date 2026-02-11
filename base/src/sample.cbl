@@ -31,7 +31,7 @@
       */                                                       *
       */********************************************************
        IDENTIFICATION DIVISION.
-       PROGRAM-ID.
+       PROGRAM-ID. SAMPLES.
       *      POLINQ01 IS INITIAL.
       *DATE-MODIFIED.  FEB, 2026                 *** POLICY INQUIRY ***
 
@@ -648,4 +648,4 @@
       * - Screen display routines
       * - Error handling routines
 
-       END PROGRAM POLINQ01.
+      *END PROGRAM POLINQ01.
