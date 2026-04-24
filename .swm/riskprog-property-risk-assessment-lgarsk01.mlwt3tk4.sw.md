@@ -3,25 +3,7 @@ title: RISKPROG - Property Risk Assessment (LGARSK01)
 ---
 # Overview
 
-This document explains how property insurance policy records are validated, scored for risk, categorized, and output for further processing. Invalid records are logged with errors, ensuring only valid data is used.
-
-```mermaid
-flowchart TD
-    node1["Main Program Control Flow"]:::HeadingStyle --> node2{"Processing and Validating Input
-Records
-Is record valid?
-(Processing and Validating Input Records)"}:::HeadingStyle
-    click node1 goToHeading "Main Program Control Flow"
-    click node2 goToHeading "Processing and Validating Input Records"
-    node2 -->|"No"| node5["Log error and skip record
-(Processing and Validating Input Records)"]:::HeadingStyle
-    click node5 goToHeading "Processing and Validating Input Records"
-    node2 -->|"Yes"| node3["Risk Score Calculation Logic"]:::HeadingStyle
-    click node3 goToHeading "Risk Score Calculation Logic"
-    node3 --> node4["Writing Output After Risk Calculation"]:::HeadingStyle
-    click node4 goToHeading "Writing Output After Risk Calculation"
-classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
-```
+This document describes the flow for processing property insurance policy records. Each record is validated for a policy number, assigned risk multipliers and a location risk factor, and receives a calculated risk score or an error log.
 
 ## Dependencies
 
@@ -33,140 +15,178 @@ classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
 
 ### RISKPROG (<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>)
 
-| Table / File Name                                                                                                                       | Type | Description                                  | Usage Mode | Key Fields / Layout Highlights |
-| --------------------------------------------------------------------------------------------------------------------------------------- | ---- | -------------------------------------------- | ---------- | ------------------------------ |
-| <SwmToken path="base/src/lgarsk01.cbl" pos="12:3:5" line-data="           SELECT ERROR-FILE ASSIGN TO ERRFILE">`ERROR-FILE`</SwmToken>  | File | Policy processing errors and messages        | Output     | File resource                  |
-| <SwmToken path="base/src/lgarsk01.cbl" pos="88:3:5" line-data="               WRITE ERROR-RECORD">`ERROR-RECORD`</SwmToken>             | File | Policy number and error message details      | Output     | File resource                  |
-| <SwmToken path="base/src/lgarsk01.cbl" pos="80:3:5" line-data="           READ INPUT-FILE">`INPUT-FILE`</SwmToken>                      | File | Property insurance policy input records      | Input      | File resource                  |
-| <SwmToken path="base/src/lgarsk01.cbl" pos="9:3:5" line-data="           SELECT OUTPUT-FILE ASSIGN TO OUTFILE">`OUTPUT-FILE`</SwmToken> | File | Risk assessment results for each policy      | Output     | File resource                  |
-| <SwmToken path="base/src/lgarsk01.cbl" pos="154:3:5" line-data="           WRITE OUTPUT-RECORD.">`OUTPUT-RECORD`</SwmToken>             | File | Policy number, risk score, and risk category | Output     | File resource                  |
+| Table / File Name                                                                                                                       | Type | Description                                                            | Usage Mode | Key Fields / Layout Highlights |
+| --------------------------------------------------------------------------------------------------------------------------------------- | ---- | ---------------------------------------------------------------------- | ---------- | ------------------------------ |
+| <SwmToken path="base/src/lgarsk01.cbl" pos="12:3:5" line-data="           SELECT ERROR-FILE ASSIGN TO ERRFILE">`ERROR-FILE`</SwmToken>  | File | Error log for invalid or failed insurance policy records               | Output     | File resource                  |
+| <SwmToken path="base/src/lgarsk01.cbl" pos="88:3:5" line-data="               WRITE ERROR-RECORD">`ERROR-RECORD`</SwmToken>             | File | Details of policy records with validation or read errors               | Output     | File resource                  |
+| <SwmToken path="base/src/lgarsk01.cbl" pos="80:3:5" line-data="           READ INPUT-FILE">`INPUT-FILE`</SwmToken>                      | File | Insurance policy risk input records (policy, property, claims, perils) | Input      | File resource                  |
+| <SwmToken path="base/src/lgarsk01.cbl" pos="9:3:5" line-data="           SELECT OUTPUT-FILE ASSIGN TO OUTFILE">`OUTPUT-FILE`</SwmToken> | File | Calculated risk scores and categories for insurance policies           | Output     | File resource                  |
+| <SwmToken path="base/src/lgarsk01.cbl" pos="36:3:5" line-data="       01  OUTPUT-RECORD.">`OUTPUT-RECORD`</SwmToken>                    | File | Output record with policy number, risk score, and risk category        | Output     | File resource                  |
 
 ## Detailed View of the Program's Functionality
 
-Main Program Control Flow
+a. Program Initialization and File Handling
 
-The program begins by initializing the system. This involves opening the input, output, and error files. If there is an error opening the input file, the program logs an error message and sets a flag to indicate the end of processing.
+The program begins by defining three files: an input file for reading policy records, an output file for writing processed results, and an error file for logging any issues encountered during processing. Each file is assigned a status code to track its open/close state and any errors.
 
-After initialization, the program enters a loop that continues until the end-of-file flag is set. In each iteration of the loop, the program processes one input record. This involves reading the record, validating it, calculating a risk score, and writing the results to the output file. If the end of the input file is reached, or if a read error occurs, the loop exits.
+During initialization, the program attempts to open all three files. If the input file fails to open, an error message is displayed, and the program sets a flag to indicate the end of file processing, effectively preventing further operations.
 
-Once all records have been processed, the program closes all files and exits.
+b. Main Processing Loop
 
-Processing and Validating Input Records
+The core logic is orchestrated in a main routine that repeatedly processes records until the end-of-file flag is set. For each iteration, the following steps are performed:
 
-For each record, the program attempts to read from the input file. If the end of the file is reached, it sets the end-of-file flag and skips further processing for that iteration. If there is a read error, it logs the error by writing the policy number and an error message to the error file, then skips further processing for that record.
+1. The program reads the next record from the input file.
+2. If the end of the file is reached, it sets the end-of-file flag and exits the processing routine.
+3. If a read error occurs (other than end-of-file), the program logs the error by writing the policy number and an error message to the error file, then exits the processing routine for that record.
+4. If the record is read successfully, the program proceeds to validate the data, calculate the risk, and write the output.
 
-After a successful read, the program validates the input data. Specifically, it checks whether the policy number is present. If the policy number is missing (i.e., it contains only spaces), the program logs an error message and skips further processing for that record. Only records with a valid policy number proceed to the risk calculation step.
+c. Record Validation
 
-Risk Score Calculation Logic
+Before any calculations, the program validates the policy number. If the policy number is missing (i.e., it contains only spaces), the program logs an error message "INVALID POLICY NUMBER" to the error file and skips further processing for that record. Only records with a valid policy number proceed to the next steps.
 
-The risk calculation begins by determining a base risk factor based on the property type. The program assigns a specific value for each recognized property type (OFFICE, RETAIL, WAREHOUSE, INDUSTRIAL), and a default value for any other type.
+d. Risk Calculation
 
-Next, the program adjusts the risk based on the number of claims associated with the policy. If there are no claims, a lower claim factor is used. If there are one or two claims, a higher factor is applied. For more than two claims, the highest factor is used.
+For valid records, the program calculates a risk score using several factors:
 
-The program then calculates a location factor. This is a weighted sum of four peril values: fire, crime, flood, and weather. Each peril contributes a specific weight to the overall location factor.
+1. **Base Risk Multiplier**: Determined by the property type. Each property type (office, retail, warehouse, industrial) is mapped to a specific multiplier. Any other property type receives a default multiplier.
+2. **Claim Factor**: Based on the number of claims:
+   - Zero claims: lowest multiplier.
+   - One or two claims: medium multiplier.
+   - More than two claims: highest multiplier.
+3. **Location Factor**: Calculated as a weighted sum of four risk percentages: fire, crime, flood, and weather. Each is multiplied by a specific weight, and the sum is added to a base value.
+4. **Final Risk Score**: The base risk multiplier, claim factor, and location factor are multiplied together to produce the final risk score. If this score exceeds a maximum threshold, it is capped.
 
-The final risk score is computed by multiplying the base risk, claim factor, and location factor together. If the calculated risk score exceeds a maximum threshold, it is capped at that value to prevent excessively high scores.
+e. Output Record Writing
 
-Writing Output After Risk Calculation
+After calculating the risk score, the program prepares the output record:
 
-After calculating the risk score, the program prepares the output record. It copies the policy number and the calculated risk score to the output structure.
+1. The policy number and risk score are written to the output.
+2. The risk score is categorized:
+   - Scores below a lower threshold are labeled "LOW".
+   - Scores below a higher threshold are labeled "MEDIUM".
+   - Scores above the higher threshold are labeled "HIGH".
+3. The completed output record is written to the output file.
 
-The program then assigns a risk category based on the risk score. If the score is less than a lower threshold, the category is set to LOW. If the score is between the lower and an upper threshold, the category is set to MEDIUM. Otherwise, the category is set to HIGH. The category string is padded to a fixed length.
+f. Closing Files
 
-Finally, the program writes the completed output record to the output file, making the results available for further use or reporting.
+Once all records have been processed (i.e., the end-of-file flag is set), the program closes all files to ensure data integrity and proper resource management.
 
 # Rule Definition
 
-| Paragraph Name                                                                                                                                                                                                                                                                              | Rule ID | Category          | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Conditions                                                         | Remarks                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| DATA DIVISION, FILE SECTION, FD <SwmToken path="base/src/lgarsk01.cbl" pos="80:3:5" line-data="           READ INPUT-FILE">`INPUT-FILE`</SwmToken>, 01 <SwmToken path="base/src/lgarsk01.cbl" pos="21:3:5" line-data="       01  INPUT-RECORD.">`INPUT-RECORD`</SwmToken>                   | RL-001  | Data Assignment   | Each input record is exactly 400 characters long. Fields are extracted by their defined positions and lengths.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | For every record read from the input file.                         | Record length: 400 characters. Fields: policy number (1-10, string), property type (11-25, string), address (26-280, string), zipcode (281-288, string), fire peril (289-290, number), crime peril (291-292, number), flood peril (293-294, number), weather peril (295-296, number), claim count (297-299, number), total claims (300-308, number).                                                                                                                                                                                                                                                                                                                                          |
-| <SwmToken path="base/src/lgarsk01.cbl" pos="92:3:7" line-data="           PERFORM 2100-VALIDATE-DATA">`2100-VALIDATE-DATA`</SwmToken>                                                                                                                                                       | RL-002  | Conditional Logic | If the policy number field is blank (all spaces), log an error and skip further processing for that record.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Policy number field is blank (all spaces).                         | Error file record: policy number (10 chars), error message (left-justified, space-padded to 90 chars). Error message: 'INVALID POLICY NUMBER'.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| Not explicitly shown in code, implied in field definitions and calculations                                                                                                                                                                                                                 | RL-003  | Conditional Logic | Blanks and non-numeric values in numeric fields (peril values, claim count, total claims) are treated as zero. No error is logged for these cases.                                                                                                                                                                                                                                                                                                                                                                                                                                                       | Numeric field is blank or contains non-numeric value.              | No error is logged for invalid numeric fields. All such fields are treated as zero for calculations.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| <SwmToken path="base/src/lgarsk01.cbl" pos="93:3:7" line-data="           PERFORM 2200-CALCULATE-RISK">`2200-CALCULATE-RISK`</SwmToken>                                                                                                                                                     | RL-004  | Conditional Logic | Property type is compared case-insensitively to 'OFFICE', 'RETAIL', 'WAREHOUSE', 'INDUSTRIAL'. If not matched, treated as 'OTHER'.                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | Property type does not match any allowed value (case-insensitive). | Allowed values: 'OFFICE', 'RETAIL', 'WAREHOUSE', 'INDUSTRIAL'. Default: 'OTHER'.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| <SwmToken path="base/src/lgarsk01.cbl" pos="93:3:7" line-data="           PERFORM 2200-CALCULATE-RISK">`2200-CALCULATE-RISK`</SwmToken>                                                                                                                                                     | RL-005  | Data Assignment   | Base risk factor is set according to property type.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Property type is one of the allowed values or 'OTHER'.             | OFFICE: <SwmToken path="base/src/lgarsk01.cbl" pos="110:3:5" line-data="                   MOVE 1.00 TO WS-BS-RS">`1.00`</SwmToken>, RETAIL: <SwmToken path="base/src/lgarsk01.cbl" pos="112:3:5" line-data="                   MOVE 1.25 TO WS-BS-RS">`1.25`</SwmToken>, WAREHOUSE: <SwmToken path="base/src/lgarsk01.cbl" pos="114:3:5" line-data="                   MOVE 1.50 TO WS-BS-RS">`1.50`</SwmToken>, INDUSTRIAL: <SwmToken path="base/src/lgarsk01.cbl" pos="116:3:5" line-data="                   MOVE 2.00 TO WS-BS-RS">`2.00`</SwmToken>, OTHER: <SwmToken path="base/src/lgarsk01.cbl" pos="118:3:5" line-data="                   MOVE 1.75 TO WS-BS-RS">`1.75`</SwmToken> |
-| <SwmToken path="base/src/lgarsk01.cbl" pos="93:3:7" line-data="           PERFORM 2200-CALCULATE-RISK">`2200-CALCULATE-RISK`</SwmToken>                                                                                                                                                     | RL-006  | Data Assignment   | Claim factor is set according to claim count.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | Claim count is 0, 1-2, or greater than 2.                          | 0: <SwmToken path="base/src/lgarsk01.cbl" pos="122:3:5" line-data="               MOVE 0.80 TO WS-CL-F">`0.80`</SwmToken>, 1-2: <SwmToken path="base/src/lgarsk01.cbl" pos="124:3:5" line-data="               MOVE 1.30 TO WS-CL-F">`1.30`</SwmToken>, >2: <SwmToken path="base/src/lgarsk01.cbl" pos="114:3:5" line-data="                   MOVE 1.50 TO WS-BS-RS">`1.50`</SwmToken>                                                                                                                                                                                                                                                                                                       |
-| <SwmToken path="base/src/lgarsk01.cbl" pos="93:3:7" line-data="           PERFORM 2200-CALCULATE-RISK">`2200-CALCULATE-RISK`</SwmToken>                                                                                                                                                     | RL-007  | Computation       | Location factor is calculated as 1 + (fire peril \* <SwmToken path="base/src/lgarsk01.cbl" pos="130:10:12" line-data="               (IN-FR-PR * 0.2) +">`0.2`</SwmToken>) + (crime peril \* <SwmToken path="base/src/lgarsk01.cbl" pos="130:10:12" line-data="               (IN-FR-PR * 0.2) +">`0.2`</SwmToken>) + (flood peril \* <SwmToken path="base/src/lgarsk01.cbl" pos="132:10:12" line-data="               (IN-FL-PR * 0.3) +">`0.3`</SwmToken>) + (weather peril \* <SwmToken path="base/src/lgarsk01.cbl" pos="130:10:12" line-data="               (IN-FR-PR * 0.2) +">`0.2`</SwmToken>). | Always calculated for each record.                                 | fire peril, crime peril, flood peril, weather peril are numeric values (treated as zero if blank/non-numeric).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| <SwmToken path="base/src/lgarsk01.cbl" pos="93:3:7" line-data="           PERFORM 2200-CALCULATE-RISK">`2200-CALCULATE-RISK`</SwmToken>                                                                                                                                                     | RL-008  | Computation       | Risk score is calculated as base risk factor × claim factor × location factor, rounded to two decimals (round half up). If result > <SwmToken path="base/src/lgarsk01.cbl" pos="138:11:13" line-data="           IF WS-F-RSK &gt; 9.99">`9.99`</SwmToken>, cap at <SwmToken path="base/src/lgarsk01.cbl" pos="138:11:13" line-data="           IF WS-F-RSK &gt; 9.99">`9.99`</SwmToken>.                                                                                                                                                                                                                 | Always calculated for each valid record.                           | Risk score: rounded to two decimals, capped at <SwmToken path="base/src/lgarsk01.cbl" pos="138:11:13" line-data="           IF WS-F-RSK &gt; 9.99">`9.99`</SwmToken>.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| <SwmToken path="base/src/lgarsk01.cbl" pos="94:3:7" line-data="           PERFORM 2300-WRITE-OUTPUT">`2300-WRITE-OUTPUT`</SwmToken>                                                                                                                                                         | RL-009  | Conditional Logic | Risk category is assigned based on risk score: <<SwmToken path="base/src/lgarsk01.cbl" pos="147:11:13" line-data="               WHEN WS-F-RSK &lt; 3.00">`3.00`</SwmToken> LOW, >=<SwmToken path="base/src/lgarsk01.cbl" pos="147:11:13" line-data="               WHEN WS-F-RSK &lt; 3.00">`3.00`</SwmToken> and <<SwmToken path="base/src/lgarsk01.cbl" pos="149:11:13" line-data="               WHEN WS-F-RSK &lt; 6.00">`6.00`</SwmToken> MEDIUM, >=<SwmToken path="base/src/lgarsk01.cbl" pos="149:11:13" line-data="               WHEN WS-F-RSK &lt; 6.00">`6.00`</SwmToken> HIGH.              | Risk score value after rounding and capping.                       | LOW: <<SwmToken path="base/src/lgarsk01.cbl" pos="147:11:13" line-data="               WHEN WS-F-RSK &lt; 3.00">`3.00`</SwmToken>, MEDIUM: >=<SwmToken path="base/src/lgarsk01.cbl" pos="147:11:13" line-data="               WHEN WS-F-RSK &lt; 3.00">`3.00`</SwmToken> and <<SwmToken path="base/src/lgarsk01.cbl" pos="149:11:13" line-data="               WHEN WS-F-RSK &lt; 6.00">`6.00`</SwmToken>, HIGH: >=<SwmToken path="base/src/lgarsk01.cbl" pos="149:11:13" line-data="               WHEN WS-F-RSK &lt; 6.00">`6.00`</SwmToken>. Output field: left-justified, space-padded to 10 characters.                                                                                  |
-| <SwmToken path="base/src/lgarsk01.cbl" pos="94:3:7" line-data="           PERFORM 2300-WRITE-OUTPUT">`2300-WRITE-OUTPUT`</SwmToken>                                                                                                                                                         | RL-010  | Data Assignment   | Output record contains policy number, risk score (5-character string, two implied decimals, right-justified, zero-filled), risk category (left-justified, space-padded to 10), and filler to 100 characters.                                                                                                                                                                                                                                                                                                                                                                                             | For each valid processed record.                                   | Output record: policy number (10 chars), risk score (5 chars, two implied decimals, right-justified, zero-filled), risk category (10 chars, left-justified, space-padded), filler (75 chars).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| <SwmToken path="base/src/lgarsk01.cbl" pos="92:3:7" line-data="           PERFORM 2100-VALIDATE-DATA">`2100-VALIDATE-DATA`</SwmToken>                                                                                                                                                       | RL-011  | Data Assignment   | Error file contains records for each input record with missing policy number: policy number and error message (left-justified, space-padded to 90 chars).                                                                                                                                                                                                                                                                                                                                                                                                                                                | Policy number is blank.                                            | Error record: policy number (10 chars), error message (90 chars, left-justified, space-padded).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| <SwmToken path="base/src/lgarsk01.cbl" pos="65:3:5" line-data="           PERFORM 1000-INIT">`1000-INIT`</SwmToken>, <SwmToken path="base/src/lgarsk01.cbl" pos="67:3:5" line-data="           PERFORM 3000-CLOSE">`3000-CLOSE`</SwmToken>                                                  | RL-012  | Conditional Logic | The output file must always be created, even if no valid records are processed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Program runs, regardless of input validity.                        | Output file is opened at program start and closed at end, ensuring creation.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| <SwmToken path="base/src/lgarsk01.cbl" pos="66:3:5" line-data="           PERFORM 2000-PROCESS UNTIL WS-EOF = &#39;Y&#39;">`2000-PROCESS`</SwmToken>, <SwmToken path="base/src/lgarsk01.cbl" pos="92:3:7" line-data="           PERFORM 2100-VALIDATE-DATA">`2100-VALIDATE-DATA`</SwmToken> | RL-013  | Conditional Logic | The program processes all records, logging errors as they occur, and does not stop processing on the first error.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | Any error occurs during processing of a record.                    | Processing continues for all records, errors are logged as they occur.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| <SwmToken path="base/src/lgarsk01.cbl" pos="67:3:5" line-data="           PERFORM 3000-CLOSE">`3000-CLOSE`</SwmToken>                                                                                                                                                                       | RL-014  | Data Assignment   | All files are closed after processing is complete.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | After all records have been processed.                             | All files (input, output, error) are closed at end of processing.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Paragraph Name                                                                                                                                       | Rule ID | Category          | Description                                                                                                                                                                                                                                                 | Conditions                                                                           | Remarks                                                                                                                                                                                                           |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| <SwmToken path="base/src/lgarsk01.cbl" pos="66:3:5" line-data="           PERFORM 2000-PROCESS UNTIL WS-EOF = &#39;Y&#39;">`2000-PROCESS`</SwmToken> | RL-001  | Conditional Logic | The program reads policy records sequentially from the input file. If the end of the file is reached, it stops processing further records.                                                                                                                  | Triggered on each iteration of the main processing loop when reading the input file. | Input records are 400 characters, fixed-length. End-of-file is detected using the file status or AT END clause.                                                                                                   |
+| <SwmToken path="base/src/lgarsk01.cbl" pos="66:3:5" line-data="           PERFORM 2000-PROCESS UNTIL WS-EOF = &#39;Y&#39;">`2000-PROCESS`</SwmToken> | RL-002  | Conditional Logic | If a read error occurs (other than end-of-file), the program writes an error record to the error file with the policy number (if available) and the message 'ERROR READING RECORD', padded to 90 characters, then skips further processing for that record. | Triggered when the file status after a read is not '00' and not end-of-file.         | Error record format: 100 characters, with policy number left-justified, padded to 10 characters, and error message left-justified, padded to 90 characters. Message: 'ERROR READING RECORD'.                      |
+| <SwmToken path="base/src/lgarsk01.cbl" pos="92:3:7" line-data="           PERFORM 2100-VALIDATE-DATA">`2100-VALIDATE-DATA`</SwmToken>                | RL-003  | Conditional Logic | The program checks that the policy number is present and not all spaces. If missing or all spaces, it writes an error record with the message 'INVALID POLICY NUMBER', padded to 90 characters, and skips further processing for that record.               | Triggered for each input record after a successful read.                             | Error record format: 100 characters, with policy number left-justified, padded to 10 characters (spaces if missing), and error message left-justified, padded to 90 characters. Message: 'INVALID POLICY NUMBER'. |
+| <SwmToken path="base/src/lgarsk01.cbl" pos="93:3:7" line-data="           PERFORM 2200-CALCULATE-RISK">`2200-CALCULATE-RISK`</SwmToken>              | RL-004  | Data Assignment   | Assigns a base risk multiplier based on the property type field. Specific values are mapped to specific multipliers, with a default for any other value.                                                                                                    | Triggered for each valid input record during risk calculation.                       | Property type to multiplier mapping:                                                                                                                                                                              |
+
+- 'OFFICE': <SwmToken path="base/src/lgarsk01.cbl" pos="110:3:5" line-data="                   MOVE 1.00 TO WS-BS-RS">`1.00`</SwmToken>
+- 'RETAIL': <SwmToken path="base/src/lgarsk01.cbl" pos="112:3:5" line-data="                   MOVE 1.25 TO WS-BS-RS">`1.25`</SwmToken>
+- 'WAREHOUSE': <SwmToken path="base/src/lgarsk01.cbl" pos="114:3:5" line-data="                   MOVE 1.50 TO WS-BS-RS">`1.50`</SwmToken>
+- 'INDUSTRIAL': <SwmToken path="base/src/lgarsk01.cbl" pos="116:3:5" line-data="                   MOVE 2.00 TO WS-BS-RS">`2.00`</SwmToken>
+- Any other value: <SwmToken path="base/src/lgarsk01.cbl" pos="118:3:5" line-data="                   MOVE 1.75 TO WS-BS-RS">`1.75`</SwmToken> | | <SwmToken path="base/src/lgarsk01.cbl" pos="93:3:7" line-data="           PERFORM 2200-CALCULATE-RISK">`2200-CALCULATE-RISK`</SwmToken> | RL-005 | Data Assignment | Assigns a claim factor based on the integer value of the claim count field. | Triggered for each valid input record during risk calculation. | Claim count to factor mapping:
+- 0: <SwmToken path="base/src/lgarsk01.cbl" pos="122:3:5" line-data="               MOVE 0.80 TO WS-CL-F">`0.80`</SwmToken>
+- 1 or 2: <SwmToken path="base/src/lgarsk01.cbl" pos="124:3:5" line-data="               MOVE 1.30 TO WS-CL-F">`1.30`</SwmToken>
+- Greater than 2: <SwmToken path="base/src/lgarsk01.cbl" pos="114:3:5" line-data="                   MOVE 1.50 TO WS-BS-RS">`1.50`</SwmToken> | | <SwmToken path="base/src/lgarsk01.cbl" pos="93:3:7" line-data="           PERFORM 2200-CALCULATE-RISK">`2200-CALCULATE-RISK`</SwmToken> | RL-006 | Computation | Calculates the location factor using peril values as raw integers, applying specified weights. | Triggered for each valid input record during risk calculation. | Location factor formula: 1 + (fire peril \* <SwmToken path="base/src/lgarsk01.cbl" pos="130:10:12" line-data="               (IN-FR-PR * 0.2) +">`0.2`</SwmToken>) + (crime peril \* <SwmToken path="base/src/lgarsk01.cbl" pos="130:10:12" line-data="               (IN-FR-PR * 0.2) +">`0.2`</SwmToken>) + (flood peril \* <SwmToken path="base/src/lgarsk01.cbl" pos="132:10:12" line-data="               (IN-FL-PR * 0.3) +">`0.3`</SwmToken>) + (weather peril \* <SwmToken path="base/src/lgarsk01.cbl" pos="130:10:12" line-data="               (IN-FR-PR * 0.2) +">`0.2`</SwmToken>) All peril values are integers, not divided by 100. | | <SwmToken path="base/src/lgarsk01.cbl" pos="93:3:7" line-data="           PERFORM 2200-CALCULATE-RISK">`2200-CALCULATE-RISK`</SwmToken> | RL-007 | Computation | Computes the risk score as the product of base risk multiplier, claim factor, and location factor. The result is rounded to two decimal places (round half up) and capped at <SwmToken path="base/src/lgarsk01.cbl" pos="138:11:13" line-data="           IF WS-F-RSK &gt; 9.99">`9.99`</SwmToken> if it exceeds this value. | Triggered for each valid input record after risk factors are assigned/calculated. | Risk score = base risk multiplier \* claim factor \* location factor Rounded to two decimal places (round half up) Capped at <SwmToken path="base/src/lgarsk01.cbl" pos="138:11:13" line-data="           IF WS-F-RSK &gt; 9.99">`9.99`</SwmToken> if result exceeds <SwmToken path="base/src/lgarsk01.cbl" pos="138:11:13" line-data="           IF WS-F-RSK &gt; 9.99">`9.99`</SwmToken> | | <SwmToken path="base/src/lgarsk01.cbl" pos="94:3:7" line-data="           PERFORM 2300-WRITE-OUTPUT">`2300-WRITE-OUTPUT`</SwmToken> | RL-008 | Conditional Logic | Assigns a risk category based on the final risk score: 'LOW', 'MEDIUM', or 'HIGH'. | Triggered for each valid input record after risk score is computed. | Risk category mapping:
+- If risk score < <SwmToken path="base/src/lgarsk01.cbl" pos="147:11:13" line-data="               WHEN WS-F-RSK &lt; 3.00">`3.00`</SwmToken>: 'LOW'
+- If risk score >= <SwmToken path="base/src/lgarsk01.cbl" pos="147:11:13" line-data="               WHEN WS-F-RSK &lt; 3.00">`3.00`</SwmToken> and < <SwmToken path="base/src/lgarsk01.cbl" pos="149:11:13" line-data="               WHEN WS-F-RSK &lt; 6.00">`6.00`</SwmToken>: 'MEDIUM'
+- If risk score >= <SwmToken path="base/src/lgarsk01.cbl" pos="149:11:13" line-data="               WHEN WS-F-RSK &lt; 6.00">`6.00`</SwmToken>: 'HIGH' Output field is left-justified, padded to 10 characters. | | <SwmToken path="base/src/lgarsk01.cbl" pos="94:3:7" line-data="           PERFORM 2300-WRITE-OUTPUT">`2300-WRITE-OUTPUT`</SwmToken> | RL-009 | Data Assignment | For each valid input record, writes a 100-character, fixed-length output record to the output file with the policy number, risk score (as integer, left-padded with zeros), risk category, and filler spaces. | Triggered for each valid input record after risk score and category are determined. | Output record format: 100 characters
+- Policy number: left-justified, padded to 10 characters
+- Risk score: risk score \* 100, rounded, left-padded with zeros to 5 digits, no decimal point
+- Risk category: left-justified, padded to 10 characters
+- Filler: 75 spaces | | <SwmToken path="base/src/lgarsk01.cbl" pos="66:3:5" line-data="           PERFORM 2000-PROCESS UNTIL WS-EOF = &#39;Y&#39;">`2000-PROCESS`</SwmToken>, <SwmToken path="base/src/lgarsk01.cbl" pos="92:3:7" line-data="           PERFORM 2100-VALIDATE-DATA">`2100-VALIDATE-DATA`</SwmToken> | RL-010 | Data Assignment | For each error case, writes a 100-character, fixed-length error record to the error file with the policy number (spaces if missing) and the error message, both left-justified and padded as specified. | Triggered for each error case (read error, invalid policy number, etc.). | Error record format: 100 characters
+- Policy number: left-justified, padded to 10 characters (spaces if missing)
+- Error message: left-justified, padded to 90 characters No variable-length records allowed. |
 
 # User Stories
 
-## User Story 1: Read and validate input records
+## User Story 1: Sequential reading and error handling for input records
 
 ---
 
 ### Story Description:
 
-As a system, I want to read each input record as a fixed-width file, extract fields by their defined positions and lengths, treat blanks and non-numeric values in numeric fields as zero, and log an error for missing policy numbers so that all input data is reliably interpreted and errors are captured without stopping processing.
+As a system, I want to read policy records sequentially from the input file, detect end-of-file, and handle read errors by writing error records so that only valid records are processed and errors are logged appropriately.
 
 ---
 
 ### Business Rule Mapping:
 
-| Rule ID | Paragraph Name                                                                                                                                                                                                                                                                              | Rule Description                                                                                                                                          |
-| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| RL-013  | <SwmToken path="base/src/lgarsk01.cbl" pos="66:3:5" line-data="           PERFORM 2000-PROCESS UNTIL WS-EOF = &#39;Y&#39;">`2000-PROCESS`</SwmToken>, <SwmToken path="base/src/lgarsk01.cbl" pos="92:3:7" line-data="           PERFORM 2100-VALIDATE-DATA">`2100-VALIDATE-DATA`</SwmToken> | The program processes all records, logging errors as they occur, and does not stop processing on the first error.                                         |
-| RL-002  | <SwmToken path="base/src/lgarsk01.cbl" pos="92:3:7" line-data="           PERFORM 2100-VALIDATE-DATA">`2100-VALIDATE-DATA`</SwmToken>                                                                                                                                                       | If the policy number field is blank (all spaces), log an error and skip further processing for that record.                                               |
-| RL-011  | <SwmToken path="base/src/lgarsk01.cbl" pos="92:3:7" line-data="           PERFORM 2100-VALIDATE-DATA">`2100-VALIDATE-DATA`</SwmToken>                                                                                                                                                       | Error file contains records for each input record with missing policy number: policy number and error message (left-justified, space-padded to 90 chars). |
-| RL-001  | DATA DIVISION, FILE SECTION, FD <SwmToken path="base/src/lgarsk01.cbl" pos="80:3:5" line-data="           READ INPUT-FILE">`INPUT-FILE`</SwmToken>, 01 <SwmToken path="base/src/lgarsk01.cbl" pos="21:3:5" line-data="       01  INPUT-RECORD.">`INPUT-RECORD`</SwmToken>                   | Each input record is exactly 400 characters long. Fields are extracted by their defined positions and lengths.                                            |
-| RL-003  | Not explicitly shown in code, implied in field definitions and calculations                                                                                                                                                                                                                 | Blanks and non-numeric values in numeric fields (peril values, claim count, total claims) are treated as zero. No error is logged for these cases.        |
+| Rule ID | Paragraph Name                                                                                                                                       | Rule Description                                                                                                                                                                                                                                            |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| RL-001  | <SwmToken path="base/src/lgarsk01.cbl" pos="66:3:5" line-data="           PERFORM 2000-PROCESS UNTIL WS-EOF = &#39;Y&#39;">`2000-PROCESS`</SwmToken> | The program reads policy records sequentially from the input file. If the end of the file is reached, it stops processing further records.                                                                                                                  |
+| RL-002  | <SwmToken path="base/src/lgarsk01.cbl" pos="66:3:5" line-data="           PERFORM 2000-PROCESS UNTIL WS-EOF = &#39;Y&#39;">`2000-PROCESS`</SwmToken> | If a read error occurs (other than end-of-file), the program writes an error record to the error file with the policy number (if available) and the message 'ERROR READING RECORD', padded to 90 characters, then skips further processing for that record. |
 
 ---
 
 ### Relevant Functionality:
 
 - <SwmToken path="base/src/lgarsk01.cbl" pos="66:3:5" line-data="           PERFORM 2000-PROCESS UNTIL WS-EOF = &#39;Y&#39;">`2000-PROCESS`</SwmToken>
-  1. **RL-013:**
-     - For each record:
-       - If error, log error
-       - Continue to next record
-- <SwmToken path="base/src/lgarsk01.cbl" pos="92:3:7" line-data="           PERFORM 2100-VALIDATE-DATA">`2100-VALIDATE-DATA`</SwmToken>
-  1. **RL-002:**
-     - If policy number is blank:
-       - Move policy number to error record field
-       - Move error message to error record field
-       - Write error record to error file
-       - Skip further processing for this record
-  2. **RL-011:**
-     - Format policy number as 10-char string
-     - Format error message as 90-char string, left-justified, space-padded
-     - Write error record
-- **DATA DIVISION**
   1. **RL-001:**
-     - Read 400-character record from input file
-     - Extract substrings for each field according to position and length
-     - Assign extracted values to working variables for processing
-- **Not explicitly shown in code**
-  1. **RL-003:**
-     - For each numeric field:
-       - If blank or non-numeric, treat as zero
-       - Otherwise, use the numeric value
+     - Loop:
+       - Read next input record
+       - If end-of-file detected:
+         - Set end-of-file flag
+         - Exit processing loop
+  2. **RL-002:**
+     - If read error (not end-of-file):
+       - Set error record policy number to input policy number (if available)
+       - Set error message to 'ERROR READING RECORD', pad to 90 characters
+       - Write error record
+       - Skip further processing for this record
 
-## User Story 2: Calculate risk factors and assign risk category
+## User Story 2: Validation of policy number and error reporting
 
 ---
 
 ### Story Description:
 
-As a system, I want to normalize the property type, assign base and claim factors, calculate the location factor and risk score (with rounding and capping), and assign a risk category so that each valid policy record is assessed accurately according to business rules.
+As a system, I want to validate that each policy record contains a valid policy number and write an error record if the policy number is missing or invalid, ensuring error records are formatted correctly, so that only records with valid identifiers are processed and errors are consistently reported.
 
 ---
 
 ### Business Rule Mapping:
 
-| Rule ID | Paragraph Name                                                                                                                          | Rule Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| ------- | --------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| RL-004  | <SwmToken path="base/src/lgarsk01.cbl" pos="93:3:7" line-data="           PERFORM 2200-CALCULATE-RISK">`2200-CALCULATE-RISK`</SwmToken> | Property type is compared case-insensitively to 'OFFICE', 'RETAIL', 'WAREHOUSE', 'INDUSTRIAL'. If not matched, treated as 'OTHER'.                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| RL-005  | <SwmToken path="base/src/lgarsk01.cbl" pos="93:3:7" line-data="           PERFORM 2200-CALCULATE-RISK">`2200-CALCULATE-RISK`</SwmToken> | Base risk factor is set according to property type.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| RL-006  | <SwmToken path="base/src/lgarsk01.cbl" pos="93:3:7" line-data="           PERFORM 2200-CALCULATE-RISK">`2200-CALCULATE-RISK`</SwmToken> | Claim factor is set according to claim count.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| RL-007  | <SwmToken path="base/src/lgarsk01.cbl" pos="93:3:7" line-data="           PERFORM 2200-CALCULATE-RISK">`2200-CALCULATE-RISK`</SwmToken> | Location factor is calculated as 1 + (fire peril \* <SwmToken path="base/src/lgarsk01.cbl" pos="130:10:12" line-data="               (IN-FR-PR * 0.2) +">`0.2`</SwmToken>) + (crime peril \* <SwmToken path="base/src/lgarsk01.cbl" pos="130:10:12" line-data="               (IN-FR-PR * 0.2) +">`0.2`</SwmToken>) + (flood peril \* <SwmToken path="base/src/lgarsk01.cbl" pos="132:10:12" line-data="               (IN-FL-PR * 0.3) +">`0.3`</SwmToken>) + (weather peril \* <SwmToken path="base/src/lgarsk01.cbl" pos="130:10:12" line-data="               (IN-FR-PR * 0.2) +">`0.2`</SwmToken>). |
-| RL-008  | <SwmToken path="base/src/lgarsk01.cbl" pos="93:3:7" line-data="           PERFORM 2200-CALCULATE-RISK">`2200-CALCULATE-RISK`</SwmToken> | Risk score is calculated as base risk factor × claim factor × location factor, rounded to two decimals (round half up). If result > <SwmToken path="base/src/lgarsk01.cbl" pos="138:11:13" line-data="           IF WS-F-RSK &gt; 9.99">`9.99`</SwmToken>, cap at <SwmToken path="base/src/lgarsk01.cbl" pos="138:11:13" line-data="           IF WS-F-RSK &gt; 9.99">`9.99`</SwmToken>.                                                                                                                                                                                                                 |
-| RL-009  | <SwmToken path="base/src/lgarsk01.cbl" pos="94:3:7" line-data="           PERFORM 2300-WRITE-OUTPUT">`2300-WRITE-OUTPUT`</SwmToken>     | Risk category is assigned based on risk score: <<SwmToken path="base/src/lgarsk01.cbl" pos="147:11:13" line-data="               WHEN WS-F-RSK &lt; 3.00">`3.00`</SwmToken> LOW, >=<SwmToken path="base/src/lgarsk01.cbl" pos="147:11:13" line-data="               WHEN WS-F-RSK &lt; 3.00">`3.00`</SwmToken> and <<SwmToken path="base/src/lgarsk01.cbl" pos="149:11:13" line-data="               WHEN WS-F-RSK &lt; 6.00">`6.00`</SwmToken> MEDIUM, >=<SwmToken path="base/src/lgarsk01.cbl" pos="149:11:13" line-data="               WHEN WS-F-RSK &lt; 6.00">`6.00`</SwmToken> HIGH.              |
+| Rule ID | Paragraph Name                                                                                                                                                                                                                                                                              | Rule Description                                                                                                                                                                                                                              |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| RL-010  | <SwmToken path="base/src/lgarsk01.cbl" pos="66:3:5" line-data="           PERFORM 2000-PROCESS UNTIL WS-EOF = &#39;Y&#39;">`2000-PROCESS`</SwmToken>, <SwmToken path="base/src/lgarsk01.cbl" pos="92:3:7" line-data="           PERFORM 2100-VALIDATE-DATA">`2100-VALIDATE-DATA`</SwmToken> | For each error case, writes a 100-character, fixed-length error record to the error file with the policy number (spaces if missing) and the error message, both left-justified and padded as specified.                                       |
+| RL-003  | <SwmToken path="base/src/lgarsk01.cbl" pos="92:3:7" line-data="           PERFORM 2100-VALIDATE-DATA">`2100-VALIDATE-DATA`</SwmToken>                                                                                                                                                       | The program checks that the policy number is present and not all spaces. If missing or all spaces, it writes an error record with the message 'INVALID POLICY NUMBER', padded to 90 characters, and skips further processing for that record. |
+
+---
+
+### Relevant Functionality:
+
+- <SwmToken path="base/src/lgarsk01.cbl" pos="66:3:5" line-data="           PERFORM 2000-PROCESS UNTIL WS-EOF = &#39;Y&#39;">`2000-PROCESS`</SwmToken>
+  1. **RL-010:**
+     - Set error policy number (spaces if missing), left-justified, padded to 10 characters
+     - Set error message, left-justified, padded to 90 characters
+     - Write error record
+- <SwmToken path="base/src/lgarsk01.cbl" pos="92:3:7" line-data="           PERFORM 2100-VALIDATE-DATA">`2100-VALIDATE-DATA`</SwmToken>
+  1. **RL-003:**
+     - If policy number is missing or all spaces:
+       - Set error message to 'INVALID POLICY NUMBER', pad to 90 characters
+       - Write error record
+       - Skip further processing for this record
+
+## User Story 3: Risk calculation for valid policy records
+
+---
+
+### Story Description:
+
+As a system, I want to calculate the risk score and risk category for each valid policy record using property type, claim count, peril values, and specified formulas so that each policy is accurately assessed for risk.
+
+---
+
+### Business Rule Mapping:
+
+| Rule ID | Paragraph Name                                                                                                                          | Rule Description                                                                                                                                                                                                                                                                                                             |
+| ------- | --------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| RL-004  | <SwmToken path="base/src/lgarsk01.cbl" pos="93:3:7" line-data="           PERFORM 2200-CALCULATE-RISK">`2200-CALCULATE-RISK`</SwmToken> | Assigns a base risk multiplier based on the property type field. Specific values are mapped to specific multipliers, with a default for any other value.                                                                                                                                                                     |
+| RL-005  | <SwmToken path="base/src/lgarsk01.cbl" pos="93:3:7" line-data="           PERFORM 2200-CALCULATE-RISK">`2200-CALCULATE-RISK`</SwmToken> | Assigns a claim factor based on the integer value of the claim count field.                                                                                                                                                                                                                                                  |
+| RL-006  | <SwmToken path="base/src/lgarsk01.cbl" pos="93:3:7" line-data="           PERFORM 2200-CALCULATE-RISK">`2200-CALCULATE-RISK`</SwmToken> | Calculates the location factor using peril values as raw integers, applying specified weights.                                                                                                                                                                                                                               |
+| RL-007  | <SwmToken path="base/src/lgarsk01.cbl" pos="93:3:7" line-data="           PERFORM 2200-CALCULATE-RISK">`2200-CALCULATE-RISK`</SwmToken> | Computes the risk score as the product of base risk multiplier, claim factor, and location factor. The result is rounded to two decimal places (round half up) and capped at <SwmToken path="base/src/lgarsk01.cbl" pos="138:11:13" line-data="           IF WS-F-RSK &gt; 9.99">`9.99`</SwmToken> if it exceeds this value. |
+| RL-008  | <SwmToken path="base/src/lgarsk01.cbl" pos="94:3:7" line-data="           PERFORM 2300-WRITE-OUTPUT">`2300-WRITE-OUTPUT`</SwmToken>     | Assigns a risk category based on the final risk score: 'LOW', 'MEDIUM', or 'HIGH'.                                                                                                                                                                                                                                           |
 
 ---
 
@@ -174,131 +194,79 @@ As a system, I want to normalize the property type, assign base and claim factor
 
 - <SwmToken path="base/src/lgarsk01.cbl" pos="93:3:7" line-data="           PERFORM 2200-CALCULATE-RISK">`2200-CALCULATE-RISK`</SwmToken>
   1. **RL-004:**
-     - Convert property type to upper case
-     - If property type matches allowed values, use as is
-     - Else, treat as 'OTHER'
+     - If property type is 'OFFICE', set base multiplier to <SwmToken path="base/src/lgarsk01.cbl" pos="110:3:5" line-data="                   MOVE 1.00 TO WS-BS-RS">`1.00`</SwmToken>
+     - Else if 'RETAIL', set to <SwmToken path="base/src/lgarsk01.cbl" pos="112:3:5" line-data="                   MOVE 1.25 TO WS-BS-RS">`1.25`</SwmToken>
+     - Else if 'WAREHOUSE', set to <SwmToken path="base/src/lgarsk01.cbl" pos="114:3:5" line-data="                   MOVE 1.50 TO WS-BS-RS">`1.50`</SwmToken>
+     - Else if 'INDUSTRIAL', set to <SwmToken path="base/src/lgarsk01.cbl" pos="116:3:5" line-data="                   MOVE 2.00 TO WS-BS-RS">`2.00`</SwmToken>
+     - Else set to <SwmToken path="base/src/lgarsk01.cbl" pos="118:3:5" line-data="                   MOVE 1.75 TO WS-BS-RS">`1.75`</SwmToken>
   2. **RL-005:**
-     - If property type is 'OFFICE', set base risk factor to <SwmToken path="base/src/lgarsk01.cbl" pos="110:3:5" line-data="                   MOVE 1.00 TO WS-BS-RS">`1.00`</SwmToken>
-     - If 'RETAIL', set to <SwmToken path="base/src/lgarsk01.cbl" pos="112:3:5" line-data="                   MOVE 1.25 TO WS-BS-RS">`1.25`</SwmToken>
-     - If 'WAREHOUSE', set to <SwmToken path="base/src/lgarsk01.cbl" pos="114:3:5" line-data="                   MOVE 1.50 TO WS-BS-RS">`1.50`</SwmToken>
-     - If 'INDUSTRIAL', set to <SwmToken path="base/src/lgarsk01.cbl" pos="116:3:5" line-data="                   MOVE 2.00 TO WS-BS-RS">`2.00`</SwmToken>
-     - Else, set to <SwmToken path="base/src/lgarsk01.cbl" pos="118:3:5" line-data="                   MOVE 1.75 TO WS-BS-RS">`1.75`</SwmToken>
-  3. **RL-006:**
      - If claim count is 0, set claim factor to <SwmToken path="base/src/lgarsk01.cbl" pos="122:3:5" line-data="               MOVE 0.80 TO WS-CL-F">`0.80`</SwmToken>
-     - If claim count is 1 or 2, set to <SwmToken path="base/src/lgarsk01.cbl" pos="124:3:5" line-data="               MOVE 1.30 TO WS-CL-F">`1.30`</SwmToken>
-     - If claim count > 2, set to <SwmToken path="base/src/lgarsk01.cbl" pos="114:3:5" line-data="                   MOVE 1.50 TO WS-BS-RS">`1.50`</SwmToken>
+     - Else if claim count is 1 or 2, set to <SwmToken path="base/src/lgarsk01.cbl" pos="124:3:5" line-data="               MOVE 1.30 TO WS-CL-F">`1.30`</SwmToken>
+     - Else set to <SwmToken path="base/src/lgarsk01.cbl" pos="114:3:5" line-data="                   MOVE 1.50 TO WS-BS-RS">`1.50`</SwmToken>
+  3. **RL-006:**
+     - Compute location factor as:
+       - 1 + (fire peril \* <SwmToken path="base/src/lgarsk01.cbl" pos="130:10:12" line-data="               (IN-FR-PR * 0.2) +">`0.2`</SwmToken>) + (crime peril \* <SwmToken path="base/src/lgarsk01.cbl" pos="130:10:12" line-data="               (IN-FR-PR * 0.2) +">`0.2`</SwmToken>) + (flood peril \* <SwmToken path="base/src/lgarsk01.cbl" pos="132:10:12" line-data="               (IN-FL-PR * 0.3) +">`0.3`</SwmToken>) + (weather peril \* <SwmToken path="base/src/lgarsk01.cbl" pos="130:10:12" line-data="               (IN-FR-PR * 0.2) +">`0.2`</SwmToken>)
   4. **RL-007:**
-     - Compute location factor as: 1 + (fire peril \* <SwmToken path="base/src/lgarsk01.cbl" pos="130:10:12" line-data="               (IN-FR-PR * 0.2) +">`0.2`</SwmToken>) + (crime peril \* <SwmToken path="base/src/lgarsk01.cbl" pos="130:10:12" line-data="               (IN-FR-PR * 0.2) +">`0.2`</SwmToken>) + (flood peril \* <SwmToken path="base/src/lgarsk01.cbl" pos="132:10:12" line-data="               (IN-FL-PR * 0.3) +">`0.3`</SwmToken>) + (weather peril \* <SwmToken path="base/src/lgarsk01.cbl" pos="130:10:12" line-data="               (IN-FR-PR * 0.2) +">`0.2`</SwmToken>)
-  5. **RL-008:**
-     - Compute risk score = base risk factor × claim factor × location factor
-     - Round to two decimals (round half up)
+     - Compute risk score = base multiplier \* claim factor \* location factor
+     - Round to two decimal places (round half up)
      - If risk score > <SwmToken path="base/src/lgarsk01.cbl" pos="138:11:13" line-data="           IF WS-F-RSK &gt; 9.99">`9.99`</SwmToken>, set to <SwmToken path="base/src/lgarsk01.cbl" pos="138:11:13" line-data="           IF WS-F-RSK &gt; 9.99">`9.99`</SwmToken>
 - <SwmToken path="base/src/lgarsk01.cbl" pos="94:3:7" line-data="           PERFORM 2300-WRITE-OUTPUT">`2300-WRITE-OUTPUT`</SwmToken>
-  1. **RL-009:**
-     - If risk score < <SwmToken path="base/src/lgarsk01.cbl" pos="147:11:13" line-data="               WHEN WS-F-RSK &lt; 3.00">`3.00`</SwmToken>, set risk category to 'LOW'
-     - If >=<SwmToken path="base/src/lgarsk01.cbl" pos="147:11:13" line-data="               WHEN WS-F-RSK &lt; 3.00">`3.00`</SwmToken> and <<SwmToken path="base/src/lgarsk01.cbl" pos="149:11:13" line-data="               WHEN WS-F-RSK &lt; 6.00">`6.00`</SwmToken>, set to 'MEDIUM'
-     - If >=<SwmToken path="base/src/lgarsk01.cbl" pos="149:11:13" line-data="               WHEN WS-F-RSK &lt; 6.00">`6.00`</SwmToken>, set to 'HIGH'
+  1. **RL-008:**
+     - If risk score < <SwmToken path="base/src/lgarsk01.cbl" pos="147:11:13" line-data="               WHEN WS-F-RSK &lt; 3.00">`3.00`</SwmToken>, set category to 'LOW'
+     - Else if < <SwmToken path="base/src/lgarsk01.cbl" pos="149:11:13" line-data="               WHEN WS-F-RSK &lt; 6.00">`6.00`</SwmToken>, set to 'MEDIUM'
+     - Else set to 'HIGH'
 
-## User Story 3: Write output and error records, ensure file handling
+## User Story 4: Writing formatted output and error records
 
 ---
 
 ### Story Description:
 
-As a system, I want to write output records with the required formatting, always create the output file even if no valid records are processed, log errors for missing policy numbers, and close all files after processing so that outputs are reliable and resources are managed correctly.
+As a system, I want to write each processed policy record and error record to their respective output files in a fixed-length, formatted structure so that the results are consistent and ready for downstream processing or review.
 
 ---
 
 ### Business Rule Mapping:
 
-| Rule ID | Paragraph Name                                                                                                                                                                                                                             | Rule Description                                                                                                                                                                                             |
-| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| RL-010  | <SwmToken path="base/src/lgarsk01.cbl" pos="94:3:7" line-data="           PERFORM 2300-WRITE-OUTPUT">`2300-WRITE-OUTPUT`</SwmToken>                                                                                                        | Output record contains policy number, risk score (5-character string, two implied decimals, right-justified, zero-filled), risk category (left-justified, space-padded to 10), and filler to 100 characters. |
-| RL-012  | <SwmToken path="base/src/lgarsk01.cbl" pos="65:3:5" line-data="           PERFORM 1000-INIT">`1000-INIT`</SwmToken>, <SwmToken path="base/src/lgarsk01.cbl" pos="67:3:5" line-data="           PERFORM 3000-CLOSE">`3000-CLOSE`</SwmToken> | The output file must always be created, even if no valid records are processed.                                                                                                                              |
-| RL-014  | <SwmToken path="base/src/lgarsk01.cbl" pos="67:3:5" line-data="           PERFORM 3000-CLOSE">`3000-CLOSE`</SwmToken>                                                                                                                      | All files are closed after processing is complete.                                                                                                                                                           |
+| Rule ID | Paragraph Name                                                                                                                                                                                                                                                                              | Rule Description                                                                                                                                                                                              |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| RL-010  | <SwmToken path="base/src/lgarsk01.cbl" pos="66:3:5" line-data="           PERFORM 2000-PROCESS UNTIL WS-EOF = &#39;Y&#39;">`2000-PROCESS`</SwmToken>, <SwmToken path="base/src/lgarsk01.cbl" pos="92:3:7" line-data="           PERFORM 2100-VALIDATE-DATA">`2100-VALIDATE-DATA`</SwmToken> | For each error case, writes a 100-character, fixed-length error record to the error file with the policy number (spaces if missing) and the error message, both left-justified and padded as specified.       |
+| RL-009  | <SwmToken path="base/src/lgarsk01.cbl" pos="94:3:7" line-data="           PERFORM 2300-WRITE-OUTPUT">`2300-WRITE-OUTPUT`</SwmToken>                                                                                                                                                         | For each valid input record, writes a 100-character, fixed-length output record to the output file with the policy number, risk score (as integer, left-padded with zeros), risk category, and filler spaces. |
 
 ---
 
 ### Relevant Functionality:
 
-- <SwmToken path="base/src/lgarsk01.cbl" pos="94:3:7" line-data="           PERFORM 2300-WRITE-OUTPUT">`2300-WRITE-OUTPUT`</SwmToken>
+- <SwmToken path="base/src/lgarsk01.cbl" pos="66:3:5" line-data="           PERFORM 2000-PROCESS UNTIL WS-EOF = &#39;Y&#39;">`2000-PROCESS`</SwmToken>
   1. **RL-010:**
-     - Format policy number as 10-char string
-     - Format risk score as 5-char string, two implied decimals, right-justified, zero-filled
-     - Format risk category as 10-char string, left-justified, space-padded
-     - Add filler to reach 100 chars
+     - Set error policy number (spaces if missing), left-justified, padded to 10 characters
+     - Set error message, left-justified, padded to 90 characters
+     - Write error record
+- <SwmToken path="base/src/lgarsk01.cbl" pos="94:3:7" line-data="           PERFORM 2300-WRITE-OUTPUT">`2300-WRITE-OUTPUT`</SwmToken>
+  1. **RL-009:**
+     - Set output policy number to input policy number, left-justified, padded to 10 characters
+     - Set risk score to (risk score \* 100), rounded, left-padded with zeros to 5 digits
+     - Set risk category, left-justified, padded to 10 characters
+     - Set filler to 75 spaces
      - Write output record
-- <SwmToken path="base/src/lgarsk01.cbl" pos="65:3:5" line-data="           PERFORM 1000-INIT">`1000-INIT`</SwmToken>
-  1. **RL-012:**
-     - Open output file at start
-     - Close output file at end
-     - File is created even if no records are written
-- <SwmToken path="base/src/lgarsk01.cbl" pos="67:3:5" line-data="           PERFORM 3000-CLOSE">`3000-CLOSE`</SwmToken>
-  1. **RL-014:**
-     - After processing all records:
-       - Close input file
-       - Close output file
-       - Close error file
 
 # Workflow
 
-# Main Program Control Flow
+# Orchestrating file operations and record processing
 
-```mermaid
-%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
-flowchart TD
-    node1["Initialize system"]
-    click node1 openCode "base/src/lgarsk01.cbl:65:65"
-    node1 --> loop1
-    subgraph loop1["Process records until WS-EOF = 'Y'"]
-        node2{"WS-EOF = 'Y'?"}
-        click node2 openCode "base/src/lgarsk01.cbl:66:66"
-        node2 -->|"No (WS-EOF = 'N')"| node3["Process record"]
-        click node3 openCode "base/src/lgarsk01.cbl:66:66"
-        node3 --> node2
-        node2 -->|"Yes (WS-EOF = 'Y')"| node4["Close resources"]
-        click node4 openCode "base/src/lgarsk01.cbl:67:67"
-    end
-    node4 --> node5["Exit"]
-    click node5 openCode "base/src/lgarsk01.cbl:68:68"
+This section coordinates the main program flow, ensuring that initialization, record processing, and resource closure occur in the correct sequence. It acts as the orchestrator for file and record operations, delegating detailed work to other sections.
 
-classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
-
-%% Swimm:
-%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
-%% flowchart TD
-%%     node1["Initialize system"]
-%%     click node1 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:65:65"
-%%     node1 --> loop1
-%%     subgraph loop1["Process records until <SwmToken path="base/src/lgarsk01.cbl" pos="66:9:11" line-data="           PERFORM 2000-PROCESS UNTIL WS-EOF = &#39;Y&#39;">`WS-EOF`</SwmToken> = 'Y'"]
-%%         node2{"<SwmToken path="base/src/lgarsk01.cbl" pos="66:9:11" line-data="           PERFORM 2000-PROCESS UNTIL WS-EOF = &#39;Y&#39;">`WS-EOF`</SwmToken> = 'Y'?"}
-%%         click node2 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:66:66"
-%%         node2 -->|"No (<SwmToken path="base/src/lgarsk01.cbl" pos="66:9:11" line-data="           PERFORM 2000-PROCESS UNTIL WS-EOF = &#39;Y&#39;">`WS-EOF`</SwmToken> = 'N')"| node3["Process record"]
-%%         click node3 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:66:66"
-%%         node3 --> node2
-%%         node2 -->|"Yes (<SwmToken path="base/src/lgarsk01.cbl" pos="66:9:11" line-data="           PERFORM 2000-PROCESS UNTIL WS-EOF = &#39;Y&#39;">`WS-EOF`</SwmToken> = 'Y')"| node4["Close resources"]
-%%         click node4 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:67:67"
-%%     end
-%%     node4 --> node5["Exit"]
-%%     click node5 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:68:68"
-%% 
-%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
-```
-
-This section manages the main program flow, ensuring that initialization, record processing, and resource cleanup occur in the correct sequence. It acts as the entry and exit point for the program's lifecycle.
-
-| Rule ID | Category                        | Rule Name                       | Description                                                                                                                                                                                                                                          | Implementation Details                                                                                                                                                                                                                                                                                                                                                                                             |
-| ------- | ------------------------------- | ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| BR-001  | Decision Making                 | Record processing loop control  | The program processes records in a loop, continuing until the end-of-file condition is met (<SwmToken path="base/src/lgarsk01.cbl" pos="66:9:11" line-data="           PERFORM 2000-PROCESS UNTIL WS-EOF = &#39;Y&#39;">`WS-EOF`</SwmToken> = 'Y').  | The loop continues as long as <SwmToken path="base/src/lgarsk01.cbl" pos="66:9:11" line-data="           PERFORM 2000-PROCESS UNTIL WS-EOF = &#39;Y&#39;">`WS-EOF`</SwmToken> is 'N'. <SwmToken path="base/src/lgarsk01.cbl" pos="66:9:11" line-data="           PERFORM 2000-PROCESS UNTIL WS-EOF = &#39;Y&#39;">`WS-EOF`</SwmToken> is a single-character flag with possible values 'N' (not end) and 'Y' (end). |
-| BR-002  | Decision Making                 | Program termination sequence    | The program terminates after completing initialization, record processing, and resource cleanup.                                                                                                                                                     | No constants or output formats are involved; this is a control flow rule.                                                                                                                                                                                                                                                                                                                                          |
-| BR-003  | Invoking a Service or a Process | Program initialization sequence | The program begins by performing all necessary initialization steps before any records are processed.                                                                                                                                                | No constants or output formats are involved; this is a control flow rule.                                                                                                                                                                                                                                                                                                                                          |
-| BR-004  | Invoking a Service or a Process | Resource cleanup on completion  | After all records have been processed (<SwmToken path="base/src/lgarsk01.cbl" pos="66:9:11" line-data="           PERFORM 2000-PROCESS UNTIL WS-EOF = &#39;Y&#39;">`WS-EOF`</SwmToken> = 'Y'), the program performs resource cleanup before exiting. | No constants or output formats are involved; this is a control flow rule.                                                                                                                                                                                                                                                                                                                                          |
+| Rule ID | Category        | Rule Name                         | Description                                                                                                                               | Implementation Details                                                                  |
+| ------- | --------------- | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| BR-001  | Decision Making | Initialization before processing  | Initialization is performed before any record processing begins, ensuring all resources and state are prepared for subsequent operations. | No specific constants or output formats are defined in this section for initialization. |
+| BR-002  | Decision Making | Iterative record processing       | Each policy record is processed one at a time in a loop, continuing until the end-of-file condition is met.                               | The end-of-file indicator is 'Y' when processing should stop; initial value is 'N'.     |
+| BR-003  | Decision Making | Resource closure after processing | After all records have been processed, resources are closed to complete the operation and ensure data integrity.                          | No specific constants or output formats are defined in this section for closure.        |
 
 <SwmSnippet path="/base/src/lgarsk01.cbl" line="64">
 
 ---
 
-<SwmToken path="base/src/lgarsk01.cbl" pos="64:1:3" line-data="       0000-MAIN.">`0000-MAIN`</SwmToken> sets up the high-level sequence: it initializes files, loops through processing each input record by calling <SwmToken path="base/src/lgarsk01.cbl" pos="66:3:5" line-data="           PERFORM 2000-PROCESS UNTIL WS-EOF = &#39;Y&#39;">`2000-PROCESS`</SwmToken> until the end of the file, and then closes everything out. We call <SwmToken path="base/src/lgarsk01.cbl" pos="66:3:5" line-data="           PERFORM 2000-PROCESS UNTIL WS-EOF = &#39;Y&#39;">`2000-PROCESS`</SwmToken> next because that's where each policy record is actually read, validated, scored, and output—so the loop keeps the program working through the whole input file.
+<SwmToken path="base/src/lgarsk01.cbl" pos="64:1:3" line-data="       0000-MAIN.">`0000-MAIN`</SwmToken> handles the overall flow: it opens files, loops through policy records by calling <SwmToken path="base/src/lgarsk01.cbl" pos="66:3:5" line-data="           PERFORM 2000-PROCESS UNTIL WS-EOF = &#39;Y&#39;">`2000-PROCESS`</SwmToken> until <SwmToken path="base/src/lgarsk01.cbl" pos="66:9:11" line-data="           PERFORM 2000-PROCESS UNTIL WS-EOF = &#39;Y&#39;">`WS-EOF`</SwmToken> is 'Y', then closes files. Calling <SwmToken path="base/src/lgarsk01.cbl" pos="66:3:5" line-data="           PERFORM 2000-PROCESS UNTIL WS-EOF = &#39;Y&#39;">`2000-PROCESS`</SwmToken> lets us process each record one at a time, so we can validate, calculate risk, and write output for every policy in the input file.
 
 ```cobol
        0000-MAIN.
@@ -312,22 +280,76 @@ This section manages the main program flow, ensuring that initialization, record
 
 </SwmSnippet>
 
-# Processing and Validating Input Records
+# Reading, validating, and error handling for policy records
 
-This section ensures that only valid input records are processed by reading each record, checking for errors, and validating required fields. It logs errors and prevents further processing of invalid records.
+```mermaid
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+flowchart TD
+    node1["Read next input policy record"] --> node2{"End of input file?"}
+    click node1 openCode "base/src/lgarsk01.cbl:80:81"
+    node2 -->|"Yes"| node3["Set WS-EOF to 'Y' and exit"]
+    click node2 openCode "base/src/lgarsk01.cbl:81:82"
+    click node3 openCode "base/src/lgarsk01.cbl:81:83"
+    node2 -->|"No"| node4{"Input file read successful?"}
+    click node4 openCode "base/src/lgarsk01.cbl:85:90"
+    node4 -->|"No"| node5["Write error record with IN-POLICY-NUM
+and ERR-MESSAGE, then exit"]
+    click node5 openCode "base/src/lgarsk01.cbl:86:89"
+    node4 -->|"Yes"| node6["Validate policy number"]
+    click node6 openCode "base/src/lgarsk01.cbl:92:92"
+    node6 --> node7{"Policy number valid?"}
+    click node7 openCode "base/src/lgarsk01.cbl:101:105"
+    node7 -->|"No"| node8["Write error record 'INVALID POLICY
+NUMBER', then exit"]
+    click node8 openCode "base/src/lgarsk01.cbl:102:104"
+    node7 -->|"Yes"| node9["Calculate risk"]
+    click node9 openCode "base/src/lgarsk01.cbl:93:93"
+    node9 --> node10["Write output record"]
+    click node10 openCode "base/src/lgarsk01.cbl:94:94"
 
-| Rule ID | Category        | Rule Name                        | Description                                                                                                                                                          | Implementation Details                                                                                                               |
-| ------- | --------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| BR-001  | Data validation | Read error logging               | If a read error occurs (other than end-of-file), an error record is written containing the policy number and an error message, and processing for this record stops. | The error record contains the policy number (10 characters, string) and the message 'ERROR READING RECORD' (90 characters, string).  |
-| BR-002  | Data validation | Policy number required           | If the policy number field is empty (all spaces), an error record is written with the message 'INVALID POLICY NUMBER', and processing for this record stops.         | The error record contains the policy number (10 characters, string) and the message 'INVALID POLICY NUMBER' (90 characters, string). |
-| BR-003  | Decision Making | End-of-file handling             | If the end of the input file is reached, processing for the current iteration stops and no further actions are taken for this record.                                | No output is generated for end-of-file; processing simply skips to the next iteration. The end-of-file flag is set to 'Y'.           |
-| BR-004  | Decision Making | Valid record processing sequence | Only records that pass both the read error check and the policy number validation are processed further for risk calculation and output.                             | No output is generated by this rule; it governs the flow of processing to subsequent steps (risk calculation and output).            |
+classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+
+%% Swimm:
+%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+%% flowchart TD
+%%     node1["Read next input policy record"] --> node2{"End of input file?"}
+%%     click node1 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:80:81"
+%%     node2 -->|"Yes"| node3["Set <SwmToken path="base/src/lgarsk01.cbl" pos="66:9:11" line-data="           PERFORM 2000-PROCESS UNTIL WS-EOF = &#39;Y&#39;">`WS-EOF`</SwmToken> to 'Y' and exit"]
+%%     click node2 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:81:82"
+%%     click node3 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:81:83"
+%%     node2 -->|"No"| node4{"Input file read successful?"}
+%%     click node4 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:85:90"
+%%     node4 -->|"No"| node5["Write error record with <SwmToken path="base/src/lgarsk01.cbl" pos="86:3:7" line-data="               MOVE IN-POLICY-NUM TO ERR-POLICY-NUM">`IN-POLICY-NUM`</SwmToken>
+%% and <SwmToken path="base/src/lgarsk01.cbl" pos="87:13:15" line-data="               MOVE &#39;ERROR READING RECORD&#39; TO ERR-MESSAGE">`ERR-MESSAGE`</SwmToken>, then exit"]
+%%     click node5 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:86:89"
+%%     node4 -->|"Yes"| node6["Validate policy number"]
+%%     click node6 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:92:92"
+%%     node6 --> node7{"Policy number valid?"}
+%%     click node7 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:101:105"
+%%     node7 -->|"No"| node8["Write error record 'INVALID POLICY
+%% NUMBER', then exit"]
+%%     click node8 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:102:104"
+%%     node7 -->|"Yes"| node9["Calculate risk"]
+%%     click node9 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:93:93"
+%%     node9 --> node10["Write output record"]
+%%     click node10 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:94:94"
+%% 
+%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+```
+
+This section governs the reading, validation, and error handling for policy records. It ensures that only records with a present policy number are processed further, and logs errors for missing policy numbers or file read failures.
+
+| Rule ID | Category        | Rule Name                     | Description                                                                                                                                                                                     | Implementation Details                                                                                                                                           |
+| ------- | --------------- | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Reading Input   | End of input file handling    | When the end of the input file is reached, the end-of-file flag is set to 'Y' and no further processing occurs for that record.                                                                 | The end-of-file flag is set to 'Y'. No output record is written for this condition.                                                                              |
+| BR-002  | Data validation | Input file read error logging | If the input file read operation fails (status not '00'), an error record is written containing the policy number and the message 'ERROR READING RECORD', and processing for that record stops. | The error record contains the policy number (string, 10 characters) and the error message (string, 90 characters). The error message is 'ERROR READING RECORD'.  |
+| BR-003  | Data validation | Policy number required        | If the policy number field is missing (contains only spaces), an error record is written with the message 'INVALID POLICY NUMBER', and processing for that record stops.                        | The error record contains the policy number (string, 10 characters) and the error message (string, 90 characters). The error message is 'INVALID POLICY NUMBER'. |
 
 <SwmSnippet path="/base/src/lgarsk01.cbl" line="79">
 
 ---
 
-In <SwmToken path="base/src/lgarsk01.cbl" pos="79:1:3" line-data="       2000-PROCESS.">`2000-PROCESS`</SwmToken>, we read the next input record and immediately check for end-of-file or read errors. If there's an error, we log it and skip to the end of this iteration. This keeps the processing clean and avoids working with bad data.
+In <SwmToken path="base/src/lgarsk01.cbl" pos="79:1:3" line-data="       2000-PROCESS.">`2000-PROCESS`</SwmToken>, we read the next input record, check for end-of-file, and handle read errors by logging them and exiting. This sets up the flow for validation and risk calculation only if the record is valid.
 
 ```cobol
        2000-PROCESS.
@@ -352,7 +374,7 @@ In <SwmToken path="base/src/lgarsk01.cbl" pos="79:1:3" line-data="       2000-PR
 
 ---
 
-After reading and checking the record, we call <SwmToken path="base/src/lgarsk01.cbl" pos="92:3:7" line-data="           PERFORM 2100-VALIDATE-DATA">`2100-VALIDATE-DATA`</SwmToken> to make sure the input has a policy number. If that's missing, we log an error and bail out early. Only valid records move on to risk calculation and output.
+After handling read errors, we call <SwmToken path="base/src/lgarsk01.cbl" pos="92:3:7" line-data="           PERFORM 2100-VALIDATE-DATA">`2100-VALIDATE-DATA`</SwmToken> to check if the policy number is present. If validation passes, we move on to calculate risk and write output; otherwise, we log an error and exit, so only valid records get processed.
 
 ```cobol
            PERFORM 2100-VALIDATE-DATA
@@ -368,7 +390,7 @@ After reading and checking the record, we call <SwmToken path="base/src/lgarsk01
 
 ---
 
-<SwmToken path="base/src/lgarsk01.cbl" pos="100:1:5" line-data="       2100-VALIDATE-DATA.">`2100-VALIDATE-DATA`</SwmToken> checks if the policy number is empty (all spaces). If it is, it logs an error and jumps out, so nothing else happens for that record. This avoids processing incomplete data.
+<SwmToken path="base/src/lgarsk01.cbl" pos="100:1:5" line-data="       2100-VALIDATE-DATA.">`2100-VALIDATE-DATA`</SwmToken> checks if the policy number is just spaces (meaning it's missing), logs 'INVALID POLICY NUMBER' to the error record, and exits early. This prevents any further processing for records without a valid policy number.
 
 ```cobol
        2100-VALIDATE-DATA.
@@ -383,112 +405,117 @@ After reading and checking the record, we call <SwmToken path="base/src/lgarsk01
 
 </SwmSnippet>
 
-## Risk Score Calculation Logic
+# Assigning risk multipliers and computing risk score
 
 ```mermaid
 %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
 flowchart TD
-    node1["Start risk calculation"] --> node2{"Property type?"}
+    node1["Start risk calculation"]
     click node1 openCode "base/src/lgarsk01.cbl:107:108"
-    node2 -->|"OFFICE"| node3["Set base risk factor to 1.00"]
-    node2 -->|"RETAIL"| node4["Set base risk factor to 1.25"]
-    node2 -->|"WAREHOUSE"| node5["Set base risk factor to 1.50"]
-    node2 -->|"INDUSTRIAL"| node6["Set base risk factor to 2.00"]
-    node2 -->|"OTHER"| node7["Set base risk factor to 1.75"]
+    node1 --> node2{"Property type?"}
     click node2 openCode "base/src/lgarsk01.cbl:108:119"
-    click node3 openCode "base/src/lgarsk01.cbl:109:110"
-    click node4 openCode "base/src/lgarsk01.cbl:111:112"
-    click node5 openCode "base/src/lgarsk01.cbl:113:114"
-    click node6 openCode "base/src/lgarsk01.cbl:115:116"
-    click node7 openCode "base/src/lgarsk01.cbl:117:118"
+    node2 -->|"OFFICE"| node3["Set base risk multiplier to 1.00"]
+    click node3 openCode "base/src/lgarsk01.cbl:110:110"
+    node2 -->|"RETAIL"| node4["Set base risk multiplier to 1.25"]
+    click node4 openCode "base/src/lgarsk01.cbl:112:112"
+    node2 -->|"WAREHOUSE"| node5["Set base risk multiplier to 1.50"]
+    click node5 openCode "base/src/lgarsk01.cbl:114:114"
+    node2 -->|"INDUSTRIAL"| node6["Set base risk multiplier to 2.00"]
+    click node6 openCode "base/src/lgarsk01.cbl:116:116"
+    node2 -->|"Other"| node7["Set base risk multiplier to 1.75"]
+    click node7 openCode "base/src/lgarsk01.cbl:118:118"
     node3 --> node8{"Claim count?"}
     node4 --> node8
     node5 --> node8
     node6 --> node8
     node7 --> node8
-    node8 -->|"0"| node9["Set claim factor to 0.80"]
-    node8 -->|"#lt;=2"| node10["Set claim factor to 1.30"]
-    node8 -->|"#gt;2"| node11["Set claim factor to 1.50"]
     click node8 openCode "base/src/lgarsk01.cbl:121:127"
-    click node9 openCode "base/src/lgarsk01.cbl:122:123"
+    node8 -->|"0"| node9["Set claim factor to 0.80"]
+    click node9 openCode "base/src/lgarsk01.cbl:122:122"
+    node8 -->|"1-2"| node10["Set claim factor to 1.30"]
     click node10 openCode "base/src/lgarsk01.cbl:124:124"
-    click node11 openCode "base/src/lgarsk01.cbl:125:126"
-    node9 --> node12["Calculate location factor: 1 + fire*0.2
-+ crime*0.2 + flood*0.3 + weather*0.2"]
+    node8 -->|"#gt;2"| node11["Set claim factor to 1.50"]
+    click node11 openCode "base/src/lgarsk01.cbl:126:126"
+    node9 --> node12["Calculate location factor (fire, crime,
+flood, weather peril)"]
     node10 --> node12
     node11 --> node12
     click node12 openCode "base/src/lgarsk01.cbl:129:133"
-    node12 --> node13["Calculate risk score: base risk x claim
-factor x location factor"]
+    node12 --> node13["Calculate risk score"]
     click node13 openCode "base/src/lgarsk01.cbl:135:136"
-    node13 --> node14{"Is risk score > 9.99?"}
+    node13 --> node14{"Risk score > 9.99?"}
     click node14 openCode "base/src/lgarsk01.cbl:138:139"
     node14 -->|"Yes"| node15["Set risk score to 9.99"]
-    click node15 openCode "base/src/lgarsk01.cbl:139:140"
-    node14 -->|"No"| node16["Keep calculated risk score"]
-    click node16 openCode "base/src/lgarsk01.cbl:137:140"
+    click node15 openCode "base/src/lgarsk01.cbl:139:139"
+    node14 -->|"No"| node16["Use calculated risk score"]
+    click node16 openCode "base/src/lgarsk01.cbl:135:136"
+    node15 --> node17["End"]
+    node16 --> node17
+    click node17 openCode "base/src/lgarsk01.cbl:140:140"
 classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
 
 %% Swimm:
 %% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
 %% flowchart TD
-%%     node1["Start risk calculation"] --> node2{"Property type?"}
+%%     node1["Start risk calculation"]
 %%     click node1 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:107:108"
-%%     node2 -->|"OFFICE"| node3["Set base risk factor to <SwmToken path="base/src/lgarsk01.cbl" pos="110:3:5" line-data="                   MOVE 1.00 TO WS-BS-RS">`1.00`</SwmToken>"]
-%%     node2 -->|"RETAIL"| node4["Set base risk factor to <SwmToken path="base/src/lgarsk01.cbl" pos="112:3:5" line-data="                   MOVE 1.25 TO WS-BS-RS">`1.25`</SwmToken>"]
-%%     node2 -->|"WAREHOUSE"| node5["Set base risk factor to <SwmToken path="base/src/lgarsk01.cbl" pos="114:3:5" line-data="                   MOVE 1.50 TO WS-BS-RS">`1.50`</SwmToken>"]
-%%     node2 -->|"INDUSTRIAL"| node6["Set base risk factor to <SwmToken path="base/src/lgarsk01.cbl" pos="116:3:5" line-data="                   MOVE 2.00 TO WS-BS-RS">`2.00`</SwmToken>"]
-%%     node2 -->|"OTHER"| node7["Set base risk factor to <SwmToken path="base/src/lgarsk01.cbl" pos="118:3:5" line-data="                   MOVE 1.75 TO WS-BS-RS">`1.75`</SwmToken>"]
+%%     node1 --> node2{"Property type?"}
 %%     click node2 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:108:119"
-%%     click node3 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:109:110"
-%%     click node4 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:111:112"
-%%     click node5 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:113:114"
-%%     click node6 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:115:116"
-%%     click node7 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:117:118"
+%%     node2 -->|"OFFICE"| node3["Set base risk multiplier to <SwmToken path="base/src/lgarsk01.cbl" pos="110:3:5" line-data="                   MOVE 1.00 TO WS-BS-RS">`1.00`</SwmToken>"]
+%%     click node3 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:110:110"
+%%     node2 -->|"RETAIL"| node4["Set base risk multiplier to <SwmToken path="base/src/lgarsk01.cbl" pos="112:3:5" line-data="                   MOVE 1.25 TO WS-BS-RS">`1.25`</SwmToken>"]
+%%     click node4 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:112:112"
+%%     node2 -->|"WAREHOUSE"| node5["Set base risk multiplier to <SwmToken path="base/src/lgarsk01.cbl" pos="114:3:5" line-data="                   MOVE 1.50 TO WS-BS-RS">`1.50`</SwmToken>"]
+%%     click node5 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:114:114"
+%%     node2 -->|"INDUSTRIAL"| node6["Set base risk multiplier to <SwmToken path="base/src/lgarsk01.cbl" pos="116:3:5" line-data="                   MOVE 2.00 TO WS-BS-RS">`2.00`</SwmToken>"]
+%%     click node6 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:116:116"
+%%     node2 -->|"Other"| node7["Set base risk multiplier to <SwmToken path="base/src/lgarsk01.cbl" pos="118:3:5" line-data="                   MOVE 1.75 TO WS-BS-RS">`1.75`</SwmToken>"]
+%%     click node7 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:118:118"
 %%     node3 --> node8{"Claim count?"}
 %%     node4 --> node8
 %%     node5 --> node8
 %%     node6 --> node8
 %%     node7 --> node8
-%%     node8 -->|"0"| node9["Set claim factor to <SwmToken path="base/src/lgarsk01.cbl" pos="122:3:5" line-data="               MOVE 0.80 TO WS-CL-F">`0.80`</SwmToken>"]
-%%     node8 -->|"#lt;=2"| node10["Set claim factor to <SwmToken path="base/src/lgarsk01.cbl" pos="124:3:5" line-data="               MOVE 1.30 TO WS-CL-F">`1.30`</SwmToken>"]
-%%     node8 -->|"#gt;2"| node11["Set claim factor to <SwmToken path="base/src/lgarsk01.cbl" pos="114:3:5" line-data="                   MOVE 1.50 TO WS-BS-RS">`1.50`</SwmToken>"]
 %%     click node8 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:121:127"
-%%     click node9 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:122:123"
+%%     node8 -->|"0"| node9["Set claim factor to <SwmToken path="base/src/lgarsk01.cbl" pos="122:3:5" line-data="               MOVE 0.80 TO WS-CL-F">`0.80`</SwmToken>"]
+%%     click node9 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:122:122"
+%%     node8 -->|"1-2"| node10["Set claim factor to <SwmToken path="base/src/lgarsk01.cbl" pos="124:3:5" line-data="               MOVE 1.30 TO WS-CL-F">`1.30`</SwmToken>"]
 %%     click node10 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:124:124"
-%%     click node11 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:125:126"
-%%     node9 --> node12["Calculate location factor: 1 + fire*<SwmToken path="base/src/lgarsk01.cbl" pos="130:10:12" line-data="               (IN-FR-PR * 0.2) +">`0.2`</SwmToken>
-%% + crime*<SwmToken path="base/src/lgarsk01.cbl" pos="130:10:12" line-data="               (IN-FR-PR * 0.2) +">`0.2`</SwmToken> + flood*<SwmToken path="base/src/lgarsk01.cbl" pos="132:10:12" line-data="               (IN-FL-PR * 0.3) +">`0.3`</SwmToken> + weather*<SwmToken path="base/src/lgarsk01.cbl" pos="130:10:12" line-data="               (IN-FR-PR * 0.2) +">`0.2`</SwmToken>"]
+%%     node8 -->|"#gt;2"| node11["Set claim factor to <SwmToken path="base/src/lgarsk01.cbl" pos="114:3:5" line-data="                   MOVE 1.50 TO WS-BS-RS">`1.50`</SwmToken>"]
+%%     click node11 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:126:126"
+%%     node9 --> node12["Calculate location factor (fire, crime,
+%% flood, weather peril)"]
 %%     node10 --> node12
 %%     node11 --> node12
 %%     click node12 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:129:133"
-%%     node12 --> node13["Calculate risk score: base risk x claim
-%% factor x location factor"]
+%%     node12 --> node13["Calculate risk score"]
 %%     click node13 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:135:136"
-%%     node13 --> node14{"Is risk score > <SwmToken path="base/src/lgarsk01.cbl" pos="138:11:13" line-data="           IF WS-F-RSK &gt; 9.99">`9.99`</SwmToken>?"}
+%%     node13 --> node14{"Risk score > <SwmToken path="base/src/lgarsk01.cbl" pos="138:11:13" line-data="           IF WS-F-RSK &gt; 9.99">`9.99`</SwmToken>?"}
 %%     click node14 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:138:139"
 %%     node14 -->|"Yes"| node15["Set risk score to <SwmToken path="base/src/lgarsk01.cbl" pos="138:11:13" line-data="           IF WS-F-RSK &gt; 9.99">`9.99`</SwmToken>"]
-%%     click node15 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:139:140"
-%%     node14 -->|"No"| node16["Keep calculated risk score"]
-%%     click node16 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:137:140"
+%%     click node15 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:139:139"
+%%     node14 -->|"No"| node16["Use calculated risk score"]
+%%     click node16 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:135:136"
+%%     node15 --> node17["End"]
+%%     node16 --> node17
+%%     click node17 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:140:140"
 %% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
 ```
 
-This section calculates a risk score for a property based on its type, claim history, and location peril factors. The score is used to assess insurance risk and guide pricing or acceptance decisions.
+This section calculates the risk score for a property insurance policy by assigning multipliers based on property type and claim history, computing a location risk factor, and combining these to produce a final risk score. The score is capped at a maximum value to ensure consistency in risk assessment.
 
-| Rule ID | Category        | Rule Name                       | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | Implementation Details                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| ------- | --------------- | ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| BR-001  | Data validation | Risk score cap                  | If the calculated risk score exceeds <SwmToken path="base/src/lgarsk01.cbl" pos="138:11:13" line-data="           IF WS-F-RSK &gt; 9.99">`9.99`</SwmToken>, set the risk score to <SwmToken path="base/src/lgarsk01.cbl" pos="138:11:13" line-data="           IF WS-F-RSK &gt; 9.99">`9.99`</SwmToken>.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | Maximum risk score allowed is <SwmToken path="base/src/lgarsk01.cbl" pos="138:11:13" line-data="           IF WS-F-RSK &gt; 9.99">`9.99`</SwmToken>. The risk score is a number with two decimal places.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| BR-002  | Calculation     | Location peril weighting        | Calculate a location factor as 1 plus the sum of fire peril times <SwmToken path="base/src/lgarsk01.cbl" pos="130:10:12" line-data="               (IN-FR-PR * 0.2) +">`0.2`</SwmToken>, crime peril times <SwmToken path="base/src/lgarsk01.cbl" pos="130:10:12" line-data="               (IN-FR-PR * 0.2) +">`0.2`</SwmToken>, flood peril times <SwmToken path="base/src/lgarsk01.cbl" pos="132:10:12" line-data="               (IN-FL-PR * 0.3) +">`0.3`</SwmToken>, and weather peril times <SwmToken path="base/src/lgarsk01.cbl" pos="130:10:12" line-data="               (IN-FR-PR * 0.2) +">`0.2`</SwmToken>.                                                                                                                                                                           | Location factor formula: 1 + (fire peril \* <SwmToken path="base/src/lgarsk01.cbl" pos="130:10:12" line-data="               (IN-FR-PR * 0.2) +">`0.2`</SwmToken>) + (crime peril \* <SwmToken path="base/src/lgarsk01.cbl" pos="130:10:12" line-data="               (IN-FR-PR * 0.2) +">`0.2`</SwmToken>) + (flood peril \* <SwmToken path="base/src/lgarsk01.cbl" pos="132:10:12" line-data="               (IN-FL-PR * 0.3) +">`0.3`</SwmToken>) + (weather peril \* <SwmToken path="base/src/lgarsk01.cbl" pos="130:10:12" line-data="               (IN-FR-PR * 0.2) +">`0.2`</SwmToken>). Each peril value is a number. The location factor is a number with two decimal places.                                                                                                                               |
-| BR-003  | Calculation     | Risk score calculation          | Multiply the base risk factor, claim factor, and location factor to produce the risk score, rounded to two decimal places.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Risk score formula: base risk factor x claim factor x location factor. The result is rounded to two decimal places.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| BR-004  | Decision Making | Property type base risk mapping | Assign a base risk factor depending on the property type. OFFICE properties use <SwmToken path="base/src/lgarsk01.cbl" pos="110:3:5" line-data="                   MOVE 1.00 TO WS-BS-RS">`1.00`</SwmToken>, RETAIL uses <SwmToken path="base/src/lgarsk01.cbl" pos="112:3:5" line-data="                   MOVE 1.25 TO WS-BS-RS">`1.25`</SwmToken>, WAREHOUSE uses <SwmToken path="base/src/lgarsk01.cbl" pos="114:3:5" line-data="                   MOVE 1.50 TO WS-BS-RS">`1.50`</SwmToken>, INDUSTRIAL uses <SwmToken path="base/src/lgarsk01.cbl" pos="116:3:5" line-data="                   MOVE 2.00 TO WS-BS-RS">`2.00`</SwmToken>, and all other types use <SwmToken path="base/src/lgarsk01.cbl" pos="118:3:5" line-data="                   MOVE 1.75 TO WS-BS-RS">`1.75`</SwmToken>. | Base risk factor values: OFFICE = <SwmToken path="base/src/lgarsk01.cbl" pos="110:3:5" line-data="                   MOVE 1.00 TO WS-BS-RS">`1.00`</SwmToken>, RETAIL = <SwmToken path="base/src/lgarsk01.cbl" pos="112:3:5" line-data="                   MOVE 1.25 TO WS-BS-RS">`1.25`</SwmToken>, WAREHOUSE = <SwmToken path="base/src/lgarsk01.cbl" pos="114:3:5" line-data="                   MOVE 1.50 TO WS-BS-RS">`1.50`</SwmToken>, INDUSTRIAL = <SwmToken path="base/src/lgarsk01.cbl" pos="116:3:5" line-data="                   MOVE 2.00 TO WS-BS-RS">`2.00`</SwmToken>, OTHER = <SwmToken path="base/src/lgarsk01.cbl" pos="118:3:5" line-data="                   MOVE 1.75 TO WS-BS-RS">`1.75`</SwmToken>. The property type is a string. The base risk factor is a number with two decimal places. |
-| BR-005  | Decision Making | Claim count adjustment          | Adjust the risk calculation using a claim factor based on the number of past claims: 0 claims uses <SwmToken path="base/src/lgarsk01.cbl" pos="122:3:5" line-data="               MOVE 0.80 TO WS-CL-F">`0.80`</SwmToken>, 1-2 claims uses <SwmToken path="base/src/lgarsk01.cbl" pos="124:3:5" line-data="               MOVE 1.30 TO WS-CL-F">`1.30`</SwmToken>, more than 2 claims uses <SwmToken path="base/src/lgarsk01.cbl" pos="114:3:5" line-data="                   MOVE 1.50 TO WS-BS-RS">`1.50`</SwmToken>.                                                                                                                                                                                                                                                                             | Claim factor values: 0 claims = <SwmToken path="base/src/lgarsk01.cbl" pos="122:3:5" line-data="               MOVE 0.80 TO WS-CL-F">`0.80`</SwmToken>, 1-2 claims = <SwmToken path="base/src/lgarsk01.cbl" pos="124:3:5" line-data="               MOVE 1.30 TO WS-CL-F">`1.30`</SwmToken>, more than 2 claims = <SwmToken path="base/src/lgarsk01.cbl" pos="114:3:5" line-data="                   MOVE 1.50 TO WS-BS-RS">`1.50`</SwmToken>. The claim count is a number. The claim factor is a number with two decimal places.                                                                                                                                                                                                                                                                                     |
+| Rule ID | Category    | Rule Name                        | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Implementation Details                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| ------- | ----------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Calculation | Property type risk multiplier    | Assign a base risk multiplier according to property type: <SwmToken path="base/src/lgarsk01.cbl" pos="110:3:5" line-data="                   MOVE 1.00 TO WS-BS-RS">`1.00`</SwmToken> for office, <SwmToken path="base/src/lgarsk01.cbl" pos="112:3:5" line-data="                   MOVE 1.25 TO WS-BS-RS">`1.25`</SwmToken> for retail, <SwmToken path="base/src/lgarsk01.cbl" pos="114:3:5" line-data="                   MOVE 1.50 TO WS-BS-RS">`1.50`</SwmToken> for warehouse, <SwmToken path="base/src/lgarsk01.cbl" pos="116:3:5" line-data="                   MOVE 2.00 TO WS-BS-RS">`2.00`</SwmToken> for industrial, and <SwmToken path="base/src/lgarsk01.cbl" pos="118:3:5" line-data="                   MOVE 1.75 TO WS-BS-RS">`1.75`</SwmToken> for any other type. | The mapping is: OFFICE = <SwmToken path="base/src/lgarsk01.cbl" pos="110:3:5" line-data="                   MOVE 1.00 TO WS-BS-RS">`1.00`</SwmToken>, RETAIL = <SwmToken path="base/src/lgarsk01.cbl" pos="112:3:5" line-data="                   MOVE 1.25 TO WS-BS-RS">`1.25`</SwmToken>, WAREHOUSE = <SwmToken path="base/src/lgarsk01.cbl" pos="114:3:5" line-data="                   MOVE 1.50 TO WS-BS-RS">`1.50`</SwmToken>, INDUSTRIAL = <SwmToken path="base/src/lgarsk01.cbl" pos="116:3:5" line-data="                   MOVE 2.00 TO WS-BS-RS">`2.00`</SwmToken>, all others = <SwmToken path="base/src/lgarsk01.cbl" pos="118:3:5" line-data="                   MOVE 1.75 TO WS-BS-RS">`1.75`</SwmToken>. The multiplier is a number with two decimal places. |
+| BR-002  | Calculation | Claim count risk factor          | Assign a claim factor based on the number of claims: <SwmToken path="base/src/lgarsk01.cbl" pos="122:3:5" line-data="               MOVE 0.80 TO WS-CL-F">`0.80`</SwmToken> for zero claims, <SwmToken path="base/src/lgarsk01.cbl" pos="124:3:5" line-data="               MOVE 1.30 TO WS-CL-F">`1.30`</SwmToken> for one or two claims, <SwmToken path="base/src/lgarsk01.cbl" pos="114:3:5" line-data="                   MOVE 1.50 TO WS-BS-RS">`1.50`</SwmToken> for more than two claims.                                                                                                                                                                                                                                                                                     | The mapping is: 0 claims = <SwmToken path="base/src/lgarsk01.cbl" pos="122:3:5" line-data="               MOVE 0.80 TO WS-CL-F">`0.80`</SwmToken>, 1-2 claims = <SwmToken path="base/src/lgarsk01.cbl" pos="124:3:5" line-data="               MOVE 1.30 TO WS-CL-F">`1.30`</SwmToken>, more than 2 claims = <SwmToken path="base/src/lgarsk01.cbl" pos="114:3:5" line-data="                   MOVE 1.50 TO WS-BS-RS">`1.50`</SwmToken>. The factor is a number with two decimal places.                                                                                                                                                                                                                                                                                    |
+| BR-003  | Calculation | Location risk factor calculation | Calculate the location factor as 1 plus <SwmToken path="base/src/lgarsk01.cbl" pos="130:10:12" line-data="               (IN-FR-PR * 0.2) +">`0.2`</SwmToken> times the fire risk, <SwmToken path="base/src/lgarsk01.cbl" pos="130:10:12" line-data="               (IN-FR-PR * 0.2) +">`0.2`</SwmToken> times the crime risk, <SwmToken path="base/src/lgarsk01.cbl" pos="132:10:12" line-data="               (IN-FL-PR * 0.3) +">`0.3`</SwmToken> times the flood risk, and <SwmToken path="base/src/lgarsk01.cbl" pos="130:10:12" line-data="               (IN-FR-PR * 0.2) +">`0.2`</SwmToken> times the weather peril risk.                                                                                                                                                   | The formula is: 1 + (fire risk \* <SwmToken path="base/src/lgarsk01.cbl" pos="130:10:12" line-data="               (IN-FR-PR * 0.2) +">`0.2`</SwmToken>) + (crime risk \* <SwmToken path="base/src/lgarsk01.cbl" pos="130:10:12" line-data="               (IN-FR-PR * 0.2) +">`0.2`</SwmToken>) + (flood risk \* <SwmToken path="base/src/lgarsk01.cbl" pos="132:10:12" line-data="               (IN-FL-PR * 0.3) +">`0.3`</SwmToken>) + (weather peril risk \* <SwmToken path="base/src/lgarsk01.cbl" pos="130:10:12" line-data="               (IN-FR-PR * 0.2) +">`0.2`</SwmToken>). The result is a number with two decimal places.                                                                                                                                    |
+| BR-004  | Calculation | Risk score calculation and cap   | Calculate the final risk score by multiplying the base risk multiplier, claim factor, and location factor. If the result exceeds <SwmToken path="base/src/lgarsk01.cbl" pos="138:11:13" line-data="           IF WS-F-RSK &gt; 9.99">`9.99`</SwmToken>, set the risk score to <SwmToken path="base/src/lgarsk01.cbl" pos="138:11:13" line-data="           IF WS-F-RSK &gt; 9.99">`9.99`</SwmToken>.                                                                                                                                                                                                                                                                                                                                                                                 | The risk score is the product of the three factors, rounded to two decimal places. If the result is greater than <SwmToken path="base/src/lgarsk01.cbl" pos="138:11:13" line-data="           IF WS-F-RSK &gt; 9.99">`9.99`</SwmToken>, the score is set to <SwmToken path="base/src/lgarsk01.cbl" pos="138:11:13" line-data="           IF WS-F-RSK &gt; 9.99">`9.99`</SwmToken>.                                                                                                                                                                                                                                                                                                                                                                                           |
 
 <SwmSnippet path="/base/src/lgarsk01.cbl" line="107">
 
 ---
 
-In <SwmToken path="base/src/lgarsk01.cbl" pos="107:1:5" line-data="       2200-CALCULATE-RISK.">`2200-CALCULATE-RISK`</SwmToken>, we start by mapping the property type to a base risk score. Each type like OFFICE, RETAIL, etc., gets a specific value, and anything else falls back to a default. This sets up the main risk baseline for the calculation.
+In <SwmToken path="base/src/lgarsk01.cbl" pos="107:1:5" line-data="       2200-CALCULATE-RISK.">`2200-CALCULATE-RISK`</SwmToken>, we assign a base risk multiplier based on property type. The mapping is hardcoded: office, retail, warehouse, industrial get specific values, anything else gets a default. No validation is done on the input, so the function assumes the property type is valid or defaults to 'OTHER'.
 
 ```cobol
        2200-CALCULATE-RISK.
@@ -514,7 +541,7 @@ In <SwmToken path="base/src/lgarsk01.cbl" pos="107:1:5" line-data="       2200-C
 
 ---
 
-After setting the base risk, we adjust for claim count. The more claims, the higher the claim factor, which bumps up the risk score. The thresholds are hardcoded and reflect how much past claims matter for risk.
+After setting the base risk multiplier, we calculate the claim factor based on claim count: zero claims gets a lower multiplier, 1-2 claims gets a medium one, more than 2 gets the highest. This feeds into the final risk calculation, and again, no validation is done on the input.
 
 ```cobol
            IF IN-CLAIM-COUNT = 0
@@ -534,7 +561,7 @@ After setting the base risk, we adjust for claim count. The more claims, the hig
 
 ---
 
-After setting the base and claim factors, we calculate the location factor as a weighted sum of four peril values, then multiply everything together for the final risk score. If the score is above <SwmToken path="base/src/lgarsk01.cbl" pos="138:11:13" line-data="           IF WS-F-RSK &gt; 9.99">`9.99`</SwmToken>, we cap it there. This keeps the output consistent and avoids runaway values.
+Finally, we compute the location factor as a weighted sum of fire, crime, flood, and weather risks, then multiply everything together for the final risk score. If the score is above <SwmToken path="base/src/lgarsk01.cbl" pos="138:11:13" line-data="           IF WS-F-RSK &gt; 9.99">`9.99`</SwmToken>, it's capped. No validation is done on the input percentages, so the function assumes they're reasonable.
 
 ```cobol
            COMPUTE WS-LOC-F = 1 +
@@ -549,108 +576,6 @@ After setting the base and claim factors, we calculate the location factor as a 
            IF WS-F-RSK > 9.99
                MOVE 9.99 TO WS-F-RSK
            END-IF.
-```
-
----
-
-</SwmSnippet>
-
-## Writing Output After Risk Calculation
-
-```mermaid
-%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
-flowchart TD
-    node1["Validate input data"]
-    click node1 openCode "base/src/lgarsk01.cbl:92:92"
-    node1 --> node2["Calculate risk score"]
-    click node2 openCode "base/src/lgarsk01.cbl:93:93"
-    node2 --> node3{"Risk score < 3.00?"}
-    click node3 openCode "base/src/lgarsk01.cbl:146:147"
-    node3 -->|"Yes"| node4["Assign LOW risk category"]
-    click node4 openCode "base/src/lgarsk01.cbl:148:148"
-    node3 -->|"No"| node5{"Risk score < 6.00?"}
-    click node5 openCode "base/src/lgarsk01.cbl:149:150"
-    node5 -->|"Yes"| node6["Assign MEDIUM risk category"]
-    click node6 openCode "base/src/lgarsk01.cbl:150:150"
-    node5 -->|"No"| node7["Assign HIGH risk category"]
-    click node7 openCode "base/src/lgarsk01.cbl:152:152"
-    node4 --> node8["Write output record"]
-    node6 --> node8
-    node7 --> node8
-    click node8 openCode "base/src/lgarsk01.cbl:154:154"
-
-classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
-
-%% Swimm:
-%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
-%% flowchart TD
-%%     node1["Validate input data"]
-%%     click node1 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:92:92"
-%%     node1 --> node2["Calculate risk score"]
-%%     click node2 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:93:93"
-%%     node2 --> node3{"Risk score < <SwmToken path="base/src/lgarsk01.cbl" pos="147:11:13" line-data="               WHEN WS-F-RSK &lt; 3.00">`3.00`</SwmToken>?"}
-%%     click node3 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:146:147"
-%%     node3 -->|"Yes"| node4["Assign LOW risk category"]
-%%     click node4 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:148:148"
-%%     node3 -->|"No"| node5{"Risk score < <SwmToken path="base/src/lgarsk01.cbl" pos="149:11:13" line-data="               WHEN WS-F-RSK &lt; 6.00">`6.00`</SwmToken>?"}
-%%     click node5 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:149:150"
-%%     node5 -->|"Yes"| node6["Assign MEDIUM risk category"]
-%%     click node6 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:150:150"
-%%     node5 -->|"No"| node7["Assign HIGH risk category"]
-%%     click node7 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:152:152"
-%%     node4 --> node8["Write output record"]
-%%     node6 --> node8
-%%     node7 --> node8
-%%     click node8 openCode "<SwmPath>[base/src/lgarsk01.cbl](base/src/lgarsk01.cbl)</SwmPath>:154:154"
-%% 
-%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
-```
-
-This section finalizes the processing of each record by copying the relevant data and risk assessment results to the output file. It ensures that the risk classification and associated data are available for downstream processes.
-
-| Rule ID | Category        | Rule Name                | Description                                                                                                                                                                                                                                                                                                                                                                                                                        | Implementation Details                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| ------- | --------------- | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| BR-001  | Decision Making | Risk category assignment | Assign the risk category as LOW if the risk score is less than <SwmToken path="base/src/lgarsk01.cbl" pos="147:11:13" line-data="               WHEN WS-F-RSK &lt; 3.00">`3.00`</SwmToken>, MEDIUM if the risk score is less than <SwmToken path="base/src/lgarsk01.cbl" pos="149:11:13" line-data="               WHEN WS-F-RSK &lt; 6.00">`6.00`</SwmToken>, and HIGH otherwise. The category string is padded to 10 characters. | Risk category values: 'LOW      ', 'MEDIUM   ', 'HIGH     ' (all padded to 10 characters). Thresholds: <<SwmToken path="base/src/lgarsk01.cbl" pos="147:11:13" line-data="               WHEN WS-F-RSK &lt; 3.00">`3.00`</SwmToken> for LOW, <<SwmToken path="base/src/lgarsk01.cbl" pos="149:11:13" line-data="               WHEN WS-F-RSK &lt; 6.00">`6.00`</SwmToken> for MEDIUM, >=<SwmToken path="base/src/lgarsk01.cbl" pos="149:11:13" line-data="               WHEN WS-F-RSK &lt; 6.00">`6.00`</SwmToken> for HIGH. |
-| BR-002  | Writing Output  | Policy number output     | Copy the policy number from the input to the output record so that each output record is traceable to its original policy.                                                                                                                                                                                                                                                                                                         | The policy number is a string of 10 characters. It is copied as-is from the input to the output record.                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| BR-003  | Writing Output  | Risk score output        | Copy the calculated risk score to the output record so that the risk assessment result is available for each policy.                                                                                                                                                                                                                                                                                                               | The risk score is a numeric value. It is copied as-is from the calculated result to the output record.                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| BR-004  | Writing Output  | Output record writing    | Write the output record, which includes the policy number, risk score, and risk category, to the output file. The output record is always 100 characters long.                                                                                                                                                                                                                                                                     | The output record is a fixed-length record of 100 characters. Fields are aligned and padded as defined in the output record structure.                                                                                                                                                                                                                                                                                                                                                                                        |
-
-<SwmSnippet path="/base/src/lgarsk01.cbl" line="92">
-
----
-
-Back in <SwmToken path="base/src/lgarsk01.cbl" pos="66:3:5" line-data="           PERFORM 2000-PROCESS UNTIL WS-EOF = &#39;Y&#39;">`2000-PROCESS`</SwmToken>, after calculating the risk, we immediately call <SwmToken path="base/src/lgarsk01.cbl" pos="94:3:7" line-data="           PERFORM 2300-WRITE-OUTPUT">`2300-WRITE-OUTPUT`</SwmToken>. This step finalizes the processing for the current record by saving the results, so nothing gets lost before moving to the next input.
-
-```cobol
-           PERFORM 2100-VALIDATE-DATA
-           PERFORM 2200-CALCULATE-RISK
-           PERFORM 2300-WRITE-OUTPUT
-```
-
----
-
-</SwmSnippet>
-
-<SwmSnippet path="/base/src/lgarsk01.cbl" line="142">
-
----
-
-<SwmToken path="base/src/lgarsk01.cbl" pos="142:1:5" line-data="       2300-WRITE-OUTPUT.">`2300-WRITE-OUTPUT`</SwmToken> copies the policy number and risk score to the output record, then classifies the risk as LOW, MEDIUM, or HIGH using fixed thresholds. It pads the category string and writes the record out, so the results are ready for downstream use.
-
-```cobol
-       2300-WRITE-OUTPUT.
-           MOVE IN-POLICY-NUM TO OUT-POLICY-NUM
-           MOVE WS-F-RSK TO OUT-RISK-SCORE
-      * Set risk category
-           EVALUATE TRUE
-               WHEN WS-F-RSK < 3.00
-                   MOVE 'LOW      ' TO OUT-RISK-CATEGORY
-               WHEN WS-F-RSK < 6.00
-                   MOVE 'MEDIUM   ' TO OUT-RISK-CATEGORY
-               WHEN OTHER
-                   MOVE 'HIGH     ' TO OUT-RISK-CATEGORY
-           END-EVALUATE
-           WRITE OUTPUT-RECORD.
 ```
 
 ---

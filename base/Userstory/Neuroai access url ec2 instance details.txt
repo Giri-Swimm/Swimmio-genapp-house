@@ -1,0 +1,24 @@
+
+AWS ID: 161342106387
+
+EC2: Windows: i-0abebed6c233d0a87 (EC2-NeuroAI-Windows-Demo)
+URL: https://naie.demo2.internal
+Username: 775109
+
+EC2 instance Password will be shared in separate email. For NAIE portal, password will be sent in auto-generated em
+
+
+Sign-in URL: https://161342106387.signin.aws.amazon.com/console 
+User name: 775109 
+9
+Your username is 775109 and temporary password is 9Rj|BDgJ   -    Neuro@123
+
+User name,          Password,                       Console sign-in URL
+775109,             Welcome@775109,                https://161342106387.signin.aws.amazon.com/console
+
+
+NeuroAI#321 is the password for below EC2 instance.
+
+AWS ID: 161342106387
+
+EC2: Windows: i-0abebed6c233d0a87 (EC2-NeuroAI-Windows-Demo)
