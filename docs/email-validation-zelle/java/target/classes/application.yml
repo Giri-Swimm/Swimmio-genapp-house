@@ -1,0 +1,34 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: ipymt-email-validation-service
+
+zelle:
+  api:
+    base-url: ${ZELLE_API_BASE_URL:https://api.earlywarning.com}
+    key: ${ZELLE_API_KEY:changeme}
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      zelleRegistry:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 30s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+  timelimiter:
+    instances:
+      zelleRegistry:
+        timeoutDuration: 5s
+
+logging:
+  level:
+    com.ipymt.zelle: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} [sessionId=%X{sessionId}] - %msg%n"

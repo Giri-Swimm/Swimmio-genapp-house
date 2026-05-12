@@ -6,45 +6,45 @@ title: (LGAPDB09) Inserting Insurance Records - Dependencies
 ```mermaid
 graph TD
   
-  q7b5g("(LGAPDB09) Inserting Insurance Records"):::currentEntity --> oll59("LGAPVS01")
-click oll59 openCode "base/src/lgapvs01.cbl:1"
-  oll59("LGAPVS01") --> 1mzjl("LGSTSQ")
-click 1mzjl openCode "base/src/lgstsq.cbl:1"
+  7zan8("(LGAPDB09) Inserting Insurance Records"):::currentEntity --> w3703("LGAPVS01")
+click w3703 openCode "base/src/lgapvs01.cbl:1"
+  w3703("LGAPVS01") --> gw2y2("LGSTSQ")
+click gw2y2 openCode "base/src/lgstsq.cbl:1"
   
   
   
-q7b5g("(LGAPDB09) Inserting Insurance Records"):::currentEntity --> 9pkjc("LGCOMCAL")
-click 9pkjc openCode "base/src/lgcomcal.cbl:1"
+7zan8("(LGAPDB09) Inserting Insurance Records"):::currentEntity --> 0x3ag("LGCOMCAL")
+click 0x3ag openCode "base/src/lgcomcal.cbl:1"
   
   
-q7b5g("(LGAPDB09) Inserting Insurance Records"):::currentEntity --> lvvkd("LGSTSQ")
-click lvvkd openCode "base/src/lgstsq.cbl:1"
+7zan8("(LGAPDB09) Inserting Insurance Records"):::currentEntity --> l8krm("LGSTSQ")
+click l8krm openCode "base/src/lgstsq.cbl:1"
   
   
   
-click q7b5g openCode "base/src/lgapdb09.cbl:1"
+click 7zan8 openCode "base/src/lgapdb09.cbl:1"
     classDef currentEntity color:#000000,fill:#7CB9F4
 
 %% Swimm:
 %% graph TD
 %%   
-%%   q7b5g("(LGAPDB09) Inserting Insurance Records"):::currentEntity --> oll59("LGAPVS01")
-%% click oll59 openCode "<SwmPath>[base/src/lgapvs01.cbl](base/src/lgapvs01.cbl)</SwmPath>:1"
-%%   oll59("LGAPVS01") --> 1mzjl("LGSTSQ")
-%% click 1mzjl openCode "<SwmPath>[base/src/lgstsq.cbl](base/src/lgstsq.cbl)</SwmPath>:1"
+%%   7zan8("(LGAPDB09) Inserting Insurance Records"):::currentEntity --> w3703("LGAPVS01")
+%% click w3703 openCode "<SwmPath>[base/src/lgapvs01.cbl](base/src/lgapvs01.cbl)</SwmPath>:1"
+%%   w3703("LGAPVS01") --> gw2y2("LGSTSQ")
+%% click gw2y2 openCode "<SwmPath>[base/src/lgstsq.cbl](base/src/lgstsq.cbl)</SwmPath>:1"
 %%   
 %%   
 %%   
-%% q7b5g("(LGAPDB09) Inserting Insurance Records"):::currentEntity --> 9pkjc("LGCOMCAL")
-%% click 9pkjc openCode "<SwmPath>[base/src/lgcomcal.cbl](base/src/lgcomcal.cbl)</SwmPath>:1"
+%% 7zan8("(LGAPDB09) Inserting Insurance Records"):::currentEntity --> 0x3ag("LGCOMCAL")
+%% click 0x3ag openCode "<SwmPath>[base/src/lgcomcal.cbl](base/src/lgcomcal.cbl)</SwmPath>:1"
 %%   
 %%   
-%% q7b5g("(LGAPDB09) Inserting Insurance Records"):::currentEntity --> lvvkd("LGSTSQ")
-%% click lvvkd openCode "<SwmPath>[base/src/lgstsq.cbl](base/src/lgstsq.cbl)</SwmPath>:1"
+%% 7zan8("(LGAPDB09) Inserting Insurance Records"):::currentEntity --> l8krm("LGSTSQ")
+%% click l8krm openCode "<SwmPath>[base/src/lgstsq.cbl](base/src/lgstsq.cbl)</SwmPath>:1"
 %%   
 %%   
 %%   
-%% click q7b5g openCode "<SwmPath>[base/src/lgapdb09.cbl](base/src/lgapdb09.cbl)</SwmPath>:1"
+%% click 7zan8 openCode "<SwmPath>[base/src/lgapdb09.cbl](base/src/lgapdb09.cbl)</SwmPath>:1"
 %%     classDef currentEntity color:#000000,fill:#7CB9F4
 ```
 

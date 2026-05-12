@@ -3,7 +3,7 @@ title: LGAPDB03 - Risk Verdict and Premium Calculation - Overview
 ---
 # Overview
 
-This document describes how risk verdicts and insurance premiums are determined for applications. Risk multipliers are sourced or defaulted, a verdict is assigned based on the risk score, and premiums are calculated for each peril, with a discount applied if all perils are present.
+This document explains the flow for determining risk verdicts and calculating insurance premiums for insurance applications. The process ensures risk multipliers are always available, assigns a verdict based on the risk score, and calculates premiums for each peril, applying a discount for full coverage.
 
 ## Dependencies
 
@@ -21,20 +21,20 @@ This program is used once, as represented in the following diagram:
 
 ```mermaid
 graph TD
-  65y5h("(LGAPDB01) Enhanced Policy Premium Calculation") --> ieovn("(LGAPDB03) Calculating insurance premiums and risk verdicts"):::currentEntity
-click 65y5h openCode "base/src/LGAPDB01.cbl:1"
+  9iuu8("(LGAPDB01) Enhanced Policy Premium Calculation") --> l9j88("(LGAPDB03) Calculating insurance premiums and risk verdicts"):::currentEntity
+click 9iuu8 openCode "base/src/LGAPDB01.cbl:1"
   
   
-click ieovn openCode "base/src/LGAPDB03.cbl:1"
+click l9j88 openCode "base/src/LGAPDB03.cbl:1"
     classDef currentEntity color:#000000,fill:#7CB9F4
 
 %% Swimm:
 %% graph TD
-%%   65y5h("(LGAPDB01) Enhanced Policy Premium Calculation") --> ieovn("(LGAPDB03) Calculating insurance premiums and risk verdicts"):::currentEntity
-%% click 65y5h openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:1"
+%%   9iuu8("(LGAPDB01) Enhanced Policy Premium Calculation") --> l9j88("(LGAPDB03) Calculating insurance premiums and risk verdicts"):::currentEntity
+%% click 9iuu8 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:1"
 %%   
 %%   
-%% click ieovn openCode "<SwmPath>[base/src/LGAPDB03.cbl](base/src/LGAPDB03.cbl)</SwmPath>:1"
+%% click l9j88 openCode "<SwmPath>[base/src/LGAPDB03.cbl](base/src/LGAPDB03.cbl)</SwmPath>:1"
 %%     classDef currentEntity color:#000000,fill:#7CB9F4
 ```
 

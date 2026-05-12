@@ -3,7 +3,22 @@ title: LGAPDB02 - Property Risk Score Calculation
 ---
 # Overview
 
-This document explains the flow for calculating property risk scores used in insurance evaluation. The process ensures risk factors are available and combines property, coverage, location, and customer history to produce a comprehensive risk score.
+This document describes the flow for calculating property risk scores. The process combines risk factors, property characteristics, coverage amounts, location, and customer history to produce a risk score for use in property insurance underwriting.
+
+```mermaid
+flowchart TD
+    node1["Orchestrating the risk calculation steps"]:::HeadingStyle
+    click node1 goToHeading "Orchestrating the risk calculation steps"
+    node1 --> node2["Loading risk factors with fallback logic"]:::HeadingStyle
+    click node2 goToHeading "Loading risk factors with fallback logic"
+    node2 --> node3["Building the risk score from property data"]:::HeadingStyle
+    click node3 goToHeading "Building the risk score from property data"
+    node3 --> node4["Evaluating coverage impact on risk"]:::HeadingStyle
+    click node4 goToHeading "Evaluating coverage impact on risk"
+    node4 --> node5["Factoring in location and customer history"]:::HeadingStyle
+    click node5 goToHeading "Factoring in location and customer history"
+classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+```
 
 ## Dependencies
 
@@ -21,246 +36,230 @@ This program is used once, as represented in the following diagram:
 
 ```mermaid
 graph TD
-  3iha3("(LGAPDB01) Enhanced Policy Premium Calculation") --> jtu4v("(LGAPDB02) Calculating property risk scores"):::currentEntity
-click 3iha3 openCode "base/src/LGAPDB01.cbl:1"
+  3z83u("(LGAPDB01) Enhanced Policy Premium Calculation") --> xomud("(LGAPDB02) Calculating property risk scores"):::currentEntity
+click 3z83u openCode "base/src/LGAPDB01.cbl:1"
   
   
-click jtu4v openCode "base/src/LGAPDB02.cbl:1"
+click xomud openCode "base/src/LGAPDB02.cbl:1"
     classDef currentEntity color:#000000,fill:#7CB9F4
 
 %% Swimm:
 %% graph TD
-%%   3iha3("(LGAPDB01) Enhanced Policy Premium Calculation") --> jtu4v("(<SwmToken path="base/src/LGAPDB02.cbl" pos="2:6:6" line-data="       PROGRAM-ID. LGAPDB02.">`LGAPDB02`</SwmToken>) Calculating property risk scores"):::currentEntity
-%% click 3iha3 openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:1"
+%%   3z83u("(LGAPDB01) Enhanced Policy Premium Calculation") --> xomud("(<SwmToken path="base/src/LGAPDB02.cbl" pos="2:6:6" line-data="       PROGRAM-ID. LGAPDB02.">`LGAPDB02`</SwmToken>) Calculating property risk scores"):::currentEntity
+%% click 3z83u openCode "<SwmPath>[base/src/LGAPDB01.cbl](base/src/LGAPDB01.cbl)</SwmPath>:1"
 %%   
 %%   
-%% click jtu4v openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:1"
+%% click xomud openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:1"
 %%     classDef currentEntity color:#000000,fill:#7CB9F4
 ```
 
-## Input and Output Tables/Files used
-
-### <SwmToken path="base/src/LGAPDB02.cbl" pos="2:6:6" line-data="       PROGRAM-ID. LGAPDB02.">`LGAPDB02`</SwmToken> (<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>)
-
-| Table / File Name                                                                                                          | Type | Description                                                  | Usage Mode | Key Fields / Layout Highlights                                                                                                                                                                                                                                                                               |
-| -------------------------------------------------------------------------------------------------------------------------- | ---- | ------------------------------------------------------------ | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| <SwmToken path="base/src/LGAPDB02.cbl" pos="47:3:3" line-data="               FROM RISK_FACTORS">`RISK_FACTORS`</SwmToken> | DB2  | Peril-specific risk adjustment factors for insurance scoring | Input      | <SwmToken path="base/src/LGAPDB02.cbl" pos="46:8:12" line-data="               SELECT FACTOR_VALUE INTO :WS-FIRE-FACTOR">`WS-FIRE-FACTOR`</SwmToken>, <SwmToken path="base/src/LGAPDB02.cbl" pos="58:8:12" line-data="               SELECT FACTOR_VALUE INTO :WS-CRIME-FACTOR">`WS-CRIME-FACTOR`</SwmToken> |
-
 ## Detailed View of the Program's Functionality
 
-a. Program Initialization and Entry Point
+## Orchestrating the Risk Calculation Steps
 
-The program begins by defining its identity and environment. It sets up storage for working variables, including placeholders for risk factors and coverage amounts. It also defines the input parameters it expects to receive, such as property type, postcode, latitude, longitude, coverage amounts for various hazards, customer history, and the risk score to be calculated.
+The program begins by executing a main sequence that orchestrates the risk assessment process. The main logic is as follows:
 
-The main entry point of the program is a procedure that receives these parameters and orchestrates the risk calculation process.
+1. **Start the risk assessment process:** The program is invoked with several pieces of property and customer data (such as property type, postcode, location, coverage amounts, and customer history).
+2. **Collect risk factors for assessment:** The program first ensures that the necessary risk factors (specifically for fire and crime) are loaded. It attempts to retrieve these values from a database. If the database does not provide a value, it falls back to predefined defaults.
+3. **Calculate risk score based on collected factors:** With the risk factors available, the program proceeds to calculate a risk score. This calculation is based on the property data, location, coverage amounts, and customer history.
+4. **Conclude risk assessment:** Once the risk score is calculated, the process ends and returns control to the caller.
 
-b. Main Logic Sequence
+This sequence ensures that the risk calculation always uses the most up-to-date or fallback values for risk factors, and that all relevant property and customer data are considered.
 
-The main logic is straightforward and sequential. It performs three primary actions in order:
+---
 
-1. It retrieves risk factors for relevant hazards (fire and crime).
-2. It calculates the risk score for the property using the retrieved factors and input parameters.
-3. It exits the program, returning control to the caller.
+## Loading Risk Factors with Fallback Logic
 
-c. Retrieving Risk Factors
+The program retrieves risk factors for fire and crime from a database table. The steps are:
 
-The program first attempts to fetch the fire risk factor from a database table dedicated to risk factors. If the database query is successful, it uses the value retrieved. If the query fails (for example, if the value is missing or the database is unavailable), it assigns a default value of <SwmToken path="base/src/LGAPDB02.cbl" pos="54:3:5" line-data="               MOVE 0.80 TO WS-FIRE-FACTOR">`0.80`</SwmToken> for the fire risk factor.
+1. **Retrieve FIRE risk factor from database:** The program issues a database query to fetch the fire risk factor.
+2. **Check if FIRE risk factor was found:** If the database returns a value, it is used. If not, the program sets the fire risk factor to a default value of <SwmToken path="base/src/LGAPDB02.cbl" pos="54:3:5" line-data="               MOVE 0.80 TO WS-FIRE-FACTOR">`0.80`</SwmToken>.
+3. **Retrieve CRIME risk factor from database:** The program then queries the database for the crime risk factor.
+4. **Check if CRIME risk factor was found:** If the database returns a value, it is used. If not, the program sets the crime risk factor to a default value of <SwmToken path="base/src/LGAPDB02.cbl" pos="66:3:5" line-data="               MOVE 0.60 TO WS-CRIME-FACTOR">`0.60`</SwmToken>.
 
-Next, it performs a similar operation for the crime risk factor. It queries the database for the crime risk factor, and if successful, uses the value. If not, it assigns a default value of <SwmToken path="base/src/LGAPDB02.cbl" pos="66:3:5" line-data="               MOVE 0.60 TO WS-CRIME-FACTOR">`0.60`</SwmToken>. This ensures that both fire and crime risk factors are always available for subsequent calculations, either from the database or as hardcoded defaults.
+This logic guarantees that both fire and crime risk factors are always set, either from the database or from safe defaults, before any calculations are performed.
 
-d. Calculating the Risk Score
+---
 
-The risk score calculation starts by initializing the score to 100. The program then adjusts this score based on several criteria:
+## Building the Risk Score from Property Data
 
-- Property Type Adjustment: Depending on the type of property, a fixed value is added to the score. Warehouses add 50, factories add 75, offices add 25, retail properties add 40, and any other type adds 30. This adjustment reflects the inherent risk associated with different property types.
+The risk score calculation is performed in several steps:
 
-- Postcode Adjustment: If the postcode begins with certain prefixes ('FL' or 'CR'), an additional 30 points are added to the score. This likely reflects domain-specific risk associated with these regions.
+1. **Initialize risk score:** The score starts at a base value of 100.
+2. **Adjust for property type:** Depending on the type of property, a fixed amount is added to the score:
+   - Warehouse: +50
+   - Factory: +75
+   - Office: +25
+   - Retail: +40
+   - Any other type: +30
+3. **Adjust for postcode prefix:** If the postcode starts with 'FL' or 'CR', an additional 30 points are added to the score.
+4. **Perform business assessments:** The program then performs further assessments, which include:
+   - Checking coverage amounts
+   - Assessing location risk
+   - Evaluating customer history
 
-- Coverage Amounts Adjustment: The program checks the coverage amounts for fire, crime, flood, and weather hazards. It determines the highest coverage among these. If the maximum coverage exceeds 500,000, it adds 15 points to the risk score.
+Each of these assessments can further modify the risk score.
 
-- Location Risk Assessment: The program evaluates the property's location using latitude and longitude. If the property is in major urban areas (NYC or LA, based on specific latitude and longitude ranges), it adds 10 points. If the property is elsewhere in the continental US, it adds 5 points. If the property is outside the continental US, it adds 20 points, reflecting higher risk.
+---
 
-- Customer History Adjustment: The program adjusts the score based on customer history. If the customer is new, it adds 10 points. If the customer has a good history, it subtracts 5 points. If the customer is considered risky, it adds 25 points. For any other customer profile, it adds 10 points.
+## Evaluating Coverage Impact on Risk
 
-e. Coverage Amounts Evaluation
+The program examines the coverage amounts for different perils (fire, crime, flood, weather):
 
-The program systematically checks each coverage type (fire, crime, flood, weather) to find the highest coverage value. It starts with zero and updates the maximum as it compares each coverage. Once the maximum is determined, it checks if this value exceeds 500,000. If so, it increases the risk score by 15 points.
+1. **Set maximum coverage to zero:** The program initializes a variable to track the highest coverage amount.
+2. **Find the maximum coverage:** It compares the coverage amounts for fire, crime, flood, and weather, updating the maximum as needed.
+3. **Check if maximum coverage exceeds $500,000:** If the highest coverage amount is greater than $500,000, the program adds 15 points to the risk score. If not, the score remains unchanged.
 
-f. Location and Customer History Assessment
+This step ensures that properties with high coverage amounts are considered higher risk.
 
-For location, the program uses latitude and longitude to determine if the property is in NYC or LA, in the continental US, or outside the US. Each location category results in a different adjustment to the risk score, with urban areas receiving a moderate increase, suburban/rural areas a smaller increase, and properties outside the US a significant increase.
+---
 
-For customer history, the program uses a single-character profile to determine the adjustment. New customers receive a moderate increase, good customers receive a reduction, risky customers receive a large increase, and any other profile receives a moderate increase.
+## Factoring in Location and Customer History
 
-g. Program Exit
+The program further adjusts the risk score based on location and customer history:
 
-After all adjustments are made, the program completes its calculations and exits, returning the final risk score to the caller. This score reflects the cumulative risk based on property type, postcode, coverage amounts, location, and customer history.
+### Location Assessment
 
-# Data Definitions
+1. **Check if location is in NYC or LA:** The program checks if the latitude and longitude fall within the ranges for New York City or Los Angeles. If so, it adds 10 points to the risk score.
+2. **Check if location is in the continental US:** If not in NYC or LA, the program checks if the location is within the general bounds of the continental United States. If so, it adds 5 points.
+3. **Otherwise:** If the location is outside these bounds, it adds 20 points, reflecting higher risk for less familiar or international locations.
 
-### <SwmToken path="base/src/LGAPDB02.cbl" pos="2:6:6" line-data="       PROGRAM-ID. LGAPDB02.">`LGAPDB02`</SwmToken> (<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>)
+### Customer History Assessment
 
-| Table / Record Name                                                                                                        | Type | Short Description                                            | Usage Mode     |
-| -------------------------------------------------------------------------------------------------------------------------- | ---- | ------------------------------------------------------------ | -------------- |
-| <SwmToken path="base/src/LGAPDB02.cbl" pos="47:3:3" line-data="               FROM RISK_FACTORS">`RISK_FACTORS`</SwmToken> | DB2  | Peril-specific risk adjustment factors for insurance scoring | Input (SELECT) |
+1. **Evaluate customer history:** The program adjusts the risk score based on the customer's history:
+   - If the history is 'N' (possibly "New"), add 10 points.
+   - If the history is 'G' (possibly "Good"), subtract 5 points.
+   - If the history is 'R' (possibly "Risky"), add 25 points.
+   - For any other value, add 10 points.
+
+This final adjustment ensures that both the location and the customer's background are factored into the overall risk score.
+
+---
+
+## Summary
+
+The program systematically collects risk factors, calculates a base risk score, and then adjusts this score based on property type, location, coverage amounts, and customer history. Each step is designed to ensure that all relevant data is considered, with fallback logic to handle missing information, resulting in a comprehensive risk assessment.
 
 # Rule Definition
 
-| Paragraph Name                             | Rule ID | Category        | Description                                                                                                                                                                                                                                                      | Conditions                                      | Remarks                                       |
-| ------------------------------------------ | ------- | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- | --------------------------------------------- |
-| LINKAGE SECTION, PROCEDURE DIVISION header | RL-001  | Data Assignment | The program must accept input parameters in a specific order and type, including property type, postcode, latitude, longitude, fire coverage, crime coverage, flood coverage, weather coverage, customer history, and output the risk score as a 3-digit number. | On program invocation via the main entry point. | \- Property type: string, up to 15 characters |
-
-- Postcode: string, up to 8 characters
-- Latitude: signed decimal, 7 digits before and 6 after the decimal
-- Longitude: signed decimal, 8 digits before and 6 after the decimal
-- Fire/Crime/Flood/Weather coverage: decimal, up to 8 digits before and 2 after the decimal
-- Customer history: single character ('N', 'G', 'R', or other)
-- Risk score: numeric, 3 digits (output only) | | <SwmToken path="base/src/LGAPDB02.cbl" pos="40:3:7" line-data="           PERFORM GET-RISK-FACTORS">`GET-RISK-FACTORS`</SwmToken> | RL-002 | Conditional Logic | Retrieve the FIRE risk factor from the <SwmToken path="base/src/LGAPDB02.cbl" pos="47:3:3" line-data="               FROM RISK_FACTORS">`RISK_FACTORS`</SwmToken> table using <SwmToken path="base/src/LGAPDB02.cbl" pos="48:3:3" line-data="               WHERE PERIL_TYPE = &#39;FIRE&#39;">`PERIL_TYPE`</SwmToken> = 'FIRE'. If not found or database unavailable, use default value <SwmToken path="base/src/LGAPDB02.cbl" pos="54:3:5" line-data="               MOVE 0.80 TO WS-FIRE-FACTOR">`0.80`</SwmToken>. | On program start, before risk score calculation. | - Default FIRE risk factor: <SwmToken path="base/src/LGAPDB02.cbl" pos="54:3:5" line-data="               MOVE 0.80 TO WS-FIRE-FACTOR">`0.80`</SwmToken> (decimal)
-- The retrieved value is stored for potential use, but not used in risk score calculation. | | <SwmToken path="base/src/LGAPDB02.cbl" pos="40:3:7" line-data="           PERFORM GET-RISK-FACTORS">`GET-RISK-FACTORS`</SwmToken> | RL-003 | Conditional Logic | Retrieve the CRIME risk factor from the <SwmToken path="base/src/LGAPDB02.cbl" pos="47:3:3" line-data="               FROM RISK_FACTORS">`RISK_FACTORS`</SwmToken> table using <SwmToken path="base/src/LGAPDB02.cbl" pos="48:3:3" line-data="               WHERE PERIL_TYPE = &#39;FIRE&#39;">`PERIL_TYPE`</SwmToken> = 'CRIME'. If not found or database unavailable, use default value <SwmToken path="base/src/LGAPDB02.cbl" pos="66:3:5" line-data="               MOVE 0.60 TO WS-CRIME-FACTOR">`0.60`</SwmToken>. | On program start, before risk score calculation. | - Default CRIME risk factor: <SwmToken path="base/src/LGAPDB02.cbl" pos="66:3:5" line-data="               MOVE 0.60 TO WS-CRIME-FACTOR">`0.60`</SwmToken> (decimal)
-- The retrieved value is stored for potential use, but not used in risk score calculation. | | <SwmToken path="base/src/LGAPDB02.cbl" pos="41:3:7" line-data="           PERFORM CALCULATE-RISK-SCORE">`CALCULATE-RISK-SCORE`</SwmToken> | RL-004 | Computation | Initialize risk score to 100, then adjust based on property type with specific increments for WAREHOUSE, FACTORY, OFFICE, RETAIL, or other types. | On risk score calculation. | - Initial risk score: 100
-- Add 50 for WAREHOUSE, 75 for FACTORY, 25 for OFFICE, 40 for RETAIL, 30 for any other property type. | | <SwmToken path="base/src/LGAPDB02.cbl" pos="41:3:7" line-data="           PERFORM CALCULATE-RISK-SCORE">`CALCULATE-RISK-SCORE`</SwmToken> | RL-005 | Conditional Logic | If the postcode starts with 'FL' or 'CR', add 30 to the risk score. | During risk score calculation, after property type adjustment. | - Postcode: string, up to 8 characters
-- Prefixes: 'FL', 'CR'
-- Adjustment: add 30 to risk score if matched. | | <SwmToken path="base/src/LGAPDB02.cbl" pos="90:3:7" line-data="           PERFORM CHECK-COVERAGE-AMOUNTS">`CHECK-COVERAGE-AMOUNTS`</SwmToken> | RL-006 | Computation | Determine the maximum coverage among fire, crime, flood, and weather coverage. If the maximum is greater than 500,000, add 15 to the risk score. | During risk score calculation, after postcode adjustment. | - Coverage values: decimal, up to 8 digits before and 2 after the decimal
-- Threshold: 500,000
-- Adjustment: add 15 to risk score if maximum coverage exceeds threshold. | | <SwmToken path="base/src/LGAPDB02.cbl" pos="91:3:7" line-data="           PERFORM ASSESS-LOCATION-RISK  ">`ASSESS-LOCATION-RISK`</SwmToken> | RL-007 | Conditional Logic | Adjust risk score based on latitude and longitude. Add 10 if in NYC or LA, 5 if in continental US, 20 if outside US. | During risk score calculation, after coverage adjustment. | - NYC: latitude 40-41, longitude -74.5 to -73.5
-- LA: latitude 34-35, longitude -118.5 to -117.5
-- Continental US: latitude 25-49, longitude -125 to -66
-- Add 10 for NYC/LA, 5 for continental US, 20 otherwise. | | <SwmToken path="base/src/LGAPDB02.cbl" pos="92:3:7" line-data="           PERFORM EVALUATE-CUSTOMER-HISTORY.">`EVALUATE-CUSTOMER-HISTORY`</SwmToken> | RL-008 | Conditional Logic | Adjust risk score based on customer history: add 10 for 'N', subtract 5 for 'G', add 25 for 'R', add 10 for any other value. | During risk score calculation, after location adjustment. | - Customer history: single character ('N', 'G', 'R', or other)
-- Adjustment: add 10 for 'N', subtract 5 for 'G', add 25 for 'R', add 10 for any other value. | | LINKAGE SECTION, PROCEDURE DIVISION USING, <SwmToken path="base/src/LGAPDB02.cbl" pos="41:3:7" line-data="           PERFORM CALCULATE-RISK-SCORE">`CALCULATE-RISK-SCORE`</SwmToken> | RL-009 | Data Assignment | The final risk score must be returned as a 3-digit numeric output parameter. | At the end of risk score calculation. | - Output: numeric, 3 digits (000-999)
-- Must be right-aligned, zero-padded if necessary. |
+| Paragraph Name                                                                                                                                       | Rule ID | Category          | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | Conditions                                                                      | Remarks                                                                                                                                                                                                                                                                                                                                                                                                             |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| <SwmToken path="base/src/LGAPDB02.cbl" pos="40:3:7" line-data="           PERFORM GET-RISK-FACTORS">`GET-RISK-FACTORS`</SwmToken>                    | RL-001  | Conditional Logic | The process must collect risk factors for FIRE and CRIME perils from the <SwmToken path="base/src/LGAPDB02.cbl" pos="47:3:3" line-data="               FROM RISK_FACTORS">`RISK_FACTORS`</SwmToken> table. If a risk factor is not found for FIRE, use <SwmToken path="base/src/LGAPDB02.cbl" pos="54:3:5" line-data="               MOVE 0.80 TO WS-FIRE-FACTOR">`0.80`</SwmToken>. If not found for CRIME, use <SwmToken path="base/src/LGAPDB02.cbl" pos="66:3:5" line-data="               MOVE 0.60 TO WS-CRIME-FACTOR">`0.60`</SwmToken>. | When starting the risk assessment, before any score calculation.                | Default values: FIRE = <SwmToken path="base/src/LGAPDB02.cbl" pos="54:3:5" line-data="               MOVE 0.80 TO WS-FIRE-FACTOR">`0.80`</SwmToken>, CRIME = <SwmToken path="base/src/LGAPDB02.cbl" pos="66:3:5" line-data="               MOVE 0.60 TO WS-CRIME-FACTOR">`0.60`</SwmToken>. The risk factors are floating point numbers. The lookup is performed via SQL SELECT; if not found, the default is used. |
+| <SwmToken path="base/src/LGAPDB02.cbl" pos="41:3:7" line-data="           PERFORM CALCULATE-RISK-SCORE">`CALCULATE-RISK-SCORE`</SwmToken>            | RL-002  | Data Assignment   | The risk score must be initialized to 100 before any adjustments.                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | At the start of risk score calculation.                                         | The risk score is a 3-digit number (range 0-999).                                                                                                                                                                                                                                                                                                                                                                   |
+| <SwmToken path="base/src/LGAPDB02.cbl" pos="41:3:7" line-data="           PERFORM CALCULATE-RISK-SCORE">`CALCULATE-RISK-SCORE`</SwmToken>            | RL-003  | Conditional Logic | Adjust the risk score based on the property type as follows: WAREHOUSE +50, FACTORY +75, OFFICE +25, RETAIL +40, any other +30.                                                                                                                                                                                                                                                                                                                                                                                                                 | After initializing the risk score, check the property type value.               | Property type is a string (up to 15 characters). Adjustment values: WAREHOUSE=50, FACTORY=75, OFFICE=25, RETAIL=40, OTHER=30.                                                                                                                                                                                                                                                                                       |
+| <SwmToken path="base/src/LGAPDB02.cbl" pos="41:3:7" line-data="           PERFORM CALCULATE-RISK-SCORE">`CALCULATE-RISK-SCORE`</SwmToken>            | RL-004  | Conditional Logic | If the postcode starts with 'FL' or 'CR', add 30 to the risk score.                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | After property type adjustment, check the first two characters of the postcode. | Postcode is a string (up to 8 characters). Prefixes checked: 'FL', 'CR'. Adjustment: +30.                                                                                                                                                                                                                                                                                                                           |
+| <SwmToken path="base/src/LGAPDB02.cbl" pos="90:3:7" line-data="           PERFORM CHECK-COVERAGE-AMOUNTS">`CHECK-COVERAGE-AMOUNTS`</SwmToken>        | RL-005  | Computation       | Determine the maximum value among fire, crime, flood, and weather coverage. If the maximum is greater than 500,000, add 15 to the risk score.                                                                                                                                                                                                                                                                                                                                                                                                   | After postcode adjustment, compare all four coverage values.                    | Coverage values are numbers with two decimals. Threshold: 500,000. Adjustment: +15.                                                                                                                                                                                                                                                                                                                                 |
+| <SwmToken path="base/src/LGAPDB02.cbl" pos="91:3:7" line-data="           PERFORM ASSESS-LOCATION-RISK  ">`ASSESS-LOCATION-RISK`</SwmToken>          | RL-006  | Conditional Logic | Adjust the risk score based on location: if in NYC (lat 40-41, long -74.5 to -73.5) or LA (lat 34-35, long -118.5 to -117.5), add 10; if in continental US (lat 25-49, long -125 to -66), add 5; otherwise, add 20.                                                                                                                                                                                                                                                                                                                             | After coverage adjustment, check latitude and longitude ranges.                 | Latitude and longitude are floating point numbers. NYC: lat 40-41, long -74.5 to -73.5. LA: lat 34-35, long -118.5 to -117.5. Continental US: lat 25-49, long -125 to -66. Adjustments: NYC/LA=10, US=5, other=20.                                                                                                                                                                                                  |
+| <SwmToken path="base/src/LGAPDB02.cbl" pos="92:3:7" line-data="           PERFORM EVALUATE-CUSTOMER-HISTORY.">`EVALUATE-CUSTOMER-HISTORY`</SwmToken> | RL-007  | Conditional Logic | Adjust the risk score based on customer history: 'N' +10, 'G' -5, 'R' +25, any other +10.                                                                                                                                                                                                                                                                                                                                                                                                                                                       | After location adjustment, check customer history value.                        | Customer history is a single character. Adjustments: N=10, G=-5, R=25, other=10.                                                                                                                                                                                                                                                                                                                                    |
+| <SwmToken path="base/src/LGAPDB02.cbl" pos="41:3:7" line-data="           PERFORM CALCULATE-RISK-SCORE">`CALCULATE-RISK-SCORE`</SwmToken>            | RL-008  | Data Assignment   | The final calculated risk score must be written to the output linkage record.                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | After all adjustments are complete.                                             | Risk score is a 3-digit number, written to the output linkage field.                                                                                                                                                                                                                                                                                                                                                |
 
 # User Stories
 
-## User Story 1: Input and Output Handling
+## User Story 1: Property Risk Assessment Calculation
 
 ---
 
 ### Story Description:
 
-As a system user, I want to provide property and coverage details as input and receive a properly formatted risk score as output so that I can assess the risk associated with a property.
+As an insurance system, I want to calculate a property's risk score by collecting risk factors, applying all required adjustments based on property data, and writing the final score to the output so that risk can be consistently and accurately assessed for underwriting decisions.
 
 ---
 
 ### Business Rule Mapping:
 
-| Rule ID | Paragraph Name                                                                                                                                                                       | Rule Description                                                                                                                                                                                                                                                 |
-| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| RL-001  | LINKAGE SECTION, PROCEDURE DIVISION header                                                                                                                                           | The program must accept input parameters in a specific order and type, including property type, postcode, latitude, longitude, fire coverage, crime coverage, flood coverage, weather coverage, customer history, and output the risk score as a 3-digit number. |
-| RL-009  | LINKAGE SECTION, PROCEDURE DIVISION USING, <SwmToken path="base/src/LGAPDB02.cbl" pos="41:3:7" line-data="           PERFORM CALCULATE-RISK-SCORE">`CALCULATE-RISK-SCORE`</SwmToken> | The final risk score must be returned as a 3-digit numeric output parameter.                                                                                                                                                                                     |
-
----
-
-### Relevant Functionality:
-
-- **LINKAGE SECTION**
-  1. **RL-001:**
-     - Accept parameters in the specified order and type at the main entry point.
-     - Assign each parameter to its respective working variable for processing.
-     - Output the risk score as a 3-digit numeric value.
-  2. **RL-009:**
-     - After all adjustments, assign the risk score to the output parameter.
-     - Ensure the value is numeric, 3 digits, right-aligned, zero-padded if less than 3 digits.
-
-## User Story 2: Risk Factor Retrieval
-
----
-
-### Story Description:
-
-As a system, I want to retrieve FIRE and CRIME risk factors from the database or use default values if unavailable so that I can store these values for potential use in risk assessment.
-
----
-
-### Business Rule Mapping:
-
-| Rule ID | Paragraph Name                                                                                                                    | Rule Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| ------- | --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| RL-002  | <SwmToken path="base/src/LGAPDB02.cbl" pos="40:3:7" line-data="           PERFORM GET-RISK-FACTORS">`GET-RISK-FACTORS`</SwmToken> | Retrieve the FIRE risk factor from the <SwmToken path="base/src/LGAPDB02.cbl" pos="47:3:3" line-data="               FROM RISK_FACTORS">`RISK_FACTORS`</SwmToken> table using <SwmToken path="base/src/LGAPDB02.cbl" pos="48:3:3" line-data="               WHERE PERIL_TYPE = &#39;FIRE&#39;">`PERIL_TYPE`</SwmToken> = 'FIRE'. If not found or database unavailable, use default value <SwmToken path="base/src/LGAPDB02.cbl" pos="54:3:5" line-data="               MOVE 0.80 TO WS-FIRE-FACTOR">`0.80`</SwmToken>.    |
-| RL-003  | <SwmToken path="base/src/LGAPDB02.cbl" pos="40:3:7" line-data="           PERFORM GET-RISK-FACTORS">`GET-RISK-FACTORS`</SwmToken> | Retrieve the CRIME risk factor from the <SwmToken path="base/src/LGAPDB02.cbl" pos="47:3:3" line-data="               FROM RISK_FACTORS">`RISK_FACTORS`</SwmToken> table using <SwmToken path="base/src/LGAPDB02.cbl" pos="48:3:3" line-data="               WHERE PERIL_TYPE = &#39;FIRE&#39;">`PERIL_TYPE`</SwmToken> = 'CRIME'. If not found or database unavailable, use default value <SwmToken path="base/src/LGAPDB02.cbl" pos="66:3:5" line-data="               MOVE 0.60 TO WS-CRIME-FACTOR">`0.60`</SwmToken>. |
+| Rule ID | Paragraph Name                                                                                                                                       | Rule Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| RL-001  | <SwmToken path="base/src/LGAPDB02.cbl" pos="40:3:7" line-data="           PERFORM GET-RISK-FACTORS">`GET-RISK-FACTORS`</SwmToken>                    | The process must collect risk factors for FIRE and CRIME perils from the <SwmToken path="base/src/LGAPDB02.cbl" pos="47:3:3" line-data="               FROM RISK_FACTORS">`RISK_FACTORS`</SwmToken> table. If a risk factor is not found for FIRE, use <SwmToken path="base/src/LGAPDB02.cbl" pos="54:3:5" line-data="               MOVE 0.80 TO WS-FIRE-FACTOR">`0.80`</SwmToken>. If not found for CRIME, use <SwmToken path="base/src/LGAPDB02.cbl" pos="66:3:5" line-data="               MOVE 0.60 TO WS-CRIME-FACTOR">`0.60`</SwmToken>. |
+| RL-002  | <SwmToken path="base/src/LGAPDB02.cbl" pos="41:3:7" line-data="           PERFORM CALCULATE-RISK-SCORE">`CALCULATE-RISK-SCORE`</SwmToken>            | The risk score must be initialized to 100 before any adjustments.                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| RL-003  | <SwmToken path="base/src/LGAPDB02.cbl" pos="41:3:7" line-data="           PERFORM CALCULATE-RISK-SCORE">`CALCULATE-RISK-SCORE`</SwmToken>            | Adjust the risk score based on the property type as follows: WAREHOUSE +50, FACTORY +75, OFFICE +25, RETAIL +40, any other +30.                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| RL-004  | <SwmToken path="base/src/LGAPDB02.cbl" pos="41:3:7" line-data="           PERFORM CALCULATE-RISK-SCORE">`CALCULATE-RISK-SCORE`</SwmToken>            | If the postcode starts with 'FL' or 'CR', add 30 to the risk score.                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| RL-008  | <SwmToken path="base/src/LGAPDB02.cbl" pos="41:3:7" line-data="           PERFORM CALCULATE-RISK-SCORE">`CALCULATE-RISK-SCORE`</SwmToken>            | The final calculated risk score must be written to the output linkage record.                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| RL-005  | <SwmToken path="base/src/LGAPDB02.cbl" pos="90:3:7" line-data="           PERFORM CHECK-COVERAGE-AMOUNTS">`CHECK-COVERAGE-AMOUNTS`</SwmToken>        | Determine the maximum value among fire, crime, flood, and weather coverage. If the maximum is greater than 500,000, add 15 to the risk score.                                                                                                                                                                                                                                                                                                                                                                                                   |
+| RL-006  | <SwmToken path="base/src/LGAPDB02.cbl" pos="91:3:7" line-data="           PERFORM ASSESS-LOCATION-RISK  ">`ASSESS-LOCATION-RISK`</SwmToken>          | Adjust the risk score based on location: if in NYC (lat 40-41, long -74.5 to -73.5) or LA (lat 34-35, long -118.5 to -117.5), add 10; if in continental US (lat 25-49, long -125 to -66), add 5; otherwise, add 20.                                                                                                                                                                                                                                                                                                                             |
+| RL-007  | <SwmToken path="base/src/LGAPDB02.cbl" pos="92:3:7" line-data="           PERFORM EVALUATE-CUSTOMER-HISTORY.">`EVALUATE-CUSTOMER-HISTORY`</SwmToken> | Adjust the risk score based on customer history: 'N' +10, 'G' -5, 'R' +25, any other +10.                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 
 ---
 
 ### Relevant Functionality:
 
 - <SwmToken path="base/src/LGAPDB02.cbl" pos="40:3:7" line-data="           PERFORM GET-RISK-FACTORS">`GET-RISK-FACTORS`</SwmToken>
-  1. **RL-002:**
-     - Attempt to retrieve FIRE risk factor from the database.
-     - If retrieval is successful, store the value.
-     - If retrieval fails or value is missing, set the working variable to <SwmToken path="base/src/LGAPDB02.cbl" pos="54:3:5" line-data="               MOVE 0.80 TO WS-FIRE-FACTOR">`0.80`</SwmToken>.
-  2. **RL-003:**
-     - Attempt to retrieve CRIME risk factor from the database.
-     - If retrieval is successful, store the value.
-     - If retrieval fails or value is missing, set the working variable to <SwmToken path="base/src/LGAPDB02.cbl" pos="66:3:5" line-data="               MOVE 0.60 TO WS-CRIME-FACTOR">`0.60`</SwmToken>.
-
-## User Story 3: Risk Score Calculation
-
----
-
-### Story Description:
-
-As a system user, I want the risk score to be calculated based on property type, postcode, coverage amounts, location, and customer history so that the risk score accurately reflects the risk profile of the property.
-
----
-
-### Business Rule Mapping:
-
-| Rule ID | Paragraph Name                                                                                                                                       | Rule Description                                                                                                                                  |
-| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| RL-004  | <SwmToken path="base/src/LGAPDB02.cbl" pos="41:3:7" line-data="           PERFORM CALCULATE-RISK-SCORE">`CALCULATE-RISK-SCORE`</SwmToken>            | Initialize risk score to 100, then adjust based on property type with specific increments for WAREHOUSE, FACTORY, OFFICE, RETAIL, or other types. |
-| RL-005  | <SwmToken path="base/src/LGAPDB02.cbl" pos="41:3:7" line-data="           PERFORM CALCULATE-RISK-SCORE">`CALCULATE-RISK-SCORE`</SwmToken>            | If the postcode starts with 'FL' or 'CR', add 30 to the risk score.                                                                               |
-| RL-006  | <SwmToken path="base/src/LGAPDB02.cbl" pos="90:3:7" line-data="           PERFORM CHECK-COVERAGE-AMOUNTS">`CHECK-COVERAGE-AMOUNTS`</SwmToken>        | Determine the maximum coverage among fire, crime, flood, and weather coverage. If the maximum is greater than 500,000, add 15 to the risk score.  |
-| RL-007  | <SwmToken path="base/src/LGAPDB02.cbl" pos="91:3:7" line-data="           PERFORM ASSESS-LOCATION-RISK  ">`ASSESS-LOCATION-RISK`</SwmToken>          | Adjust risk score based on latitude and longitude. Add 10 if in NYC or LA, 5 if in continental US, 20 if outside US.                              |
-| RL-008  | <SwmToken path="base/src/LGAPDB02.cbl" pos="92:3:7" line-data="           PERFORM EVALUATE-CUSTOMER-HISTORY.">`EVALUATE-CUSTOMER-HISTORY`</SwmToken> | Adjust risk score based on customer history: add 10 for 'N', subtract 5 for 'G', add 25 for 'R', add 10 for any other value.                      |
-
----
-
-### Relevant Functionality:
-
+  1. **RL-001:**
+     - Query <SwmToken path="base/src/LGAPDB02.cbl" pos="47:3:3" line-data="               FROM RISK_FACTORS">`RISK_FACTORS`</SwmToken> for FIRE risk factor
+       - If found, use the value
+       - If not found, use <SwmToken path="base/src/LGAPDB02.cbl" pos="54:3:5" line-data="               MOVE 0.80 TO WS-FIRE-FACTOR">`0.80`</SwmToken>
+     - Query <SwmToken path="base/src/LGAPDB02.cbl" pos="47:3:3" line-data="               FROM RISK_FACTORS">`RISK_FACTORS`</SwmToken> for CRIME risk factor
+       - If found, use the value
+       - If not found, use <SwmToken path="base/src/LGAPDB02.cbl" pos="66:3:5" line-data="               MOVE 0.60 TO WS-CRIME-FACTOR">`0.60`</SwmToken>
 - <SwmToken path="base/src/LGAPDB02.cbl" pos="41:3:7" line-data="           PERFORM CALCULATE-RISK-SCORE">`CALCULATE-RISK-SCORE`</SwmToken>
-  1. **RL-004:**
-     - Set risk score to 100.
-     - If property type is WAREHOUSE, add 50.
-     - If property type is FACTORY, add 75.
-     - If property type is OFFICE, add 25.
-     - If property type is RETAIL, add 40.
-     - For any other property type, add 30.
-  2. **RL-005:**
-     - Check if the first two characters of postcode are 'FL' or 'CR'.
-     - If true, add 30 to the risk score.
+  1. **RL-002:**
+     - Set risk score to 100
+  2. **RL-003:**
+     - If property type is 'WAREHOUSE', add 50 to risk score
+     - Else if 'FACTORY', add 75
+     - Else if 'OFFICE', add 25
+     - Else if 'RETAIL', add 40
+     - Else, add 30
+  3. **RL-004:**
+     - If postcode starts with 'FL' or 'CR', add 30 to risk score
+  4. **RL-008:**
+     - Write the final risk score to the output linkage record
 - <SwmToken path="base/src/LGAPDB02.cbl" pos="90:3:7" line-data="           PERFORM CHECK-COVERAGE-AMOUNTS">`CHECK-COVERAGE-AMOUNTS`</SwmToken>
-  1. **RL-006:**
-     - Set max coverage to zero.
-     - For each coverage type (fire, crime, flood, weather), if value is greater than current max, update max.
-     - If max coverage > 500,000, add 15 to risk score.
+  1. **RL-005:**
+     - Set max_coverage to 0
+     - For each coverage amount (fire, crime, flood, weather):
+       - If coverage > max_coverage, set max_coverage to coverage
+     - If max_coverage > 500,000, add 15 to risk score
 - <SwmToken path="base/src/LGAPDB02.cbl" pos="91:3:7" line-data="           PERFORM ASSESS-LOCATION-RISK  ">`ASSESS-LOCATION-RISK`</SwmToken>
-  1. **RL-007:**
-     - If latitude and longitude in NYC or LA ranges, add 10 to risk score.
-     - Else if in continental US range, add 5 to risk score.
-     - Else, add 20 to risk score.
+  1. **RL-006:**
+     - If lat in 40-41 and long in -74.5 to -73.5, add 10
+     - Else if lat in 34-35 and long in -118.5 to -117.5, add 10
+     - Else if lat in 25-49 and long in -125 to -66, add 5
+     - Else, add 20
 - <SwmToken path="base/src/LGAPDB02.cbl" pos="92:3:7" line-data="           PERFORM EVALUATE-CUSTOMER-HISTORY.">`EVALUATE-CUSTOMER-HISTORY`</SwmToken>
-  1. **RL-008:**
-     - If customer history is 'N', add 10 to risk score.
-     - If 'G', subtract 5.
-     - If 'R', add 25.
-     - For any other value, add 10.
+  1. **RL-007:**
+     - If customer history is 'N', add 10
+     - Else if 'G', subtract 5
+     - Else if 'R', add 25
+     - Else, add 10
 
 # Workflow
 
 # Orchestrating the risk calculation steps
 
-This section coordinates the main sequence of operations for property risk calculation. It ensures that risk factors are retrieved before the risk score is calculated, maintaining the correct process flow.
+```mermaid
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+flowchart TD
+    node1["Start risk assessment process"] --> node2["Collect risk factors for assessment"]
+    click node1 openCode "base/src/LGAPDB02.cbl:39:42"
+    node2 --> node3["Calculate risk score based on collected
+factors"]
+    click node2 openCode "base/src/LGAPDB02.cbl:39:42"
+    node3 --> node4["Conclude risk assessment"]
+    click node3 openCode "base/src/LGAPDB02.cbl:39:42"
+    click node4 openCode "base/src/LGAPDB02.cbl:39:42"
+classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
 
-| Rule ID | Category                        | Rule Name                                  | Description                                                                                                                                   | Implementation Details                                                                                     |
-| ------- | ------------------------------- | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| BR-001  | Invoking a Service or a Process | Risk factor retrieval precedes calculation | The risk factor retrieval process is executed before any risk score calculation is performed.                                                 | No constants or output formats are defined in this section. The rule governs the order of operations only. |
-| BR-002  | Invoking a Service or a Process | Risk score calculation dependency          | The risk score calculation is only performed after risk factors are available, ensuring that calculations use up-to-date or defaulted values. | No specific constants or formats are involved. The dependency ensures data readiness for calculation.      |
-| BR-003  | Technical Step                  | Program termination after calculation      | After completing the risk calculation process, the program terminates its execution.                                                          | No output is produced by this section; the rule governs program flow only.                                 |
+%% Swimm:
+%% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+%% flowchart TD
+%%     node1["Start risk assessment process"] --> node2["Collect risk factors for assessment"]
+%%     click node1 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:39:42"
+%%     node2 --> node3["Calculate risk score based on collected
+%% factors"]
+%%     click node2 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:39:42"
+%%     node3 --> node4["Conclude risk assessment"]
+%%     click node3 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:39:42"
+%%     click node4 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:39:42"
+%% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
+```
+
+This section describes the orchestration of the main steps in the risk calculation workflow. It ensures that risk factors are collected before the risk score is calculated, maintaining data accuracy and process integrity.
 
 <SwmSnippet path="/base/src/LGAPDB02.cbl" line="39">
 
 ---
 
-<SwmToken path="base/src/LGAPDB02.cbl" pos="39:1:3" line-data="       MAIN-LOGIC.">`MAIN-LOGIC`</SwmToken> just runs the sequence: first it calls <SwmToken path="base/src/LGAPDB02.cbl" pos="40:3:7" line-data="           PERFORM GET-RISK-FACTORS">`GET-RISK-FACTORS`</SwmToken> to make sure risk factor values are available (either from the database or defaults), then <SwmToken path="base/src/LGAPDB02.cbl" pos="41:3:7" line-data="           PERFORM CALCULATE-RISK-SCORE">`CALCULATE-RISK-SCORE`</SwmToken> uses those values to compute the property risk score, and finally the program exits.
+<SwmToken path="base/src/LGAPDB02.cbl" pos="39:1:3" line-data="       MAIN-LOGIC.">`MAIN-LOGIC`</SwmToken> just sequences the main steps: it first calls <SwmToken path="base/src/LGAPDB02.cbl" pos="40:3:7" line-data="           PERFORM GET-RISK-FACTORS">`GET-RISK-FACTORS`</SwmToken> to make sure the fire and crime risk values are loaded (from the DB or defaults), then hands off to <SwmToken path="base/src/LGAPDB02.cbl" pos="41:3:7" line-data="           PERFORM CALCULATE-RISK-SCORE">`CALCULATE-RISK-SCORE`</SwmToken>, which uses those values. Without fetching the risk factors first, the score calculation could be off or use stale/default data.
 
 ```cobol
        MAIN-LOGIC.
@@ -273,29 +272,29 @@ This section coordinates the main sequence of operations for property risk calcu
 
 </SwmSnippet>
 
-# Retrieving risk factors for hazards
+# Loading risk factors with fallback logic
 
 ```mermaid
 %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
 flowchart TD
     node1["Retrieve FIRE risk factor from database"]
     click node1 openCode "base/src/LGAPDB02.cbl:45:49"
-    node1 --> node2{"Is FIRE risk factor found?"}
+    node1 --> node2{"Was FIRE risk factor found?"}
     click node2 openCode "base/src/LGAPDB02.cbl:51:55"
-    node2 -->|"Yes"| node5["Retrieve CRIME risk factor from database"]
-    node2 -->|"No"| node3["Set FIRE risk factor to default (0.80)"]
-    click node3 openCode "base/src/LGAPDB02.cbl:54:54"
-    node3 --> node5
-    node5["Retrieve CRIME risk factor from database"]
-    click node5 openCode "base/src/LGAPDB02.cbl:58:61"
-    node5 --> node6{"Is CRIME risk factor found?"}
+    node2 -->|"Yes"| node3["Set FIRE risk factor from database"]
+    click node3 openCode "base/src/LGAPDB02.cbl:51:52"
+    node2 -->|"No"| node4["Set FIRE risk factor to default (0.80)"]
+    click node4 openCode "base/src/LGAPDB02.cbl:54:55"
+    node3 --> node5["Retrieve CRIME risk factor from database"]
+    click node5 openCode "base/src/LGAPDB02.cbl:57:61"
+    node4 --> node5
+    node5 --> node6{"Was CRIME risk factor found?"}
     click node6 openCode "base/src/LGAPDB02.cbl:63:67"
-    node6 -->|"Yes"| node8["Risk factors ready for use"]
-    node6 -->|"No"| node7["Set CRIME risk factor to default (0.60)"]
-    click node7 openCode "base/src/LGAPDB02.cbl:66:66"
-    node7 --> node8
-    node8["Risk factors ready for use"]
-    click node8 openCode "base/src/LGAPDB02.cbl:44:67"
+    node6 -->|"Yes"| node7["Set CRIME risk factor from database"]
+    click node7 openCode "base/src/LGAPDB02.cbl:63:64"
+    node6 -->|"No"| node8["Set CRIME risk factor to default (0.60)"]
+    click node8 openCode "base/src/LGAPDB02.cbl:66:67"
+
 classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
 
 %% Swimm:
@@ -303,38 +302,39 @@ classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
 %% flowchart TD
 %%     node1["Retrieve FIRE risk factor from database"]
 %%     click node1 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:45:49"
-%%     node1 --> node2{"Is FIRE risk factor found?"}
+%%     node1 --> node2{"Was FIRE risk factor found?"}
 %%     click node2 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:51:55"
-%%     node2 -->|"Yes"| node5["Retrieve CRIME risk factor from database"]
-%%     node2 -->|"No"| node3["Set FIRE risk factor to default (<SwmToken path="base/src/LGAPDB02.cbl" pos="54:3:5" line-data="               MOVE 0.80 TO WS-FIRE-FACTOR">`0.80`</SwmToken>)"]
-%%     click node3 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:54:54"
-%%     node3 --> node5
-%%     node5["Retrieve CRIME risk factor from database"]
-%%     click node5 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:58:61"
-%%     node5 --> node6{"Is CRIME risk factor found?"}
+%%     node2 -->|"Yes"| node3["Set FIRE risk factor from database"]
+%%     click node3 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:51:52"
+%%     node2 -->|"No"| node4["Set FIRE risk factor to default (<SwmToken path="base/src/LGAPDB02.cbl" pos="54:3:5" line-data="               MOVE 0.80 TO WS-FIRE-FACTOR">`0.80`</SwmToken>)"]
+%%     click node4 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:54:55"
+%%     node3 --> node5["Retrieve CRIME risk factor from database"]
+%%     click node5 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:57:61"
+%%     node4 --> node5
+%%     node5 --> node6{"Was CRIME risk factor found?"}
 %%     click node6 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:63:67"
-%%     node6 -->|"Yes"| node8["Risk factors ready for use"]
-%%     node6 -->|"No"| node7["Set CRIME risk factor to default (<SwmToken path="base/src/LGAPDB02.cbl" pos="66:3:5" line-data="               MOVE 0.60 TO WS-CRIME-FACTOR">`0.60`</SwmToken>)"]
-%%     click node7 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:66:66"
-%%     node7 --> node8
-%%     node8["Risk factors ready for use"]
-%%     click node8 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:44:67"
+%%     node6 -->|"Yes"| node7["Set CRIME risk factor from database"]
+%%     click node7 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:63:64"
+%%     node6 -->|"No"| node8["Set CRIME risk factor to default (<SwmToken path="base/src/LGAPDB02.cbl" pos="66:3:5" line-data="               MOVE 0.60 TO WS-CRIME-FACTOR">`0.60`</SwmToken>)"]
+%%     click node8 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:66:67"
+%% 
 %% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
 ```
 
-This section ensures that risk factors for FIRE and CRIME hazards are always available for use, sourcing them from the database when possible and falling back to business-defined defaults when necessary.
+This section outlines the fallback logic implemented when loading risk factors, ensuring that the system remains robust and calculations can continue even if the database does not provide the required values.
 
-| Rule ID | Category        | Rule Name                          | Description                                                                                                                                                                                                                 | Implementation Details                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| ------- | --------------- | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| BR-001  | Decision Making | FIRE risk defaulting               | If the FIRE risk factor cannot be retrieved from the database, set the FIRE risk factor to <SwmToken path="base/src/LGAPDB02.cbl" pos="54:3:5" line-data="               MOVE 0.80 TO WS-FIRE-FACTOR">`0.80`</SwmToken>.    | The default value for the FIRE risk factor is <SwmToken path="base/src/LGAPDB02.cbl" pos="54:3:5" line-data="               MOVE 0.80 TO WS-FIRE-FACTOR">`0.80`</SwmToken>. The value is a number and is used as-is for further processing.                                                                                                                                                                                                 |
-| BR-002  | Decision Making | CRIME risk defaulting              | If the CRIME risk factor cannot be retrieved from the database, set the CRIME risk factor to <SwmToken path="base/src/LGAPDB02.cbl" pos="66:3:5" line-data="               MOVE 0.60 TO WS-CRIME-FACTOR">`0.60`</SwmToken>. | The default value for the CRIME risk factor is <SwmToken path="base/src/LGAPDB02.cbl" pos="66:3:5" line-data="               MOVE 0.60 TO WS-CRIME-FACTOR">`0.60`</SwmToken>. The value is a number and is used as-is for further processing.                                                                                                                                                                                               |
-| BR-003  | Decision Making | Risk factor availability guarantee | The section always provides both FIRE and CRIME risk factors for further processing, either from the database or as defaults.                                                                                               | Both FIRE and CRIME risk factors are guaranteed to be set to a number, sourced from the database if available, otherwise set to their respective defaults (<SwmToken path="base/src/LGAPDB02.cbl" pos="54:3:5" line-data="               MOVE 0.80 TO WS-FIRE-FACTOR">`0.80`</SwmToken> for FIRE, <SwmToken path="base/src/LGAPDB02.cbl" pos="66:3:5" line-data="               MOVE 0.60 TO WS-CRIME-FACTOR">`0.60`</SwmToken> for CRIME). |
+| Rule ID | Category        | Rule Name                  | Description                                                                                           | Implementation Details                                                                                                                                                                                                                                                          |
+| ------- | --------------- | -------------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Reading Input   | Retrieve FIRE risk factor  | Fetch the FIRE risk factor value from the risk factors database for use in risk calculations.         | The FIRE risk factor is retrieved based on the peril type 'FIRE'. The value is used for subsequent calculations. No specific output format is enforced at this step.                                                                                                            |
+| BR-002  | Data validation | Database read validation   | Following the read operation, make sure the risk factor was retrieved from the database successfully. | The validation checks if the database operation returned SQLCODE = 0, which indicates a successful read. No error messages are shown in this step; error handling occurs in subsequent steps if the read fails.                                                                 |
+| BR-003  | Reading Input   | Retrieve CRIME risk factor | Fetch the CRIME risk factor value from the risk factors database for use in risk calculations.        | The peril type used for lookup is 'CRIME'. The value retrieved is used for subsequent risk calculations. If the database does not return a value, fallback logic applies elsewhere in the flow.                                                                                 |
+| BR-004  | Data validation | Database read validation   | Following the risk factor retrieval operation, make sure the database read was successful.            | The validation checks the result of the database query using the SQL return code. If the code is 0, the read is considered successful. If not, fallback logic is triggered elsewhere in the section. No explicit error messages or codes are surfaced to the user in this step. |
 
 <SwmSnippet path="/base/src/LGAPDB02.cbl" line="44">
 
 ---
 
-In <SwmToken path="base/src/LGAPDB02.cbl" pos="44:1:5" line-data="       GET-RISK-FACTORS.">`GET-RISK-FACTORS`</SwmToken>, we start by querying the database for the FIRE risk factor. If the query works, we use the value; otherwise, we’ll fall back to a default.
+In <SwmToken path="base/src/LGAPDB02.cbl" pos="44:1:5" line-data="       GET-RISK-FACTORS.">`GET-RISK-FACTORS`</SwmToken>, we start by trying to pull the FIRE risk factor from the <SwmToken path="base/src/LGAPDB02.cbl" pos="47:3:3" line-data="               FROM RISK_FACTORS">`RISK_FACTORS`</SwmToken> table. If the DB doesn't return a value, the code will later fall back to a default. The same logic applies for CRIME in the next steps. The function assumes these peril types exist in the DB, but handles missing data by using constants.
 
 ```cobol
        GET-RISK-FACTORS.
@@ -353,7 +353,7 @@ In <SwmToken path="base/src/LGAPDB02.cbl" pos="44:1:5" line-data="       GET-RIS
 
 ---
 
-If the FIRE risk factor query fails, we just assign <SwmToken path="base/src/LGAPDB02.cbl" pos="54:3:5" line-data="               MOVE 0.80 TO WS-FIRE-FACTOR">`0.80`</SwmToken> as the default. This is a fixed value and isn’t explained anywhere, but it keeps the flow moving.
+After trying to fetch the FIRE risk factor, if the DB query fails, we just set <SwmToken path="base/src/LGAPDB02.cbl" pos="54:9:13" line-data="               MOVE 0.80 TO WS-FIRE-FACTOR">`WS-FIRE-FACTOR`</SwmToken> to <SwmToken path="base/src/LGAPDB02.cbl" pos="54:3:5" line-data="               MOVE 0.80 TO WS-FIRE-FACTOR">`0.80`</SwmToken>. Otherwise, we keep the value from the DB. This ensures we always have a value for the next calculation.
 
 ```cobol
            IF SQLCODE = 0
@@ -371,7 +371,7 @@ If the FIRE risk factor query fails, we just assign <SwmToken path="base/src/LGA
 
 ---
 
-Now we run the same query for CRIME as we did for FIRE, assuming the database schema is consistent and returns a single value for each peril type.
+Now we do the same thing for CRIME: query the DB for the CRIME risk factor. The fallback logic for missing data comes right after this.
 
 ```cobol
            EXEC SQL
@@ -389,7 +389,7 @@ Now we run the same query for CRIME as we did for FIRE, assuming the database sc
 
 ---
 
-After the CRIME query, if it fails, we assign <SwmToken path="base/src/LGAPDB02.cbl" pos="66:3:5" line-data="               MOVE 0.60 TO WS-CRIME-FACTOR">`0.60`</SwmToken> as the default. So <SwmToken path="base/src/LGAPDB02.cbl" pos="40:3:7" line-data="           PERFORM GET-RISK-FACTORS">`GET-RISK-FACTORS`</SwmToken> always returns values for FIRE and CRIME, either from the database or as hardcoded defaults.
+After the CRIME query, if it fails, we set <SwmToken path="base/src/LGAPDB02.cbl" pos="66:9:13" line-data="               MOVE 0.60 TO WS-CRIME-FACTOR">`WS-CRIME-FACTOR`</SwmToken> to <SwmToken path="base/src/LGAPDB02.cbl" pos="66:3:5" line-data="               MOVE 0.60 TO WS-CRIME-FACTOR">`0.60`</SwmToken>. At this point, both FIRE and CRIME factors are guaranteed to have values (from DB or defaults), so the function is done and returns control.
 
 ```cobol
            IF SQLCODE = 0
@@ -403,7 +403,7 @@ After the CRIME query, if it fails, we assign <SwmToken path="base/src/LGAPDB02.
 
 </SwmSnippet>
 
-# Adjusting the risk score by property and postcode
+# Building the risk score from property data
 
 ```mermaid
 %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
@@ -412,32 +412,35 @@ flowchart TD
     click node1 openCode "base/src/LGAPDB02.cbl:69:70"
     node1 --> node2{"Property type?"}
     click node2 openCode "base/src/LGAPDB02.cbl:72:83"
-    node2 -->|"WAREHOUSE"| node3["Add 50 to risk score"]
+    node2 -->|"Warehouse (+50)"| node3["Add 50 to risk score"]
     click node3 openCode "base/src/LGAPDB02.cbl:74:74"
-    node2 -->|"FACTORY"| node4["Add 75 to risk score"]
+    node2 -->|"Factory (+75)"| node4["Add 75 to risk score"]
     click node4 openCode "base/src/LGAPDB02.cbl:76:76"
-    node2 -->|"OFFICE"| node5["Add 25 to risk score"]
+    node2 -->|"Office (+25)"| node5["Add 25 to risk score"]
     click node5 openCode "base/src/LGAPDB02.cbl:78:78"
-    node2 -->|"RETAIL"| node6["Add 40 to risk score"]
+    node2 -->|"Retail (+40)"| node6["Add 40 to risk score"]
     click node6 openCode "base/src/LGAPDB02.cbl:80:80"
-    node2 -->|"OTHER"| node7["Add 30 to risk score"]
+    node2 -->|"Other (+30)"| node7["Add 30 to risk score"]
     click node7 openCode "base/src/LGAPDB02.cbl:82:82"
-    %% All property type branches converge
-    node3 --> node8{"Postcode prefix 'FL' or 'CR'?"}
+    node3 --> node8{"Postcode starts with 'FL' or 'CR'?"}
     node4 --> node8
     node5 --> node8
     node6 --> node8
     node7 --> node8
     click node8 openCode "base/src/LGAPDB02.cbl:85:88"
-    node8 -->|"Yes"| node9["Add 30 to risk score"]
+    node8 -->|"Yes (+30)"| node9["Add 30 to risk score"]
     click node9 openCode "base/src/LGAPDB02.cbl:87:87"
-    node8 -->|"No"| node12["Check coverage amounts"]
-    node9 --> node12["Check coverage amounts"]
-    click node12 openCode "base/src/LGAPDB02.cbl:90:90"
-    node12 --> node13["Assess location risk"]
-    click node13 openCode "base/src/LGAPDB02.cbl:91:91"
-    node13 --> node14["Evaluate customer history"]
-    click node14 openCode "base/src/LGAPDB02.cbl:92:92"
+    node8 -->|"No"| node11["Perform business assessments"]
+    node9 --> node11["Perform business assessments"]
+    click node11 openCode "base/src/LGAPDB02.cbl:90:92"
+    subgraph node11["Perform business assessments"]
+        node12["Check coverage amounts"]
+        click node12 openCode "base/src/LGAPDB02.cbl:90:90"
+        node13["Assess location risk"]
+        click node13 openCode "base/src/LGAPDB02.cbl:91:91"
+        node14["Evaluate customer history"]
+        click node14 openCode "base/src/LGAPDB02.cbl:92:92"
+    end
 classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
 
 %% Swimm:
@@ -447,48 +450,49 @@ classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
 %%     click node1 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:69:70"
 %%     node1 --> node2{"Property type?"}
 %%     click node2 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:72:83"
-%%     node2 -->|"WAREHOUSE"| node3["Add 50 to risk score"]
+%%     node2 -->|"Warehouse (+50)"| node3["Add 50 to risk score"]
 %%     click node3 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:74:74"
-%%     node2 -->|"FACTORY"| node4["Add 75 to risk score"]
+%%     node2 -->|"Factory (+75)"| node4["Add 75 to risk score"]
 %%     click node4 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:76:76"
-%%     node2 -->|"OFFICE"| node5["Add 25 to risk score"]
+%%     node2 -->|"Office (+25)"| node5["Add 25 to risk score"]
 %%     click node5 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:78:78"
-%%     node2 -->|"RETAIL"| node6["Add 40 to risk score"]
+%%     node2 -->|"Retail (+40)"| node6["Add 40 to risk score"]
 %%     click node6 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:80:80"
-%%     node2 -->|"OTHER"| node7["Add 30 to risk score"]
+%%     node2 -->|"Other (+30)"| node7["Add 30 to risk score"]
 %%     click node7 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:82:82"
-%%     %% All property type branches converge
-%%     node3 --> node8{"Postcode prefix 'FL' or 'CR'?"}
+%%     node3 --> node8{"Postcode starts with 'FL' or 'CR'?"}
 %%     node4 --> node8
 %%     node5 --> node8
 %%     node6 --> node8
 %%     node7 --> node8
 %%     click node8 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:85:88"
-%%     node8 -->|"Yes"| node9["Add 30 to risk score"]
+%%     node8 -->|"Yes (+30)"| node9["Add 30 to risk score"]
 %%     click node9 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:87:87"
-%%     node8 -->|"No"| node12["Check coverage amounts"]
-%%     node9 --> node12["Check coverage amounts"]
-%%     click node12 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:90:90"
-%%     node12 --> node13["Assess location risk"]
-%%     click node13 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:91:91"
-%%     node13 --> node14["Evaluate customer history"]
-%%     click node14 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:92:92"
+%%     node8 -->|"No"| node11["Perform business assessments"]
+%%     node9 --> node11["Perform business assessments"]
+%%     click node11 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:90:92"
+%%     subgraph node11["Perform business assessments"]
+%%         node12["Check coverage amounts"]
+%%         click node12 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:90:90"
+%%         node13["Assess location risk"]
+%%         click node13 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:91:91"
+%%         node14["Evaluate customer history"]
+%%         click node14 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:92:92"
+%%     end
 %% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
 ```
 
-This section calculates the initial risk score for a property by adjusting a base value according to property type and postcode prefix. The resulting score is used for further risk assessment steps.
+This section outlines the logic and steps used to build a property's risk score from various data points. It details how the score is initialized, adjusted based on property characteristics, and further refined through business assessments.
 
-| Rule ID | Category    | Rule Name                       | Description                                                                                                                                                                  | Implementation Details                                                                                                            |
-| ------- | ----------- | ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| BR-001  | Calculation | Base risk score initialization  | The risk score is initialized to 100 before any adjustments are made.                                                                                                        | The base risk score is set to 100 (number).                                                                                       |
-| BR-002  | Calculation | Property type risk adjustment   | The risk score is increased by a fixed amount based on the property type: 50 for 'WAREHOUSE', 75 for 'FACTORY', 25 for 'OFFICE', 40 for 'RETAIL', and 30 for any other type. | Add 50 for 'WAREHOUSE', 75 for 'FACTORY', 25 for 'OFFICE', 40 for 'RETAIL', 30 for any other type. All values are numbers.        |
-| BR-003  | Calculation | Postcode prefix risk adjustment | If the postcode starts with 'FL' or 'CR', the risk score is increased by 30.                                                                                                 | Add 30 to risk score if postcode prefix is 'FL' or 'CR'. Prefix is determined by the first two characters of the postcode string. |
+| Rule ID | Category    | Rule Name                      | Description                                                       | Implementation Details                                                                                                                                                                                                                            |
+| ------- | ----------- | ------------------------------ | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Calculation | Property risk score adjustment | Adjust the risk score based on property type and postcode prefix. | Initial risk score is set to 100. Property type adjustments: Warehouse (+50), Factory (+75), Office (+25), Retail (+40), Other (+30). If postcode starts with 'FL' or 'CR', add 30 to the risk score. All adjustments are cumulative and numeric. |
 
 <SwmSnippet path="/base/src/LGAPDB02.cbl" line="69">
 
 ---
 
-In <SwmToken path="base/src/LGAPDB02.cbl" pos="69:1:5" line-data="       CALCULATE-RISK-SCORE.">`CALCULATE-RISK-SCORE`</SwmToken>, we start by setting the risk score to 100, then bump it up based on property type using fixed values. These numbers aren’t explained, but they change the score a lot depending on the type.
+In <SwmToken path="base/src/LGAPDB02.cbl" pos="69:1:5" line-data="       CALCULATE-RISK-SCORE.">`CALCULATE-RISK-SCORE`</SwmToken>, we start by setting the base score to 100, then adjust it based on property type (warehouse, factory, office, retail, or other) using hardcoded values. This is followed by postcode prefix logic in the next snippet.
 
 ```cobol
        CALCULATE-RISK-SCORE.
@@ -516,7 +520,7 @@ In <SwmToken path="base/src/LGAPDB02.cbl" pos="69:1:5" line-data="       CALCULA
 
 ---
 
-After adjusting for property type, we check if the postcode starts with 'FL' or 'CR' and add 30 if it does. This is another fixed adjustment, probably tied to domain-specific risk.
+After adjusting for property type, we check if the postcode starts with 'FL' or 'CR' and add 30 to the score if so. This is a simple way to bump risk for certain regions before moving on to more detailed checks.
 
 ```cobol
            IF LK-POSTCODE(1:2) = 'FL' OR
@@ -533,7 +537,7 @@ After adjusting for property type, we check if the postcode starts with 'FL' or 
 
 ---
 
-After the postcode adjustment, we call <SwmToken path="base/src/LGAPDB02.cbl" pos="90:3:7" line-data="           PERFORM CHECK-COVERAGE-AMOUNTS">`CHECK-COVERAGE-AMOUNTS`</SwmToken> to see if any coverage is high enough to bump the risk score further, then move on to location and customer history checks.
+After the postcode logic, we call <SwmToken path="base/src/LGAPDB02.cbl" pos="90:3:7" line-data="           PERFORM CHECK-COVERAGE-AMOUNTS">`CHECK-COVERAGE-AMOUNTS`</SwmToken>, <SwmToken path="base/src/LGAPDB02.cbl" pos="91:3:7" line-data="           PERFORM ASSESS-LOCATION-RISK  ">`ASSESS-LOCATION-RISK`</SwmToken>, and <SwmToken path="base/src/LGAPDB02.cbl" pos="92:3:7" line-data="           PERFORM EVALUATE-CUSTOMER-HISTORY.">`EVALUATE-CUSTOMER-HISTORY`</SwmToken>. These steps refine the risk score by considering coverage size, location, and customer background.
 
 ```cobol
            PERFORM CHECK-COVERAGE-AMOUNTS
@@ -545,39 +549,22 @@ After the postcode adjustment, we call <SwmToken path="base/src/LGAPDB02.cbl" po
 
 </SwmSnippet>
 
-# Evaluating coverage thresholds
+# Evaluating coverage impact on risk
 
 ```mermaid
 %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
 flowchart TD
     node1["Start: Set maximum coverage to zero"]
-    click node1 openCode "base/src/LGAPDB02.cbl:94:95"
-    node1 --> node2{"Is fire coverage > max?"}
-    click node2 openCode "base/src/LGAPDB02.cbl:97:99"
-    node2 -->|"Yes"| node3["Set max to fire coverage"]
-    click node3 openCode "base/src/LGAPDB02.cbl:98:98"
-    node2 -->|"No"| node4{"Is crime coverage > max?"}
-    click node4 openCode "base/src/LGAPDB02.cbl:101:103"
-    node3 --> node4
-    node4 -->|"Yes"| node5["Set max to crime coverage"]
-    click node5 openCode "base/src/LGAPDB02.cbl:102:102"
-    node4 -->|"No"| node6{"Is flood coverage > max?"}
-    click node6 openCode "base/src/LGAPDB02.cbl:105:107"
-    node5 --> node6
-    node6 -->|"Yes"| node7["Set max to flood coverage"]
-    click node7 openCode "base/src/LGAPDB02.cbl:106:106"
-    node6 -->|"No"| node8{"Is weather coverage > max?"}
-    click node8 openCode "base/src/LGAPDB02.cbl:109:111"
-    node7 --> node8
-    node8 -->|"Yes"| node9["Set max to weather coverage"]
-    click node9 openCode "base/src/LGAPDB02.cbl:110:110"
-    node8 -->|"No"| node10{"Is max coverage > $500,000?"}
-    click node10 openCode "base/src/LGAPDB02.cbl:113:115"
-    node9 --> node10
-    node10 -->|"Yes"| node11["Increase risk score by 15"]
-    click node11 openCode "base/src/LGAPDB02.cbl:114:114"
-    node10 -->|"No"| node12["End"]
-    click node12 openCode "base/src/LGAPDB02.cbl:115:115"
+    click node1 openCode "base/src/LGAPDB02.cbl:95:96"
+    node1 --> node2["Compare fire, crime, flood, and weather
+coverage to find maximum"]
+    click node2 openCode "base/src/LGAPDB02.cbl:97:111"
+    node2 --> node3{"Is maximum coverage > $500,000?"}
+    click node3 openCode "base/src/LGAPDB02.cbl:113:114"
+    node3 -->|"Yes"| node4["Increase risk score by 15"]
+    click node4 openCode "base/src/LGAPDB02.cbl:114:115"
+    node3 -->|"No"| node5["End"]
+    click node5 openCode "base/src/LGAPDB02.cbl:115:115"
 
 classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
 
@@ -585,49 +572,31 @@ classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
 %% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
 %% flowchart TD
 %%     node1["Start: Set maximum coverage to zero"]
-%%     click node1 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:94:95"
-%%     node1 --> node2{"Is fire coverage > max?"}
-%%     click node2 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:97:99"
-%%     node2 -->|"Yes"| node3["Set max to fire coverage"]
-%%     click node3 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:98:98"
-%%     node2 -->|"No"| node4{"Is crime coverage > max?"}
-%%     click node4 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:101:103"
-%%     node3 --> node4
-%%     node4 -->|"Yes"| node5["Set max to crime coverage"]
-%%     click node5 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:102:102"
-%%     node4 -->|"No"| node6{"Is flood coverage > max?"}
-%%     click node6 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:105:107"
-%%     node5 --> node6
-%%     node6 -->|"Yes"| node7["Set max to flood coverage"]
-%%     click node7 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:106:106"
-%%     node6 -->|"No"| node8{"Is weather coverage > max?"}
-%%     click node8 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:109:111"
-%%     node7 --> node8
-%%     node8 -->|"Yes"| node9["Set max to weather coverage"]
-%%     click node9 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:110:110"
-%%     node8 -->|"No"| node10{"Is max coverage > $500,000?"}
-%%     click node10 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:113:115"
-%%     node9 --> node10
-%%     node10 -->|"Yes"| node11["Increase risk score by 15"]
-%%     click node11 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:114:114"
-%%     node10 -->|"No"| node12["End"]
-%%     click node12 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:115:115"
+%%     click node1 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:95:96"
+%%     node1 --> node2["Compare fire, crime, flood, and weather
+%% coverage to find maximum"]
+%%     click node2 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:97:111"
+%%     node2 --> node3{"Is maximum coverage > $500,000?"}
+%%     click node3 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:113:114"
+%%     node3 -->|"Yes"| node4["Increase risk score by 15"]
+%%     click node4 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:114:115"
+%%     node3 -->|"No"| node5["End"]
+%%     click node5 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:115:115"
 %% 
 %% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
 ```
 
-This section determines the maximum coverage amount from four coverage types and applies a risk score adjustment if the maximum exceeds a defined threshold. It is a key part of the risk evaluation process for insurance applications.
+This section describes how the system evaluates the impact of insurance coverage amounts on the overall risk score, ensuring that high coverage values appropriately influence risk assessment.
 
-| Rule ID | Category    | Rule Name                     | Description                                                                                                     | Implementation Details                                                                                                                                |
-| ------- | ----------- | ----------------------------- | --------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| BR-001  | Calculation | Maximum coverage selection    | The maximum coverage amount is set to the highest value among fire, crime, flood, and weather coverage amounts. | The maximum is determined by comparing each coverage type in sequence. The output is a single numeric value representing the highest coverage amount. |
-| BR-002  | Calculation | High coverage risk adjustment | If the maximum coverage amount exceeds $500,000, the risk score is increased by 15 points.                      | The threshold is $500,000. The risk score is incremented by 15 points if the threshold is exceeded. The risk score is a numeric value.                |
+| Rule ID | Category    | Rule Name                     | Description                                                                                                                                                    | Implementation Details                                                                                                                                                                                                                    |
+| ------- | ----------- | ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Calculation | Coverage impact on risk score | Evaluate the highest coverage amount across fire, crime, flood, and weather types, and increase the risk score by 15 if the maximum coverage exceeds $500,000. | The coverage types considered are fire, crime, flood, and weather. The threshold for increasing risk score is $500,000. The risk score is incremented by 15 if the condition is met. No specific output format is required for this rule. |
 
 <SwmSnippet path="/base/src/LGAPDB02.cbl" line="94">
 
 ---
 
-In <SwmToken path="base/src/LGAPDB02.cbl" pos="94:1:5" line-data="       CHECK-COVERAGE-AMOUNTS.">`CHECK-COVERAGE-AMOUNTS`</SwmToken>, we start by setting <SwmToken path="base/src/LGAPDB02.cbl" pos="95:7:11" line-data="           MOVE ZERO TO WS-MAX-COVERAGE">`WS-MAX-COVERAGE`</SwmToken> to zero and compare each coverage type to find the highest one. This sets up the next step where we check if it’s above the risk threshold.
+In <SwmToken path="base/src/LGAPDB02.cbl" pos="94:1:5" line-data="       CHECK-COVERAGE-AMOUNTS.">`CHECK-COVERAGE-AMOUNTS`</SwmToken>, we start by setting <SwmToken path="base/src/LGAPDB02.cbl" pos="95:7:11" line-data="           MOVE ZERO TO WS-MAX-COVERAGE">`WS-MAX-COVERAGE`</SwmToken> to zero and then compare each coverage type to find the highest one. The next few lines repeat this for each coverage type.
 
 ```cobol
        CHECK-COVERAGE-AMOUNTS.
@@ -646,7 +615,7 @@ In <SwmToken path="base/src/LGAPDB02.cbl" pos="94:1:5" line-data="       CHECK-C
 
 ---
 
-After checking fire coverage, we compare crime coverage to the current max and update if it’s higher. The flow just keeps looking for the biggest coverage.
+Now we check if CRIME coverage is higher than the current max and update if needed. This is repeated for each coverage type to make sure we don't miss the highest value.
 
 ```cobol
            IF LK-CRIME-COVERAGE > WS-MAX-COVERAGE
@@ -662,7 +631,7 @@ After checking fire coverage, we compare crime coverage to the current max and u
 
 ---
 
-Next we check flood coverage against the current max. Doesn’t matter which type is highest, just that we find the biggest one.
+After crime, we check if flood coverage is the new max. The process is just repeated for each coverage type.
 
 ```cobol
            IF LK-FLOOD-COVERAGE > WS-MAX-COVERAGE
@@ -678,7 +647,7 @@ Next we check flood coverage against the current max. Doesn’t matter which typ
 
 ---
 
-Finally we check weather coverage. After this, <SwmToken path="base/src/LGAPDB02.cbl" pos="109:11:15" line-data="           IF LK-WEATHER-COVERAGE &gt; WS-MAX-COVERAGE">`WS-MAX-COVERAGE`</SwmToken> holds the highest coverage value across all types.
+Finally, we check weather coverage against the current max. After this, <SwmToken path="base/src/LGAPDB02.cbl" pos="109:11:15" line-data="           IF LK-WEATHER-COVERAGE &gt; WS-MAX-COVERAGE">`WS-MAX-COVERAGE`</SwmToken> holds the highest value across all types.
 
 ```cobol
            IF LK-WEATHER-COVERAGE > WS-MAX-COVERAGE
@@ -694,7 +663,7 @@ Finally we check weather coverage. After this, <SwmToken path="base/src/LGAPDB02
 
 ---
 
-Once we have the max coverage, if it’s over 500,000, we bump the risk score by 15. This is a fixed adjustment and isn’t explained in the code.
+After finding the max coverage, if it's over 500,000, we add 15 to the risk score. Otherwise, nothing changes. The function then returns, having updated the score if needed.
 
 ```cobol
            IF WS-MAX-COVERAGE > WS-COVERAGE-500K
@@ -706,92 +675,86 @@ Once we have the max coverage, if it’s over 500,000, we bump the risk score by
 
 </SwmSnippet>
 
-# Assessing risk by location and customer history
+# Factoring in location and customer history
 
 ```mermaid
 %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
 flowchart TD
-    node1["Assess location area"] --> node2{"Is LK-LATITUDE/LK-LONGITUDE in NYC
-(40-41N, 74.5-73.5W) or LA (34-35N,
-118.5-117.5W)?"}
-    click node1 openCode "base/src/LGAPDB02.cbl:117:120"
-    node2 -->|"Urban"| node3["Add 10 to LK-RISK-SCORE"]
-    click node2 openCode "base/src/LGAPDB02.cbl:121:125"
-    node2 -->|"No"| node4{"Is LK-LATITUDE/LK-LONGITUDE in
-continental US (25-49N, 125-66W)?"}
-    click node4 openCode "base/src/LGAPDB02.cbl:128:130"
-    node4 -->|"Suburban/Rural"| node5["Add 5 to LK-RISK-SCORE"]
-    click node5 openCode "base/src/LGAPDB02.cbl:130:130"
-    node4 -->|"Outside US"| node6["Add 20 to LK-RISK-SCORE"]
-    click node6 openCode "base/src/LGAPDB02.cbl:132:132"
-    node3 --> node7["Evaluate LK-CUSTOMER-HISTORY"]
-    click node7 openCode "base/src/LGAPDB02.cbl:137:137"
-    node5 --> node7
-    node6 --> node7
-    node7 --> node8{"LK-CUSTOMER-HISTORY profile?"}
-    click node8 openCode "base/src/LGAPDB02.cbl:137:137"
-    node8 -->|"New ('N')"| node9["Add 10 to LK-RISK-SCORE"]
-    click node9 openCode "base/src/LGAPDB02.cbl:139:139"
-    node8 -->|"Good ('G')"| node10["Subtract 5 from LK-RISK-SCORE"]
-    click node10 openCode "base/src/LGAPDB02.cbl:141:141"
-    node8 -->|"Risky ('R')"| node11["Add 25 to LK-RISK-SCORE"]
-    click node11 openCode "base/src/LGAPDB02.cbl:143:143"
-    node8 -->|"Other"| node12["Add 10 to LK-RISK-SCORE"]
-    click node12 openCode "base/src/LGAPDB02.cbl:145:145"
+    node1{"Is location in NYC (40-41N, 74.5-73.5W)
+or LA (34-35N, 118.5-117.5W)?"}
+    click node1 openCode "base/src/LGAPDB02.cbl:121:125"
+    node1 -->|"Yes"| node2["Add 10 to risk score"]
+    click node2 openCode "base/src/LGAPDB02.cbl:125:125"
+    node1 -->|"No"| node3{"Is location in continental US (25-49N,
+125-66W)?"}
+    click node3 openCode "base/src/LGAPDB02.cbl:128:130"
+    node3 -->|"Yes"| node4["Add 5 to risk score"]
+    click node4 openCode "base/src/LGAPDB02.cbl:130:130"
+    node3 -->|"No"| node5["Add 20 to risk score"]
+    click node5 openCode "base/src/LGAPDB02.cbl:132:132"
+    node2 --> node6["Evaluate customer history"]
+    click node6 openCode "base/src/LGAPDB02.cbl:136:137"
+    node4 --> node6
+    node5 --> node6
+    node6 --> node7{"Customer history: 'N', 'G', 'R',
+Other?"}
+    click node7 openCode "base/src/LGAPDB02.cbl:137:145"
+    node7 -->|"'N'"| node8["Add 10 to risk score"]
+    click node8 openCode "base/src/LGAPDB02.cbl:139:139"
+    node7 -->|"'G'"| node9["Subtract 5 from risk score"]
+    click node9 openCode "base/src/LGAPDB02.cbl:141:141"
+    node7 -->|"'R'"| node10["Add 25 to risk score"]
+    click node10 openCode "base/src/LGAPDB02.cbl:143:143"
+    node7 -->|"Other"| node11["Add 10 to risk score"]
+    click node11 openCode "base/src/LGAPDB02.cbl:145:145"
 
 classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
 
 %% Swimm:
 %% %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
 %% flowchart TD
-%%     node1["Assess location area"] --> node2{"Is LK-LATITUDE/LK-LONGITUDE in NYC
-%% (<SwmToken path="base/src/LGAPDB02.cbl" pos="119:8:10" line-data="      *    NYC area: 40-41N, 74.5-73.5W">`40-41N`</SwmToken>, <SwmToken path="base/src/LGAPDB02.cbl" pos="119:13:19" line-data="      *    NYC area: 40-41N, 74.5-73.5W">`74.5-73.5W`</SwmToken>) or LA (<SwmToken path="base/src/LGAPDB02.cbl" pos="120:8:10" line-data="      *    LA area: 34-35N, 118.5-117.5W">`34-35N`</SwmToken>,
-%% <SwmToken path="base/src/LGAPDB02.cbl" pos="120:13:19" line-data="      *    LA area: 34-35N, 118.5-117.5W">`118.5-117.5W`</SwmToken>)?"}
-%%     click node1 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:117:120"
-%%     node2 -->|"Urban"| node3["Add 10 to <SwmToken path="base/src/LGAPDB02.cbl" pos="70:7:11" line-data="           MOVE 100 TO LK-RISK-SCORE">`LK-RISK-SCORE`</SwmToken>"]
-%%     click node2 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:121:125"
-%%     node2 -->|"No"| node4{"Is LK-LATITUDE/LK-LONGITUDE in
-%% continental US (25-49N, 125-66W)?"}
-%%     click node4 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:128:130"
-%%     node4 -->|"Suburban/Rural"| node5["Add 5 to <SwmToken path="base/src/LGAPDB02.cbl" pos="70:7:11" line-data="           MOVE 100 TO LK-RISK-SCORE">`LK-RISK-SCORE`</SwmToken>"]
-%%     click node5 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:130:130"
-%%     node4 -->|"Outside US"| node6["Add 20 to <SwmToken path="base/src/LGAPDB02.cbl" pos="70:7:11" line-data="           MOVE 100 TO LK-RISK-SCORE">`LK-RISK-SCORE`</SwmToken>"]
-%%     click node6 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:132:132"
-%%     node3 --> node7["Evaluate <SwmToken path="base/src/LGAPDB02.cbl" pos="137:3:7" line-data="           EVALUATE LK-CUSTOMER-HISTORY">`LK-CUSTOMER-HISTORY`</SwmToken>"]
-%%     click node7 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:137:137"
-%%     node5 --> node7
-%%     node6 --> node7
-%%     node7 --> node8{"<SwmToken path="base/src/LGAPDB02.cbl" pos="137:3:7" line-data="           EVALUATE LK-CUSTOMER-HISTORY">`LK-CUSTOMER-HISTORY`</SwmToken> profile?"}
-%%     click node8 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:137:137"
-%%     node8 -->|"New ('N')"| node9["Add 10 to <SwmToken path="base/src/LGAPDB02.cbl" pos="70:7:11" line-data="           MOVE 100 TO LK-RISK-SCORE">`LK-RISK-SCORE`</SwmToken>"]
-%%     click node9 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:139:139"
-%%     node8 -->|"Good ('G')"| node10["Subtract 5 from <SwmToken path="base/src/LGAPDB02.cbl" pos="70:7:11" line-data="           MOVE 100 TO LK-RISK-SCORE">`LK-RISK-SCORE`</SwmToken>"]
-%%     click node10 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:141:141"
-%%     node8 -->|"Risky ('R')"| node11["Add 25 to <SwmToken path="base/src/LGAPDB02.cbl" pos="70:7:11" line-data="           MOVE 100 TO LK-RISK-SCORE">`LK-RISK-SCORE`</SwmToken>"]
-%%     click node11 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:143:143"
-%%     node8 -->|"Other"| node12["Add 10 to <SwmToken path="base/src/LGAPDB02.cbl" pos="70:7:11" line-data="           MOVE 100 TO LK-RISK-SCORE">`LK-RISK-SCORE`</SwmToken>"]
-%%     click node12 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:145:145"
+%%     node1{"Is location in NYC (<SwmToken path="base/src/LGAPDB02.cbl" pos="119:8:10" line-data="      *    NYC area: 40-41N, 74.5-73.5W">`40-41N`</SwmToken>, <SwmToken path="base/src/LGAPDB02.cbl" pos="119:13:19" line-data="      *    NYC area: 40-41N, 74.5-73.5W">`74.5-73.5W`</SwmToken>)
+%% or LA (<SwmToken path="base/src/LGAPDB02.cbl" pos="120:8:10" line-data="      *    LA area: 34-35N, 118.5-117.5W">`34-35N`</SwmToken>, <SwmToken path="base/src/LGAPDB02.cbl" pos="120:13:19" line-data="      *    LA area: 34-35N, 118.5-117.5W">`118.5-117.5W`</SwmToken>)?"}
+%%     click node1 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:121:125"
+%%     node1 -->|"Yes"| node2["Add 10 to risk score"]
+%%     click node2 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:125:125"
+%%     node1 -->|"No"| node3{"Is location in continental US (25-49N,
+%% 125-66W)?"}
+%%     click node3 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:128:130"
+%%     node3 -->|"Yes"| node4["Add 5 to risk score"]
+%%     click node4 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:130:130"
+%%     node3 -->|"No"| node5["Add 20 to risk score"]
+%%     click node5 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:132:132"
+%%     node2 --> node6["Evaluate customer history"]
+%%     click node6 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:136:137"
+%%     node4 --> node6
+%%     node5 --> node6
+%%     node6 --> node7{"Customer history: 'N', 'G', 'R',
+%% Other?"}
+%%     click node7 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:137:145"
+%%     node7 -->|"'N'"| node8["Add 10 to risk score"]
+%%     click node8 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:139:139"
+%%     node7 -->|"'G'"| node9["Subtract 5 from risk score"]
+%%     click node9 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:141:141"
+%%     node7 -->|"'R'"| node10["Add 25 to risk score"]
+%%     click node10 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:143:143"
+%%     node7 -->|"Other"| node11["Add 10 to risk score"]
+%%     click node11 openCode "<SwmPath>[base/src/LGAPDB02.cbl](base/src/LGAPDB02.cbl)</SwmPath>:145:145"
 %% 
 %% classDef HeadingStyle fill:#777777,stroke:#333,stroke-width:2px;
 ```
 
-This section determines the risk score for an insurance application by evaluating the property's location and the customer's history. The risk score is adjusted according to fixed business rules for each location and customer profile category.
+This section outlines how the risk score is adjusted based on the applicant's geographic location and their customer history. These factors are used to refine the risk assessment and ensure that both regional and behavioral risks are considered in the final score.
 
-| Rule ID | Category    | Rule Name                              | Description                                                                                     | Implementation Details                                                                                                            |
-| ------- | ----------- | -------------------------------------- | ----------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| BR-001  | Calculation | Urban area risk adjustment             | If the property is located in the NYC or LA urban area, add 10 to the risk score.               | NYC: latitude 40-41, longitude -74.5 to -73.5; LA: latitude 34-35, longitude -118.5 to -117.5. The risk score is increased by 10. |
-| BR-002  | Calculation | Suburban/rural area risk adjustment    | If the property is located in the continental US but not in NYC or LA, add 5 to the risk score. | Continental US: latitude 25-49, longitude -125 to -66. The risk score is increased by 5.                                          |
-| BR-003  | Calculation | Outside US risk adjustment             | If the property is located outside the continental US, add 20 to the risk score.                | Outside US: not in latitude 25-49 or longitude -125 to -66. The risk score is increased by 20.                                    |
-| BR-004  | Calculation | New customer risk adjustment           | If the customer history profile is 'New', add 10 to the risk score.                             | Profile code 'N' means new customer. The risk score is increased by 10.                                                           |
-| BR-005  | Calculation | Good customer risk reduction           | If the customer history profile is 'Good', subtract 5 from the risk score.                      | Profile code 'G' means good customer. The risk score is decreased by 5.                                                           |
-| BR-006  | Calculation | Risky customer risk adjustment         | If the customer history profile is 'Risky', add 25 to the risk score.                           | Profile code 'R' means risky customer. The risk score is increased by 25.                                                         |
-| BR-007  | Calculation | Other customer profile risk adjustment | If the customer history profile is not 'N', 'G', or 'R', add 10 to the risk score.              | Any profile code other than 'N', 'G', or 'R'. The risk score is increased by 10.                                                  |
+| Rule ID | Category    | Rule Name                                     | Description                                                                   | Implementation Details                                                                                                                                                                                                                                                              |
+| ------- | ----------- | --------------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-001  | Calculation | Location and customer history risk adjustment | Adjust the risk score based on the applicant's location and customer history. | Location risk adjustment values: 10 for NYC or LA, 5 for continental US, 20 for other locations. Customer history adjustment values: 10 for 'N', -5 for 'G', 25 for 'R', 10 for any other value. Risk score is a numeric value incremented or decremented according to these rules. |
 
 <SwmSnippet path="/base/src/LGAPDB02.cbl" line="117">
 
 ---
 
-In <SwmToken path="base/src/LGAPDB02.cbl" pos="117:1:5" line-data="       ASSESS-LOCATION-RISK.">`ASSESS-LOCATION-RISK`</SwmToken>, we check if the property is in NYC or LA using fixed <SwmToken path="base/src/LGAPDB02.cbl" pos="118:15:17" line-data="      *    Urban areas: major cities (simplified lat/long ranges)">`lat/long`</SwmToken> ranges. If not, we check if it’s in the continental US, otherwise it’s treated as higher risk. Then we move on to customer history.
+In <SwmToken path="base/src/LGAPDB02.cbl" pos="117:1:5" line-data="       ASSESS-LOCATION-RISK.">`ASSESS-LOCATION-RISK`</SwmToken>, we check if the location is in NYC or LA using latitude/longitude bounds. If so, we add 10 to the risk score. If not, we check if it's in the continental US and add 5, otherwise 20. This sets the base location risk before adjusting for customer history.
 
 ```cobol
        ASSESS-LOCATION-RISK.
@@ -811,22 +774,22 @@ In <SwmToken path="base/src/LGAPDB02.cbl" pos="117:1:5" line-data="       ASSESS
                ELSE
                    ADD 20 TO LK-RISK-SCORE
                END-IF
-           END-IF.
-
-       EVALUATE-CUSTOMER-HISTORY.
 ```
 
 ---
 
 </SwmSnippet>
 
-<SwmSnippet path="/base/src/LGAPDB02.cbl" line="137">
+<SwmSnippet path="/base/src/LGAPDB02.cbl" line="134">
 
 ---
 
-After the location check, we adjust the risk score based on customer history. Each category gets a fixed adjustment, so the final score reflects both location and customer profile.
+After location risk is set, we adjust the score based on customer history: 'N' adds 10, 'G' subtracts 5, 'R' adds 25, anything else adds 10. This is the last adjustment before returning the final risk score.
 
 ```cobol
+           END-IF.
+
+       EVALUATE-CUSTOMER-HISTORY.
            EVALUATE LK-CUSTOMER-HISTORY
                WHEN 'N'
                    ADD 10 TO LK-RISK-SCORE

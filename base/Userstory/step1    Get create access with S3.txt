@@ -1,0 +1,3 @@
+step1 :   Get create access with S3 bucket and crate a S3 bucket for loading legacy codebase
+step2 :   Create a folder with S3 bucket and upload legacy Code base into it.
+step3 :   
